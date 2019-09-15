@@ -12,7 +12,7 @@ const router = express.Router();
 
 // this is our MongoDB database
 const dbRoute =
-  'mongodb+srv://solargators:Q45N7sB3nGz2pnYe@tokyo-uyvve.mongodb.net/test?retryWrites=true&w=majority';
+  'mongodb+srv://solargators:Q45N7sB3nGz2pnYe@tokyo-uyvve.mongodb.net/SolarGators?retryWrites=true&w=majority';
 
 // connects our back end code with the database
 mongoose.connect(dbRoute, { useNewUrlParser: true });
@@ -33,10 +33,11 @@ app.use(logger('dev'));
 // this is our get method
 // this method fetches all available data in our database
 router.get('/getData', (req, res) => {
-  Data.find((err, data) => {
+  Data.find((err, data) =>
+  {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
-  });
+    return res.json({ success: true, data: data[0] });
+  }).sort({"createdAt": -1}).limit(1);
 });
 
 // this is our update method
@@ -79,6 +80,12 @@ router.post('/putData', (req, res) => {
     return res.json({ success: true });
   });
 });
+setInterval(() =>
+{
+  let data = new Data();
+  data.speed = Math.floor(Math.random()*10);
+  data.save();
+}, 1000);
 
 // append /api for our http requests
 app.use('/api', router);
