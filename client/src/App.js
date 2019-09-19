@@ -1,6 +1,11 @@
 // /client/App.js
 import React, { Component } from 'react';
 import Graph from './Graph'
+import 'materialize-css'; // It installs the JS asset only
+import 'materialize-css/dist/css/materialize.min.css';
+import { Button, Card, Row, Col, Route } from 'react-materialize';
+import Sidebar from './Sidebar'
+import Label from './Label'
 
 import './style.css'
 
@@ -13,7 +18,7 @@ class App extends Component
 	}
 	componentDidMount()
     {
-        let interval = setInterval(this.getDataFromDb, 100);
+        //let interval = setInterval(this.getDataFromDb, 100);
 	}
 	 // just a note, here, in the front end, we use the id key of our data object
     // in order to identify which we want to Update or delete.
@@ -50,9 +55,36 @@ class App extends Component
 	{
 		const { speed, voltage } = this.state;
 		return (
-		<div>
-			<Graph name="Speed" data={speed} maxY="30"/>
-			<Graph name="Voltage" data={voltage} maxY="5"/>
+		<div style = {{ paddingLeft : "300px" }}>
+            <div style={{"width": "90%"}}class = "container">
+                <Sidebar />
+                <Row>
+                    <h1>Overview</h1>
+                    <iframe width="100%" height="500px"id="gmap_canvas" src="https://maps.google.com/maps?q=408%20W%20university%20ave%20gainesville%20FL&t=&z=17&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                </Row>
+                <Row>
+                    <Col s={6}>
+                        <h3 class="center-align">Speed</h3>
+                    </Col>
+                    <Col s={6}>
+                        <h3 class="center-align">Distance Traveled</h3>
+                    </Col>
+                </Row>
+
+                <h3>Battery Health</h3>
+                <div class="center-align">
+                    <Row>
+                        <Label svgSrc="./voltage.svg" label="Battery" value="5V" />
+                        <Label svgSrc="./clock.svg" label="Duration" value="100 miles" />
+                        <Label svgSrc="./temperature.svg" label="Battery Temp" value="50 C" />
+                    </Row>
+                    <Row>
+                        <Label svgSrc="./battery.svg" label="State of charge" value="100%" />
+                        <Label svgSrc="./consumption.svg" label="Consumption" value="-41.8 Ah" />
+                        <Label svgSrc="./solar-power.svg" label="Panel Power" value="100 W" />
+                    </Row>
+                </div>
+            </div>
 		</div>
 		
 		);
