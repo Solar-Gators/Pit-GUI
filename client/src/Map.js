@@ -31,6 +31,10 @@ export class CurrentLocation extends React.Component {
       }
     }
 
+    componentWillUnmount() {
+      navigator.geolocation.clearWatch(this.watchID);
+    }
+
   recenterMap() {
       const map = this.map;
       const current = this.state.currentLocation;
@@ -39,7 +43,7 @@ export class CurrentLocation extends React.Component {
       const maps = google.maps;
 
       if (map) {
-        let center = new maps.LatLng(80, 25);
+        let center = new maps.LatLng(current.lat, current.lng);
         map.panTo(center);
       }
     }
@@ -47,7 +51,7 @@ export class CurrentLocation extends React.Component {
     componentDidMount() {
        if (this.props.centerAroundCurrentLocation) {
          if (navigator && navigator.geolocation) {
-           navigator.geolocation.getCurrentPosition(pos => {
+           navigator.geolocation.watchPosition(pos => {
              const coords = pos.coords;
              this.setState({
                currentLocation: {
@@ -74,12 +78,12 @@ export class CurrentLocation extends React.Component {
 
            let { zoom } = this.props;
            const { lat, lng } = this.state.currentLocation;
-           const center = new maps.LatLng(25.76, 80.19);
+           const center = new maps.LatLng(lat, lng);
            const mapConfig = Object.assign(
              {},
              {
                center: center,
-               zoom: zoom
+               zoom: 18
              }
            );
 
@@ -125,6 +129,6 @@ CurrentLocation.defaultProps = {
     lat: -1.2884,
     lng: 36.8233
   },
-  centerAroundCurrentLocation: false,
+  centerAroundCurrentLocation: true,
   visible: true
 };
