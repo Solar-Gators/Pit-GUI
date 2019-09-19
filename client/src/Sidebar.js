@@ -3,6 +3,7 @@ import 'materialize-css'; // It installs the JS asset only
 import 'materialize-css/dist/css/materialize.min.css';
 import M from "materialize-css/dist/js/materialize.min.js";
 
+
 class Sidebar extends Component {
     componentDidMount() {
         var elem = document.querySelector(".sidenav");
@@ -15,15 +16,14 @@ class Sidebar extends Component {
         return (
             <div>
                 <ul id="slide-out" style={{"font-size": "15px"}} className="sidenav sidenav-fixed">
-                    <li />
                     <li style={{textAlign: "center"}}>
                         <img width="160px" height="100px" src="./logo.png" />
                     </li>
                     <li class="bold active">
-                        <a href="#!">Menu</a>
+                        <a href="/">Live</a>
                     </li>
                     <li>
-                        <a>Analysis</a>
+                        <a href="/analysis">Analysis</a>
                     </li>
                     <li>
                         <a>Raw Graphs</a>
