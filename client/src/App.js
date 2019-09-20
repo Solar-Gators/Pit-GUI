@@ -1,52 +1,64 @@
 import React, { Component } from 'react';
-import { GoogleApiWrapper, InfoWindow, Marker } from 'google-maps-react';
+import GoogleMapReact from 'google-map-react';
 
-import CurrentLocation from './Map';
 
-export class MapContainer extends Component {
-  state = {
-    showingInfoWindow: false,
-    activeMarker: {},
-    selectedPlace: {}
+const AnyReactComponent = ({heading}) => <img style={{ transform : `translate(-100px, -100px) rotate(${heading}deg)` }} src="./car.png"></img>;
+ 
+class SimpleMap extends Component {
+  state =
+  {
+    center: {
+      lat: 59.95,
+      lng: 30.33
+    },
+    heading: 15,
+    zoom: 11
   };
 
-  onMarkerClick = (props, marker, e) =>
-    this.setState({
-      selectedPlace: props,
-      activeMarker: marker,
-      showingInfoWindow: true
-    });
+  componentDidMount()
+  {
+    
+    let map  = this
+    setInterval(() =>
+    {
+      var lat = this.state.center.lat;
+      var lng = this.state.center.lng;
+      var heading = this.state.heading;
+      lat += 0.001;
+      lng += 0.001;
+      heading += 10;
 
-  onClose = props => {
-    if (this.state.showingInfoWindow) {
       this.setState({
-        showingInfoWindow: false,
-        activeMarker: null
-      });
-    }
-  };
-
-render() {
+        center:
+        {
+          lat : lat, 
+          lng : lng
+        },
+        heading : heading
+      })
+    }, 1000)
+  }
+ 
+  render() {
+    var {center, zoom, heading } = this.state
     return (
-      <CurrentLocation
-        centerAroundCurrentLocation
-        google={this.props.google}
-      >
-        <Marker onClick={this.onMarkerClick} name={'current location'} />
-        <InfoWindow
-          marker={this.state.activeMarker}
-          visible={this.state.showingInfoWindow}
-          onClose={this.onClose}
+      // Important! Always set the container height explicitly
+      <div style={{ height: '100vh', width: '100%' }}>
+        <GoogleMapReact
+          bootstrapURLKeys={{ key: 'AIzaSyAXbhJRwjC-e24IwENYq2vaB0C3WgVuBGw' }}
+          defaultCenter={center}
+          defaultZoom={zoom}
         >
-          <div>
-            <h4>{this.state.selectedPlace.name}</h4>
-          </div>
-        </InfoWindow>
-      </CurrentLocation>
+          <AnyReactComponent
+            lat={center.lat}
+            lng={center.lng}
+            heading={heading}
+          />
+          
+        </GoogleMapReact>
+      </div>
     );
   }
 }
-
-export default GoogleApiWrapper({
-  apiKey: 'AIzaSyAXbhJRwjC-e24IwENYq2vaB0C3WgVuBGw'
-})(MapContainer);
+ 
+export default SimpleMap;

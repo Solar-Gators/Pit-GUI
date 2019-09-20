@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { GoogleApiWrapper, InfoWindow, Marker } from 'google-maps-react';
 
 const mapStyles = {
   map: {
@@ -14,12 +15,26 @@ export class CurrentLocation extends React.Component {
     super(props);
 
     const { lat, lng } = this.props.initialCenter;
-    this.state = {
-      currentLocation: {
+    this.state =
+    {
+      currentLocation:
+      {
         lat: lat,
         lng: lng
       }
     };
+
+    setInterval(() =>
+    {
+      let lat = this.state.currentLocation.lat;
+      let lng = this.state.currentLocation.lng;
+      lat += 0.00001;
+      lng += 0.00001;
+      this.setState({ "currentLocation" : {
+        "lat": lat,
+        "lng": lng
+      } })   
+    }, 1000)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -48,49 +63,39 @@ export class CurrentLocation extends React.Component {
       }
     }
 
-    componentDidMount() {
-       if (this.props.centerAroundCurrentLocation) {
-         if (navigator && navigator.geolocation) {
-           navigator.geolocation.watchPosition(pos => {
-             const coords = pos.coords;
-             this.setState({
-               currentLocation: {
-                 lat: coords.latitude,
-                 lng: coords.longitude
-               }
-             });
-           });
-         }
-       }
-       this.loadMap();
-     }
+    componentDidMount()
+    { 
+      this.loadMap();
+    }
 
-     loadMap() {
-         if (this.props && this.props.google) {
-           // checks if google is available
-           const { google } = this.props;
-           const maps = google.maps;
+     loadMap()
+     {
+        if (this.props && this.props.google)
+        {
+          // checks if google is available
+          const { google } = this.props;
+          const maps = google.maps;
 
-           const mapRef = this.refs.map;
+          const mapRef = this.refs.map;
 
-           // reference to the actual DOM element
-           const node = ReactDOM.findDOMNode(mapRef);
+          // reference to the actual DOM element
+          const node = ReactDOM.findDOMNode(mapRef);
 
-           let { zoom } = this.props;
-           const { lat, lng } = this.state.currentLocation;
-           const center = new maps.LatLng(lat, lng);
-           const mapConfig = Object.assign(
-             {},
-             {
-               center: center,
-               zoom: 18
-             }
-           );
+          let { zoom } = this.props;
+          const { lat, lng } = this.state.currentLocation;
+          const center = new maps.LatLng(lat, lng);
+          const mapConfig = Object.assign(
+            {},
+            {
+              center: center,
+              zoom: 18
+            }
+          );
 
-           // maps.Map() is constructor that instantiates the map
-           this.map = new maps.Map(node, mapConfig);
-         }
-       }
+          // maps.Map() is constructor that instantiates the map
+          this.map = new maps.Map(node, mapConfig);
+        }
+      }
 
        renderChildren() {
           const { children } = this.props;
@@ -111,6 +116,7 @@ export class CurrentLocation extends React.Component {
              const style = Object.assign({}, mapStyles.map);
             return (
               <div>
+                <Marker onClick={this.onMarkerClick} name={'current location'} />
                 <div style={style} ref="map">
                   Loading map...
                 </div>
