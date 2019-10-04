@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "d3": "^5.12.0",
+    "google-map-react": "^1.1.4",
     "materialize-css": "^1.0.0",
     "react": "^16.5.0",
     "react-d3-speedometer": "^0.7.1",

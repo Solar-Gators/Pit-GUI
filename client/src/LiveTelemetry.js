@@ -5,15 +5,26 @@ import 'materialize-css/dist/css/materialize.min.css';
 import { Row, Col } from 'react-materialize';
 import Label from './Label'
 import ReactSpeedometer from 'react-d3-speedometer';
+import Map from './Map'
 
 
 class LiveTelemetry extends Component
 {
 	state = 
 	{
-		speed: [],
-		voltage: [0]
-	}
+		speed: 0,
+        voltage: 0,
+        duration: 0,
+        temperature: 0,
+        stateOfCharge: 0,
+        consumption: 0,
+        panelPower: 0,
+        heading: 90,
+        carLocation: {
+            lat: 29.651979, lng: -82.325020
+        }
+    }
+    
 	componentDidMount()
     {
         //let interval = setInterval(this.getDataFromDb, 100);
@@ -21,7 +32,7 @@ class LiveTelemetry extends Component
     
     getDataFromDb = () =>
     {
-        fetch('http://localhost:3001/api/getData')
+        fetch('http://localhost:3001/api/live/getData')
         .then((data) => data.json())
         .then((res) => 
         {
@@ -45,18 +56,18 @@ class LiveTelemetry extends Component
 	
 	render()
 	{
-		const { speed, voltage } = this.state;
+		const { speed, voltage, duration, temperature, stateOfCharge, consumption, panelPower, carLocation, heading } = this.state;
 		return (
             <div>
                 <Row>
                     <h2>Live Telemetry</h2>
-                    <iframe width="100%" height="500px"id="gmap_canvas" src="https://maps.google.com/maps?q=408%20W%20university%20ave%20gainesville%20FL&t=&z=17&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                    <Map center={carLocation} zoom={16} heading={heading} />
                 </Row>
                 <Row>
-                    <Col className="center-align" s={6}>
+                    <Col className="center-align" s={6} offset="s3">
                         <ReactSpeedometer
                             maxValue={40}
-                            value={20.1}
+                            value={speed}
                             needleColor="red"
                             startColor="black"
                             segments={4}
@@ -66,22 +77,19 @@ class LiveTelemetry extends Component
                             valueFormat={"d"}
                             />
                     </Col>
-                    <Col s={6}>
-                        <h3 class="center-align">Distance Traveled</h3>
-                    </Col>
                 </Row>
 
                 <h3>Battery Health</h3>
                 <div class="center-align">
                     <Row>
-                        <Label svgSrc="./voltage.svg" label="Battery" value="5V" />
-                        <Label svgSrc="./clock.svg" label="Duration" value="100 miles" />
-                        <Label svgSrc="./temperature.svg" label="Battery Temp" value="50 C" />
+                        <Label svgSrc="./voltage.svg" label="Battery" value={voltage + " V"} />
+                        <Label svgSrc="./clock.svg" label="Duration" value={duration + " miles"} />
+                        <Label svgSrc="./temperature.svg" label="Battery Temp" value={temperature + " C"} />
                     </Row>
                     <Row>
-                        <Label svgSrc="./battery.svg" label="State of charge" value="100%" />
-                        <Label svgSrc="./consumption.svg" label="Consumption" value="-41.8 Ah" />
-                        <Label svgSrc="./solar-power.svg" label="Panel Power" value="100 W" />
+                        <Label svgSrc="./battery.svg" label="State of charge" value={stateOfCharge + " %"} />
+                        <Label svgSrc="./consumption.svg" label="Consumption" value={consumption + " Ah"} />
+                        <Label svgSrc="./solar-power.svg" label="Panel Power" value={panelPower + " W"} />
                     </Row>
                 </div>
             </div>
