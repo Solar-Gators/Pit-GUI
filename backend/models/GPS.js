@@ -3,12 +3,16 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 // this will be our data base's data structure 
-const DataSchema = new Schema(
+const GPSSchema = new Schema(
   {
-    speed : Number
+    heading : Number,
+    coordinates : {
+        latitude : Number,
+        longitude : Number
+      },
   },
   { timestamps: true }
 );
 
 // export the new Schema so we could modify it using Node.js
-module.exports = mongoose.model("Telemetry", DataSchema);
+module.exports = mongoose.model("GPS", GPSSchema);
