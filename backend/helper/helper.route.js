@@ -1,10 +1,14 @@
 
 
-exports.getMostRecent = (model, res) =>
+exports.getMostRecent = (model) =>
 {
-    model.find((err, data) =>
+    return model.find().sort({"createdAt": -1}).limit(1)
+    .then((data) =>
     {
-        if (err) return res.json({ success: false, error: err });
-        return res.json({ success: true, data: data[0] });
-    }).sort({"createdAt": -1}).limit(1);
+        if (data.length > 0)
+            return Promise.resolve(data)
+        
+        return Promise.resolve(null)
+    })
+
 }
