@@ -15,6 +15,7 @@
     "mongoose": "^5.7.0",
     "morgan": "^1.9.1",
     "request": "^2.88.0",
+    "serialport": "^7.1.5",
     "should": "^13.2.3",
     "supertest": "^4.0.2"
   }
