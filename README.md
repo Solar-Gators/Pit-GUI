@@ -7,7 +7,7 @@ On the race track we have data being read and recorded on the solar car. Previou
 
 First you need to install `node` v12.
 
-If you're running macOS, Linux or (Winows Subsystem for Linux)[https://docs.microsoft.com/en-us/windows/wsl/install-win10] (WSL). 
+If you're running macOS, Linux or [Winows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (WSL). 
 
 ```
 curl -sL https://deb.nodesource.com/setup_12.14 | sudo -E bash -
