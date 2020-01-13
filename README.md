@@ -31,4 +31,4 @@ You are now done with the set up! Hack away :)
 
 ## Telemetry Topology
 
-
+![Solargators Telemetry (1)](https://user-images.githubusercontent.com/7267438/72300857-00a0ed80-3633-11ea-8f7c-e8c1e4817abd.png)
