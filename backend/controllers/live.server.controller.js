@@ -1,6 +1,6 @@
 /* Dependencies */
 var Speed = require('../models/Speed'),
-    Voltage = require('../models/voltage'),
+    Voltage = require('../models/Voltage'),
     Duration = require('../models/Duration'),
     Temperature = require('../models/Temperature'),
     StateofCharge = require('../models/StateofCharge'),
