@@ -1,8 +1,8 @@
 var specialChars = 
 {
     start : 0xFF,
-    end : 0x00,
-    escape : 0x3F
+    end : 0x3F,
+    escape : 0x2F
 }
 
 var data = []

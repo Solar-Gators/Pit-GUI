@@ -9,13 +9,15 @@ class Label extends Component
     {
         var {svgSrc, label, value} = this.props;
         return (
-        <Col s={4}>
+        <Col s={svgSrc ? 4 : 2}>
             <Row>
+                {svgSrc ? 
                 <Col s={3}>
                     <object data={svgSrc} height="65px" type="image/svg+xml"></object>
                 </Col>
+                : ""}
 
-                <Col s={9}>
+                <Col s={svgSrc ? 9 : 12}>
                     <h5 style={{marginTop: "0px"}}>{label}</h5>
                     <h4 style={{marginTop: "0px"}}>{value}</h4>
                 </Col>

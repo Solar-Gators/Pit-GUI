@@ -7,9 +7,10 @@ const GPSSchema = new Schema(
   {
     heading : Number,
     coordinates : {
-        latitude : Number,
-        longitude : Number
+        latitude : String,
+        longitude : String
       },
+    speed : Number
   },
   { timestamps: true }
 );

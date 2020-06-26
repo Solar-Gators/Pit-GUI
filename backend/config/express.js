@@ -3,6 +3,8 @@ var express = require('express'),  //refers to Express the middleware helper for
     bodyParser = require('body-parser'),
     liveRouter = require('../routes/live.server.routes.js'), 
     graphRouter = require('../routes/graph.server.routes.js'),
+    bms = require('../routes/bms.server.routes.js'),
+    gps = require('../routes/gps.server.routes.js'),
     helper = require('../helper/helper.mongodb');
 
 module.exports.init = function() {
@@ -21,6 +23,8 @@ module.exports.init = function() {
   //routers
   app.use('/api/live', liveRouter);
   app.use('/api/graph', graphRouter);
+  app.use('/api/bms', bms);
+  app.use('/api/gps', gps);
 
 
   // app.all('/*', function(req, res)

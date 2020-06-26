@@ -6,6 +6,7 @@ import { Row, Col } from 'react-materialize';
 import Label from './Label'
 import ReactSpeedometer from 'react-d3-speedometer';
 import Map from './Map'
+import axios from 'axios'
 
 
 class LiveTelemetry extends Component
@@ -22,41 +23,46 @@ class LiveTelemetry extends Component
         heading: 90,
         carLocation: {
             lat: 29.651979, lng: -82.325020
-        }
+        },
+        loading: false
     }
     
 	componentDidMount()
     {
-        //let interval = setInterval(this.getDataFromDb, 100);
+        setInterval(this.getDataFromDb, 100);
     }
     
     getDataFromDb = () =>
     {
-        fetch('http://localhost:3001/api/live/getData')
-        .then((data) => data.json())
+        axios.get('/api/live/data')
         .then((res) => 
         {
-            let newData = this.state.speed
-            
-            if (newData.length >= 20)
-            {
-                newData.shift();
-            }
+            var {voltage, gps} = res.data
+            this.setState({
+                voltage: voltage[0].Voltage,
+                heading: gps[0].heading,
+                speed: gps[0].speed,
+                carLocation: {
+                    lat: gps[0].coordinates.latitude,
+                    lng: gps[0].coordinates.longitude
+                },
+                loading: false
+            })
 
-            
-            newData.push(res.data.speed)
-            
-
-            this.setState(
-            {
-                speed: newData
+            console.log({
+                lat: gps[0].coordinates.latitude,
+                lng: gps[0].coordinates.longitude
             })
         });
     };
 	
 	render()
 	{
-		const { speed, voltage, duration, temperature, stateOfCharge, consumption, panelPower, carLocation, heading } = this.state;
+        const { speed, voltage, duration, temperature, stateOfCharge, consumption, panelPower, carLocation, heading, loading } = this.state;
+        
+        if (loading)
+            return <p>Loading....</p>
+
 		return (
             <div>
                 <Row>
@@ -79,17 +85,51 @@ class LiveTelemetry extends Component
                     </Col>
                 </Row>
 
-                <h3>Battery Health</h3>
+                <h3>Battery Management System</h3>
                 <div class="center-align">
+                    <div>
+                        <p>State of Charge</p>
+
+                    </div>
+                    
                     <Row>
-                        <Label svgSrc="./voltage.svg" label="Battery" value={voltage + " V"} />
-                        <Label svgSrc="./clock.svg" label="Duration" value={duration + " miles"} />
-                        <Label svgSrc="./temperature.svg" label="Battery Temp" value={temperature + " C"} />
+                        <Label svgSrc="./voltage.svg" label="Pack Sum" value={voltage + " V"} />
+                        <Label label="Low" value={stateOfCharge + " V"} />
+                        <Label label="High" value={duration + " V"} />
+                        <Label label="Average" value={temperature + " V"} />
                     </Row>
                     <Row>
-                        <Label svgSrc="./battery.svg" label="State of charge" value={stateOfCharge + " %"} />
-                        <Label svgSrc="./consumption.svg" label="Consumption" value={consumption + " Ah"} />
-                        <Label svgSrc="./solar-power.svg" label="Panel Power" value={panelPower + " W"} />
+                        <Label svgSrc="./temperature.svg" label="High Temp" value={stateOfCharge + " V"} />
+                        <Label label="Low Temp" value={consumption + " V"} />
+                    </Row>
+                    <Row>
+                        <Label svgSrc="./battery.svg" label="State of Charge" value={stateOfCharge + " V"} />
+                        <Label label="Amp Hours" value={consumption + " V"} />
+                    </Row>
+                    <Row>
+                        <Label svgSrc="./battery.svg" label="Pack current" value={stateOfCharge + " V"} />
+                        <Label label="Pack current charge limit" value={consumption + " V"} />
+                        <Label label="Pack discharge current limit" value={panelPower + " V"} />
+                    </Row>
+                    <Row>
+                        <Label svgSrc="./solar-power.svg" label="Fail Safe Status" value={panelPower + " V"} />
+                    </Row>
+                </div>
+
+                <h3>Motor Controllers</h3>
+                <div class="center-align">
+                    <Row>
+                        <Label svgSrc="./voltage.svg" label="RPM" value={voltage + " V"} />
+                        <Label svgSrc="./clock.svg" label="Temperature" value={duration + " V"} />
+                        <Label svgSrc="./temperature.svg" label="Duty Cycle" value={temperature + " V"} />
+                    </Row>
+                    <Row>
+                        <Label svgSrc="./battery.svg" label="AD Sensor Error" value={stateOfCharge + " V"} />
+                        <Label svgSrc="./consumption.svg" label="Power System Error" value={consumption + " V"} />
+                        <Label svgSrc="./solar-power.svg" label="Motor System Error" value={panelPower + " V"} />
+                    </Row>
+                    <Row>
+                        <Label svgSrc="./battery.svg" label="FET Over Heat Level" value={stateOfCharge + " V"} />
                     </Row>
                 </div>
             </div>

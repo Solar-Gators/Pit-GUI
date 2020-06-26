@@ -1,11 +1,12 @@
 /* Dependencies */
 var Speed = require('../models/Speed'),
-    Voltage = require('../models/voltage'),
+    Voltage = require('../models/Voltage'),
     Duration = require('../models/Duration'),
     Temperature = require('../models/Temperature'),
     StateofCharge = require('../models/StateofCharge'),
     Consumption = require('../models/Consumption'),
     PanelPower = require('../models/PanelPower'),
+    GPS = require('../models/GPS'),
     helper = require('../helper/helper.route')
 
 /* 
@@ -13,8 +14,8 @@ var Speed = require('../models/Speed'),
 */
 exports.data = (req, res) =>
 {
-    var names = ["speed", "voltage", "duration", "temperature", "stateofCharge", "consumption", "panelPower"]
-    var models = [Speed, Voltage, Duration, Temperature, StateofCharge, Consumption, PanelPower]
+    var names = ["speed", "voltage", "duration", "temperature", "stateofCharge", "consumption", "panelPower", "gps"]
+    var models = [Speed, Voltage, Duration, Temperature, StateofCharge, Consumption, PanelPower, GPS]
     var modelPromises = []
 
     for (var index = 0; index < names.length; index++)
