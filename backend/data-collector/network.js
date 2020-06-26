@@ -7,27 +7,51 @@ const BMS = 0x02
 const IMU = 0x03
 
 
+/**
+* Sends data to the backend to be logged
+*
+* Examples:
+* ```JavaScript
+* sendData("bms", {
+*     "packSumVoltage": 20
+* })
+* ```
+* 
+* ```JavaScript
+* sendData("gps", {
+*     "longitude": 1,
+*     "latitude": -1,
+*     "speed": 5,
+*     "heading": 40
+* })
+* ```
+*
+* @param {String} url    most sigificant byte
+* @param {Object} data least significant byte
+*/
 function sendData(url, data)
 {
     return request.post(`http://localhost:8080/api/${url}`, data)
 }
 
-// sendData("bms", {
-//     "packSumVoltage": 20
-// })
 
-// sendData("gps", {
-//     "longitude": 1,
-//     "latitude": -1,
-//     "speed": 5,
-//     "heading": 40
-// })
-
+/**
+* Converts two 8 bit number to a 16 bit unsigned number 
+* 
+* @param {Number} top    most sigificant byte
+* @param {Number} bottom least significant byte
+*/
 function getWord(top, bottom)
 {
     return ((top << 8) | bottom)
 }
 
+/**
+* Converts two 8 bit number to a 16 bit signed number 
+* 
+* @param {Number} top    most sigificant byte
+* @param {Number} bottom least significant byte
+*/
 function signed16(top, bottom)
 {
     var sign = top & (1 << 7);
@@ -38,29 +62,33 @@ function signed16(top, bottom)
     return x
 }
 
+/**
+* Converts from Degrees Decimal Minutes (DDM) to Decimal Degree (DD) coordinates
+* 
+* @param {String} str DDM coordinates
+*/
 function DDMtoDD(str)
 {
+    //get degrees
     var degrees = parseFloat(str[0] + str[1] + ( str[0] == '-' ? str[3] : ''));
-    console.log(degrees)
     var minStr = ""
     for (var index = ( str[0] == '-' ? 3 : 2); index < str.length; index++)
     {
         minStr += str[index]
     }
-    console.log((parseFloat(minStr)/60*( str[0] == '-' ? -1 : 1)))
+
     return degrees + (parseFloat(minStr)/60*( str[0] == '-' ? -1 : 1))
 }
 
-//num messages, address, data len, data
+/**
+* Recieves a raw transmission from the data link layer and does needed calls
+* 
+* @param {String[]} data a single transmission
+*/
 function handleTransmission(data)
 {
-    // for (datas of data)
-    //     console.log(datas.toString(16))
-    
     var numMessages = data[0]
-    var len = data.length
     var currentIndex = 1
-    var currentTransmission = 0
 
     for (var message = 0; message < numMessages; message++)
     {
@@ -132,17 +160,21 @@ function handleTransmission(data)
             }
             var temp = signed16(dataBuffer[19], dataBuffer[18])
 
-            console.log("--------- PACKET START ---------")
-            console.log("accel : ", accel)
-            console.log("gyro : ", gyro)
-            console.log("linear : ", gyro)
-            console.log("temp : ", temp, "C")
-            console.log("--------- PACKET END ---------")
+            // console.log("--------- PACKET START ---------")
+            // console.log("accel : ", accel)
+            // console.log("gyro : ", gyro)
+            // console.log("linear : ", gyro)
+            // console.log("temp : ", temp, "C")
+            // console.log("--------- PACKET END ---------")
         }
     }
 }
 
-
+/**
+* Reads a single byte in, sends it to the data link layer which trickles back up
+* 
+* @param {Number} byteIn a single byte from a transmission
+*/
 function read(byteIn)
 {
     dataLink.read(byteIn, handleTransmission)

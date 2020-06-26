@@ -1,3 +1,7 @@
+
+/**
+* Special characters used for byte stuffing
+*/
 var specialChars = 
 {
     start : 0xFF,
@@ -5,10 +9,19 @@ var specialChars =
     escape : 0x2F
 }
 
+/**
+* Current data transmission
+*/
 var data = []
 var escaped = false
 var inprogess = false
 
+/**
+* Reads a single byte, after a transmission is complete an array it returned in the calback
+* 
+* @param {Number} byteIn a single byte from a transmission
+* @param {function} callback returns an array of a transmission
+*/
 function read(byteIn, callback)
 {
     if (!escaped)

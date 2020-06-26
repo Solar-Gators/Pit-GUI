@@ -48,7 +48,6 @@ sendData(example1, (data) =>
 console.log("Start test 2")
 sendData(example2, (data) =>
 {
-    console.log(example2, data)
     assertEqual(example2, data)
     console.log("Finish test 2")
 })
