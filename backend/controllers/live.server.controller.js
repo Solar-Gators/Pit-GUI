@@ -14,8 +14,25 @@ var Speed = require('../models/Speed'),
 */
 exports.data = (req, res) =>
 {
-    var names = ["speed", "voltage", "duration", "temperature", "stateofCharge", "consumption", "panelPower", "gps"]
-    var models = [Speed, Voltage, Duration, Temperature, StateofCharge, Consumption, PanelPower, GPS]
+    var names = [
+        "speed",
+        "voltage",
+        "duration",
+        "temperature",
+        "stateofCharge",
+        "consumption",
+        "panelPower",
+        "gps"
+    ]
+    var models = [
+                Speed,
+                Voltage,
+                Duration,
+                Temperature,
+                StateofCharge,
+                Consumption,
+                PanelPower,
+                GPS]
     var modelPromises = []
 
     for (var index = 0; index < names.length; index++)

@@ -18,7 +18,6 @@ class App extends Component
                         <Sidebar/>
                         <Route exact path="/" component={LiveTelemtry} />
                         <Route exact path="/analysis" >
-                            <p>HIIIIII</p>
                         </Route>
                     </div>
                 </div>

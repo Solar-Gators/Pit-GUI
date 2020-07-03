@@ -24,7 +24,7 @@ class LiveTelemetry extends Component
         carLocation: {
             lat: 29.651979, lng: -82.325020
         },
-        loading: false
+        loading: true
     }
     
 	componentDidMount()
@@ -43,15 +43,10 @@ class LiveTelemetry extends Component
                 heading: gps[0].heading,
                 speed: gps[0].speed,
                 carLocation: {
-                    lat: gps[0].coordinates.latitude,
-                    lng: gps[0].coordinates.longitude
+                    lat: parseFloat(gps[0].coordinates.latitude),
+                    lng: parseFloat(gps[0].coordinates.longitude)
                 },
                 loading: false
-            })
-
-            console.log({
-                lat: gps[0].coordinates.latitude,
-                lng: gps[0].coordinates.longitude
             })
         });
     };
@@ -67,7 +62,7 @@ class LiveTelemetry extends Component
             <div>
                 <Row>
                     <h2>Live Telemetry</h2>
-                    <Map center={carLocation} zoom={16} heading={heading} />
+                     <Map center={carLocation} zoom={16} heading={heading} />
                 </Row>
                 <Row>
                     <Col className="center-align" s={6} offset="s3">
