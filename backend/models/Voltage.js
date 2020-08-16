@@ -5,7 +5,10 @@ const Schema = mongoose.Schema;
 // this will be our data base's data structure 
 const VoltageSchema = new Schema(
   {
-    Voltage : Number
+    LowCellVoltage : Number,
+    highCellVoltage : Number,
+    avgCellVoltage : Number,
+    packSumVoltage : Number
   },
   { timestamps: true }
 );

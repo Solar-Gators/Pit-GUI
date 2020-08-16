@@ -9,7 +9,7 @@ var Speed = require('../models/Speed'),
     GPS = require('../models/GPS'),
     helper = require('../helper/helper.route')
 
-/* 
+/**
     Return data for the sensor read outs on the live tab
 */
 exports.data = (req, res) =>

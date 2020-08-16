@@ -1,16 +1,19 @@
 /* Dependencies */
 var Voltage = require('../models/Voltage')
 
-/* 
+/** 
     update voltage value
 */
 exports.post = (req, res) =>
 {
+    let { packSumVoltage, LowCellVoltage, highCellVoltage, avgCellVoltage, packSumVoltage } = req.body
     var voltage = new Voltage({
-        "Voltage" : req.body.packSumVoltage
+        "LowCellVoltage"  : LowCellVoltage,
+        "highCellVoltage" : highCellVoltage,
+        "avgCellVoltage"  : avgCellVoltage,
+        "packSumVoltage"  : packSumVoltage
     })
     voltage.save()
-    console.log(req.body)
     res.end()
 };
 
