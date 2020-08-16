@@ -1,12 +1,12 @@
 /* Dependencies */
-var Speed = require('../models/Speed'),
-    Voltage = require('../models/Voltage'),
-    Duration = require('../models/Duration'),
-    Temperature = require('../models/Temperature'),
-    StateofCharge = require('../models/StateofCharge'),
-    Consumption = require('../models/Consumption'),
-    PanelPower = require('../models/PanelPower'),
-    GPS = require('../models/GPS'),
+var Speed = require('../models-mongo/Speed'),
+    Voltage = require('../models-mongo/Voltage'),
+    Duration = require('../models-mongo/Duration'),
+    Temperature = require('../models-mongo/Temperature'),
+    StateofCharge = require('../models-mongo/StateofCharge'),
+    Consumption = require('../models-mongo/Consumption'),
+    PanelPower = require('../models-mongo/PanelPower'),
+    GPS = require('../models-mongo/GPS'),
     helper = require('../helper/helper.route')
 
 /**
