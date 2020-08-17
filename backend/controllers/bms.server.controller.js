@@ -6,7 +6,7 @@ var Voltage = require('../models/Voltage')
 */
 exports.post = (req, res) =>
 {
-    let { packSumVoltage, LowCellVoltage, highCellVoltage, avgCellVoltage, packSumVoltage } = req.body
+    let { packSumVoltage, LowCellVoltage, highCellVoltage, avgCellVoltage } = req.body
     var voltage = new Voltage({
         "LowCellVoltage"  : LowCellVoltage,
         "highCellVoltage" : highCellVoltage,
