@@ -4,9 +4,13 @@ var express = require('express'),  //refers to Express the middleware helper for
     liveRouter = require('../routes/live.server.routes.js'), 
     graphRouter = require('../routes/graph.server.routes.js'),
     bms = require('../routes/bms.server.routes.js'),
-    gps = require('../routes/gps.server.routes.js')
+    gps = require('../routes/gps.server.routes.js'),
+    helper = require('../helper/helper.mongodb');
 
 module.exports.init = function() {
+  //connect to database
+  helper.mongodb();
+
   //initialize app
   var app = express();
 

@@ -1,18 +1,19 @@
 /* Dependencies */
-var models = require('../models')
+var Voltage = require('../models/Voltage')
 
-/**
-*   update voltage value
+/** 
+    update voltage value
 */
-exports.post = async (req, res) =>
+exports.post = (req, res) =>
 {
-    let { packSumVoltage, lowCellVoltage, highCellVoltage, avgCellVoltage } = req.body
-    await models.Voltage.create({
-        "lowCellVoltage"  : lowCellVoltage,
+    let { packSumVoltage, LowCellVoltage, highCellVoltage, avgCellVoltage } = req.body
+    var voltage = new Voltage({
+        "LowCellVoltage"  : LowCellVoltage,
         "highCellVoltage" : highCellVoltage,
         "avgCellVoltage"  : avgCellVoltage,
         "packSumVoltage"  : packSumVoltage
     })
+    voltage.save()
     res.end()
 };
 

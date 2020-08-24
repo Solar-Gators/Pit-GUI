@@ -1,19 +1,12 @@
 
-/**
- * Gets most recent entry when given a sequelize model
- * 
- * @param {SequlizeModel} model 
- */
+
 exports.getMostRecent = (model) =>
 {
-    return model.findAll({
-        limit: 1,
-        order: [ [ 'createdAt', 'DESC' ]]
-    })
+    return model.find().sort({"createdAt": -1}).limit(1)
     .then((data) =>
     {
         if (data.length > 0)
-            return Promise.resolve(data[0])
+            return Promise.resolve(data)
         
         return Promise.resolve(null)
     })
