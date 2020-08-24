@@ -1,14 +1,23 @@
-// /backend/data.js
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-
-// this will be our data base's data structure 
-const StateofChargeSchema = new Schema(
-  {
-    stateOfCharge : Number
-  },
-  { timestamps: true }
-);
-
-// export the new Schema so we could modify it using Node.js
-module.exports = mongoose.model("StateofCharge", StateofChargeSchema);
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class StateofCharge extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
+  };
+  StateofCharge.init({
+    stateOfCharge: DataTypes.INTEGER
+  }, {
+    sequelize,
+    modelName: 'StateofCharge',
+  });
+  return StateofCharge;
+};

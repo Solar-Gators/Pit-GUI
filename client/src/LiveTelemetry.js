@@ -38,7 +38,7 @@ class LiveTelemetry extends Component
         .then((res) => 
         {
             var {voltage, gps} = res.data
-            if (voltage && gps) {
+            if (voltage[0] && gps[0]) {
                 this.setState({
                     voltage: voltage[0].Voltage,
                     heading: gps[0].heading,
