@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Voltage.init({
-    LowCellVoltage: DataTypes.INTEGER,
+    lowCellVoltage: DataTypes.INTEGER,
     highCellVoltage: DataTypes.INTEGER,
     avgCellVoltage: DataTypes.INTEGER,
     packSumVoltage: DataTypes.INTEGER

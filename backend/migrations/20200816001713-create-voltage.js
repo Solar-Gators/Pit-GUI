@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      LowCellVoltage: {
+      lowCellVoltage: {
         type: Sequelize.INTEGER
       },
       highCellVoltage: {
