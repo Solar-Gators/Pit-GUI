@@ -1,12 +1,13 @@
 /* Dependencies */
-var Speed = require('../models-mongo/Speed'),
-    Voltage = require('../models-mongo/Voltage'),
-    Duration = require('../models-mongo/Duration'),
-    Temperature = require('../models-mongo/Temperature'),
-    StateofCharge = require('../models-mongo/StateofCharge'),
-    Consumption = require('../models-mongo/Consumption'),
-    PanelPower = require('../models-mongo/PanelPower'),
-    GPS = require('../models-mongo/GPS'),
+var sequelizeModels = require('../models')
+// var Speed = require('../models-mongo/Speed'),
+//     Voltage = require('../models-mongo/Voltage'),
+//     Duration = require('../models-mongo/Duration'),
+//     Temperature = require('../models-mongo/Temperature'),
+//     StateofCharge = require('../models-mongo/StateofCharge'),
+//     Consumption = require('../models-mongo/Consumption'),
+//     PanelPower = require('../models-mongo/PanelPower'),
+//     GPS = require('../models-mongo/GPS'),
     helper = require('../helper/helper.route')
 
 /**
@@ -25,18 +26,20 @@ exports.data = (req, res) =>
         "gps"
     ]
     var models = [
-                Speed,
-                Voltage,
-                Duration,
-                Temperature,
-                StateofCharge,
-                Consumption,
-                PanelPower,
-                GPS]
+            sequelizeModels.Speed,
+            sequelizeModels.Voltage,
+            sequelizeModels.Duration,
+            sequelizeModels.Temperature,
+            sequelizeModels.StateofCharge,
+            sequelizeModels.Consumption,
+            sequelizeModels.PanelPower,
+            sequelizeModels.GPS
+        ]
     var modelPromises = []
 
-    for (var index = 0; index < names.length; index++)
+    for (var index = 0; index < names.length; index++) {
         modelPromises.push(helper.getMostRecent(models[index]))
+    }
 
     Promise.all(modelPromises)
     .then((response) => 
@@ -47,5 +50,8 @@ exports.data = (req, res) =>
             json[names[index]] = response[index]
         }
         res.json(json)
+    })
+    .catch((err) => {
+        res.json({ success: false, error: err });
     })
 };
