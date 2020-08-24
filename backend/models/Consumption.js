@@ -1,23 +1,14 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class Consumption extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  };
-  Consumption.init({
-    speed: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Consumption',
-  });
-  return Consumption;
-};
+// /backend/data.js
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+// this will be our data base's data structure 
+const ConsumptionSchema = new Schema(
+  {
+    speed : Number
+  },
+  { timestamps: true }
+);
+
+// export the new Schema so we could modify it using Node.js
+module.exports = mongoose.model("Consumption", ConsumptionSchema);

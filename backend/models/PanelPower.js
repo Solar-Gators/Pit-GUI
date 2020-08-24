@@ -1,23 +1,14 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class PanelPower extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  };
-  PanelPower.init({
-    panelPower: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'PanelPower',
-  });
-  return PanelPower;
-};
+// /backend/data.js
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+// this will be our data base's data structure 
+const PanelPowerSchema = new Schema(
+  {
+    panelPower : Number
+  },
+  { timestamps: true }
+);
+
+// export the new Schema so we could modify it using Node.js
+module.exports = mongoose.model("PanelPower", PanelPowerSchema);
