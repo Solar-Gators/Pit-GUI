@@ -1,20 +1,20 @@
 /* Dependencies */
-var GPS = require('../models/GPS')
+var models = require('../models')
 
-/* 
-    update voltage value
+/**
+*   update voltage value
 */
-exports.post = (req, res) =>
+exports.post = async (req, res) =>
 {
-    var gps = new GPS({
-        "heading" : req.body.heading,
-    "coordinates" : {
-        "latitude" : req.body.latitude,
-        "longitude" : req.body.longitude
-      },
-    "speed" : req.body.speed
-    });
-    gps.save()
+    let { heading, latitude, longitude, speed } = req.body
+
+    await models.GPS.create({
+        heading: heading,
+        latitude: latitude,
+        longitude: longitude,
+        speed: speed
+    })
+    
     res.end()
 };
 
