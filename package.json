@@ -6,7 +6,7 @@
   "scripts": {
     "start": "concurrently \"cd backend && node server.js\" \"cd client && npm start\"",
     "test": "cd backend && npm test",
-    "install-all": "cd backend & npm install & cd ../client & npm install",
+    "install-all": "npm install && cd backend & npm install & cd ../client & npm install",
     "setup": "cd backend && npm install"
   },
   "keywords": [],

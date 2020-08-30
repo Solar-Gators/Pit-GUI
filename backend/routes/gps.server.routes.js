@@ -5,6 +5,5 @@ router = express.Router(); //refers to the Router() function in Express the midd
 
 router.route('/')
 .post(gps.post)
-.get((req, res) => res.send("hi"))
 
 module.exports = router;

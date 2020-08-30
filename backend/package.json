@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node data-collector/dataLink.test.js"
+    "test": "node data-collector/dataLink.test.js",
+    "drop-db": "sequelize db:drop",
+    "create-db": "sequelize db:create",
+    "migrate": "sequelize db:migrate"
   },
   "author": "",
   "license": "ISC",
