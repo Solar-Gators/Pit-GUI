@@ -9,7 +9,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    # Begin Getting Start Guide Code
+    # Any time the code between these two Begin/End changes we need to update readthedocs (https://docs.ufsolargators.org/en/latest/Electrical/Telemetry/gui.html)
+    # This is put here for consistancy purposes 
     - run: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
     - run: sudo apt-get install nodejs
     - run: sudo apt install mysql-server
-    - run: mysql -e "CREATE USER 'solargators'@'localhost' IDENTIFIED BY '';"
+    - run: sudo /etc/init.d/mysql start
+    - run: sudo mysql -u root -proot -e "CREATE USER 'solargators'@'localhost' IDENTIFIED BY '';"
+    - run: sudo mysql -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'solargators'@'localhost';"
+    - run: npm run install-all
+    #End
+    
+    - run: cd backend && npm run create-db && npm run migrate
+    
+    - run: npm test
