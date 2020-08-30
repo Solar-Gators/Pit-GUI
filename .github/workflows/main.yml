@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+    - run: curl -sL https://deb.nodesource.com/setup_12.14 | sudo -E bash -
+    - run: sudo apt-get install nodejs
+    - run: sudo apt install mysql-server
+    - run: sudo mysql_secure_installation
