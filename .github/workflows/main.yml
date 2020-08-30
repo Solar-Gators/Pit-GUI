@@ -20,8 +20,7 @@ jobs:
     - run: sudo mysql -u root -proot -e "CREATE USER 'solargators'@'localhost' IDENTIFIED BY '';"
     - run: sudo mysql -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'solargators'@'localhost';"
     - run: npm run install-all
-    #End
-    
     - run: cd backend && npm run create-db && npm run migrate
+    #End
     
     - run: npm test
