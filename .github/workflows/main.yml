@@ -7,13 +7,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [8.x, 10.x, 12.x]
-
     steps:
     - uses: actions/checkout@v2
-    - run: curl -sL https://deb.nodesource.com/setup_12.14 | sudo -E bash -
+    - run: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
     - run: sudo apt-get install nodejs
     - run: sudo apt install mysql-server
     - run: sudo mysql_secure_installation
