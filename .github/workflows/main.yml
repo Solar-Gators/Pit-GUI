@@ -12,4 +12,5 @@ jobs:
     - run: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
     - run: sudo apt-get install nodejs
     - run: sudo apt install mysql-server
+    - run: sudo /etc/init.d/mysql start
     - run: mysql -e "CREATE USER 'solargators'@'localhost' IDENTIFIED BY '';"
