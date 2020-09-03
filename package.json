@@ -18,6 +18,8 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
-    "mocha": "^8.1.1"
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.1.3"
   }
 }
