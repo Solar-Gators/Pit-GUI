@@ -31,13 +31,14 @@ class LiveTelemetry extends Component
     {
         setInterval(this.getDataFromDb, 100);
     }
-    
+
+    /*
     getDataFromDb = () =>
     {
         axios.get('/api/live/data')
         .then((res) => 
         {
-            var {voltage, gps} = res.data
+           // var {voltage, gps} = res.data
             if (voltage[0] && gps[0]) {
                 this.setState({
                     voltage: voltage[0].Voltage,
@@ -55,13 +56,17 @@ class LiveTelemetry extends Component
             }
         });
     };
+    */
+
 	
 	render()
 	{
         const { speed, voltage, duration, temperature, stateOfCharge, consumption, panelPower, carLocation, heading, loading } = this.state;
-        
+
+        /*
         if (loading)
             return <p>Loading....</p>
+         */
 
 		return (
             <div>
