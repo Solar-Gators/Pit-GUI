@@ -3,16 +3,34 @@ let models = require("../../model");
 router
   .route("/:id?")
   .get((req, res) => {
-    models.car
-      .findAll()
-      .then((car) => {
-        res.json(car);
-      })
-      .catch((err) => {
-        res
-          .status(400)
-          .json({ success: false, msg: "Get cars from database." });
-      });
+    if (req.params.id) {
+      models.car
+        .findAll({
+          where: {
+            name: `${req.params.id}`,
+          },
+        })
+        .then((car) => {
+          res.json(car);
+        })
+        .catch((err) => {
+          res
+            .status(400)
+            .json({ success: false, msg: "Get car from database faild." });
+        });
+    } else {
+      models.car
+        .findAll()
+        .then((car) => {
+          res.json(car);
+        })
+        .catch((err) => {
+          res.status(400).json({
+            success: false,
+            msg: "Get cars from database failed.",
+          });
+        });
+    }
   })
   .post((req, res) => {
     const { name, desc } = req.body;
