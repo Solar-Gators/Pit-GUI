@@ -35,25 +35,25 @@ class LiveTelemetry extends Component
     getDataFromDb = () =>
     {
         axios.get('/api/live/data')
-            .then((res) =>
-            {
-                // var {voltage, gps} = res.data
-                // if (voltage[0] && gps[0]) {
-                //     this.setState({
-                //         voltage: voltage[0].Voltage,
-                //         heading: gps[0].heading,
-                //         speed: gps[0].speed,
-                //         carLocation: {
-                //             lat: parseFloat(gps[0].coordinates.latitude),
-                //             lng: parseFloat(gps[0].coordinates.longitude)
-                //         },
-                //         loading: false
-                //     })
-                // }
-                // else {
+        .then((res) => 
+        {
+            // var {voltage, gps} = res.data
+            // if (voltage[0] && gps[0]) {
+            //     this.setState({
+            //         voltage: voltage[0].Voltage,
+            //         heading: gps[0].heading,
+            //         speed: gps[0].speed,
+            //         carLocation: {
+            //             lat: parseFloat(gps[0].coordinates.latitude),
+            //             lng: parseFloat(gps[0].coordinates.longitude)
+            //         },
+            //         loading: false
+            //     })
+            // }
+            // else {
                 this.setState({ loading: false })
-                // }
-            });
+            // }
+        });
     };
 
     render()
