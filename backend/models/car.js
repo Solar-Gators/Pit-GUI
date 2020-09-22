@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Car.init({
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    desc: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Car',
