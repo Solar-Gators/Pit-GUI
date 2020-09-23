@@ -27,6 +27,7 @@ exports.get = async (req, res) => {
       });
     });
 };
+
 exports.post = async (req, res) => {
   const { name, desc } = req.body;
   models.Car.create({
@@ -41,8 +42,11 @@ exports.post = async (req, res) => {
     });
 };
 exports.delete = async (req, res) => {
+  console.log(req.params.id);
   models.Car.destroy({
-    name: `${id}`,
+    where: {
+      id: `${req.params.id}`,
+    },
   })
     .then(() => {
       res.json({ success: true });

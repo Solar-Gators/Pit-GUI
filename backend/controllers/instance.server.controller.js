@@ -29,8 +29,8 @@ exports.get = async (req, res) => {
 };
 
 exports.post = async (req, res) => {
-  const { type, name } = req.body;
-  return models.Instance.create({
+  const { name, type } = req.body;
+  models.Instance.create({
     type: type,
     name: name,
   })
@@ -44,7 +44,9 @@ exports.post = async (req, res) => {
 
 exports.delete = async (req, res) => {
   return models.Instance.destroy({
-    name: `${req.params.id}`,
+    where: {
+      name: `${req.params.id}`,
+    },
   })
     .then(() => {
       res.json({ success: true });
