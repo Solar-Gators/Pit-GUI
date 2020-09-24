@@ -5,6 +5,6 @@ instance = require("../controllers/instance.server.controller.js");
 router
   .route("/:id?")
   .get(instance.get)
-  .post(instance.get)
+  .post(instance.post)
   .delete(instance.delete);
 module.exports = router;
