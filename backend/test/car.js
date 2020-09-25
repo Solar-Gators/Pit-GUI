@@ -87,7 +87,6 @@ describe("GET /api/car/id", function () {
       desc: "test single desc get",
     }).then((car) => {
       carId = car.id;
-      console.log(carId);
     });
   });
   describe("should return a test car", function () {
@@ -122,7 +121,6 @@ describe("DELETE /api/car/id", function () {
       desc: "test single desc delete",
     }).then((car) => {
       carId = car.id;
-      console.log(carId);
     });
   });
   describe("Should return a true success value.", function () {
