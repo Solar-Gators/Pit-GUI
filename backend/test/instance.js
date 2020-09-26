@@ -92,18 +92,17 @@ describe("GET /api/instance/id", function () {
   });
   describe("should return a test instance", function () {
     it("responds with status 200", function () {
+      console.log(instanceId);
       return chai
         .request(app)
         .get(`/api/instance/${instanceId}`)
         .then((res) => {
           let found = false;
           expect(res).to.have.status(200);
-          for (let instance of res.body) {
-            if (instance.name == instanceId) {
-              found = true;
-              expect(instance.name).to.be.equals("test single get");
-              expect(instance.type).to.be.equals("test single type get");
-            }
+          if (res.body.name == instanceId) {
+            found = true;
+            expect(res.body.name).to.be.equals("test single get");
+            expect(res.body.type).to.be.equals("test single type get");
           }
           expect(found, "instance was not returned").to.be.true;
         });
