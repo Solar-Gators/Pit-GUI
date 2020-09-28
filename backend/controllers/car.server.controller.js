@@ -42,7 +42,6 @@ exports.post = async (req, res) => {
     });
 };
 exports.delete = async (req, res) => {
-  console.log(req.params.id);
   models.Car.destroy({
     where: {
       id: `${req.params.id}`,

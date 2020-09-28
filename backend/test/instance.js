@@ -92,7 +92,6 @@ describe("GET /api/instance/id", function () {
   });
   describe("should return a test instance", function () {
     it("responds with status 200", function () {
-      console.log(instanceId);
       return chai
         .request(app)
         .get(`/api/instance/${instanceId}`)
