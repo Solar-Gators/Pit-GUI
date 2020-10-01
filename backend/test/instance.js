@@ -30,7 +30,6 @@ describe("POST /api/instance", function () {
           name: "test post",
         })
         .then(function (res) {
-          console.log(res.body);
           expect(res).to.have.status(200);
           expect(res.body.name).to.be.equals("test post");
           expect(res.body.type).to.be.equals("test type post");
@@ -60,11 +59,10 @@ describe("GET /api/instance", function () {
         .request(app)
         .get("/api/instance")
         .then((res) => {
-          let found = false;
+          var found = false;
           expect(res).to.have.status(200);
-          console.log(res.body);
           for (let instance of res.body) {
-            if (instance.name === instanceId) {
+            if (instance.name == instanceId) {
               found = true;
               expect(instance.name).to.be.equals("test get");
               expect(instance.type).to.be.equals("test type get");
@@ -90,7 +88,6 @@ describe("GET /api/instance/id", function () {
       type: "test single type get",
     }).then((instance) => {
       instanceId = instance.name;
-      console.log(instanceId);
     });
   });
   describe("should return a test instance", function () {
@@ -101,7 +98,7 @@ describe("GET /api/instance/id", function () {
         .then((res) => {
           let found = false;
           expect(res).to.have.status(200);
-          if (res.body.name === instanceId) {
+          if (res.body.name == instanceId) {
             found = true;
             expect(res.body.name).to.be.equals("test single get");
             expect(res.body.type).to.be.equals("test single type get");
@@ -125,7 +122,6 @@ describe("DELETE /api/instance/id", function () {
       type: "test single type delete",
     }).then((instance) => {
       instanceId = instance.name;
-      console.log(instanceId);
     });
   });
   describe("Should return a true success value.", function () {

@@ -2,7 +2,7 @@ let models = require("../models");
 
 exports.get = async (req, res) => {
   if (req.params.id) {
-    return models.Instance.findAll({
+    return models.Instance.findOne({
       where: {
         name: `${req.params.id}`,
       },
