@@ -1,35 +1,32 @@
 import React, {Component} from 'react';
-import 'materialize-css'; // It installs the JS asset only
-import 'materialize-css/dist/css/materialize.min.css';
-import M from "materialize-css/dist/js/materialize.min.js";
-
+import {Nav} from "react-bootstrap";
 
 class Sidebar extends Component {
     componentDidMount() {
         var elem = document.querySelector(".sidenav");
-        M.Sidenav.init(elem, {
-            edge: "left"
-        });
+        // M.Sidenav.init(elem, {
+        //     edge: "left"
+        // });
     }
 
     render() {
         return (
-            <div>
-                <ul id="slide-out" style={{"font-size": "15px"}} className="sidenav sidenav-fixed">
-                    <li style={{textAlign: "center"}}>
-                        <img width="160px" height="100px" src="./logo.png" />
-                    </li>
-                    <li class="bold active">
-                        <a href="/">Live</a>
-                    </li>
-                    <li>
-                        <a href="/analysis">Analysis</a>
-                    </li>
-                    <li>
-                        <a>Raw Graphs</a>
-                    </li>
-                </ul>
-            </div>
+            <Nav className="col-md-12 d-none d-md-block bg-light sidebar pt-0"
+            activeKey="/home"
+            onSelect={selectedKey => alert(`selected ${selectedKey}`)}
+            >
+                <img className="m-auto d-block" width="160px" height="100px" src="./logo.png" />
+                <div className="sidebar-sticky"></div>
+                <Nav.Item>
+                    <Nav.Link eventKey="link-1">Live</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="link-2">Analysis</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="link-2">Raw Graphs</Nav.Link>
+                </Nav.Item>
+            </Nav>
         );
     }
 }

@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './style.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import { Route, Link, BrowserRouter as Router, Switch } from 'react-router-dom'
 import App from './App'
 
