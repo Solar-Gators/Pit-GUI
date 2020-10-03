@@ -7,12 +7,6 @@ import "./style.css";
 import { socket } from "./service/socket";
 
 class App extends Component {
-  componentDidMount() {
-    socket.on("connection", console.log("Client connected."));
-  }
-  componentWillUnmount() {
-    socket.disconnect();
-  }
   render() {
     return (
       <Router>
@@ -20,7 +14,7 @@ class App extends Component {
           <div style={{ width: "90%" }} class="container">
             <Sidebar />
             <Route exact path="/" component={LiveTelemtry} />
-            <Route exact path="/analysis"></Route>
+            <Route exact path="/analysis" component={Analysis}></Route>
           </div>
         </div>
       </Router>

@@ -9,9 +9,7 @@ module.exports.start = function () {
   sockets.io = socketio(server);
   sockets.sessionNamespace = sockets.io.of("/session");
   sockets.dataNamespace = sockets.io.of("/live");
-  sockets.io.on("connection", (socket) => {
-    console.log("New connection.");
-  });
+
   server.listen(config.port, function () {
     console.log("App.js file is listening on port", config.port);
   });
