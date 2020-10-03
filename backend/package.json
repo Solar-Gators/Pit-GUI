@@ -22,6 +22,7 @@
     "sequelize": "^6.3.4",
     "serialport": "^7.1.5",
     "should": "^13.2.3",
+    "socket.io": "^2.3.0",
     "supertest": "^4.0.2"
   },
   "devDependencies": {

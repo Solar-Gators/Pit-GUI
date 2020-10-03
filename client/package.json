@@ -12,7 +12,8 @@
     "react-dom": "^16.5.0",
     "react-materialize": "^3.4.1",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "1.1.5"
+    "react-scripts": "1.1.5",
+    "socket.io": "^2.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
