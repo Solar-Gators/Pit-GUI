@@ -4,7 +4,6 @@ import Sidebar from "./Sidebar";
 import LiveTelemtry from "./LiveTelemetry";
 import Analysis from "./Analysis";
 import "./style.css";
-import { socket } from "./service/socket";
 
 class App extends Component {
   render() {
