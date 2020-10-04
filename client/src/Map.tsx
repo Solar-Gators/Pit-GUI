@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 
 
-const AnyReactComponent = ({heading}) => <img style={{ transform : `translate(-25px, -25px) rotate(${heading}deg)` }} width="50px" src="./car.png"></img>;
+const AnyReactComponent = ({heading}) => <img alt="Car Location" style={{ transform : `translate(-25px, -25px) rotate(${heading}deg)` }} width="50px" src="./car.png"></img>;
  
-class Map extends Component {
+class Map extends Component<{ center: { lat: number, lng: number}, zoom: number, heading: number }> {
  
   render() {
     var {center, zoom, heading } = this.props
@@ -17,8 +17,8 @@ class Map extends Component {
           defaultZoom={zoom}
         >
           <AnyReactComponent
-            lat={center.lat}
-            lng={center.lng}
+            // lat={center.lat}
+            // lng={center.lng}
             heading={heading}
           />
           

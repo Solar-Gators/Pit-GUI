@@ -53,3 +53,19 @@
   min-width: 0;
   width: 100%;
 }
+
+.sidebar-item {
+  color: black;
+  font-size: 25px;
+  padding-left: 30px !important;
+  padding-right: 0px !important;
+}
+
+.sidebar-item.active {
+  background: #F0F0F0;
+}
+
+.sidebar-item:hover {
+  background: #F0F0F0;
+  color: black;
+}

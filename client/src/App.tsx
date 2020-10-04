@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import { BrowserRouter as Router, Route } from "react-router-dom"
 import Sidebar from './Sidebar'
 import LiveTelemtry from './LiveTelemetry'
-import Analysis from './Analysis'
-import {Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import Container from "react-bootstrap/Container"
+import Col from "react-bootstrap/Col"
+import Row from "react-bootstrap/Row"
 
 import './style.css'
 
