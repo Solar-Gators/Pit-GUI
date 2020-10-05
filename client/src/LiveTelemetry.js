@@ -7,6 +7,7 @@ import Label from './Label'
 import ReactSpeedometer from 'react-d3-speedometer';
 import Map from './Map'
 import axios from 'axios'
+import SessionButton from './SessionButton'
 
 
 class LiveTelemetry extends Component
@@ -64,8 +65,9 @@ class LiveTelemetry extends Component
             return <p>Loading....</p>
 
         return (
-            <div>
-            <Row>
+        <div>
+        <Row>
+            <SessionButton />
             <h2>Live Telemetry</h2>
     <Map center={carLocation} zoom={16} heading={heading} />
     </Row>

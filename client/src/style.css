@@ -18,7 +18,15 @@
     stroke: #fff;
 }
   
-  .focus circle {
-  fill: none;
-  stroke: steelblue;
+.focus circle {
+    fill: none;
+    stroke: steelblue;
+}
+
+Table {
+    overflow-y: auto;
+}
+
+Button {
+    color: blueviolet;
 }
