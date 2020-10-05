@@ -1,6 +1,7 @@
 /* Dependencies */
 let sequelizeModels = require("../models");
 let { Session } = sequelizeModels;
+var sockets = require("./config/socket.js");
 
 /**
  * @breif Starts a sessions
@@ -16,6 +17,9 @@ exports.start = (req, res) => {
       msg: "There is already an ongoing session.",
     });
   }
+  sockets.io
+    .of("sessionNamespace")
+    .emit("session-start", "A session has been started.");
   return Session.create({
     name: req.body.name,
     start: new Date(),
