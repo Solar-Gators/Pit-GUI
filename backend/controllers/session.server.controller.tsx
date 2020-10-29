@@ -1,7 +1,6 @@
 /* Dependencies */
 let sequelizeModels = require("../models");
-let { Session } = sequelizeModels;
-var sockets = require("./config/socket.js");
+let { session } = sequelizeModels;
 
 /**
  * @breif Starts a sessions
@@ -17,10 +16,7 @@ exports.start = (req, res) => {
       msg: "There is already an ongoing session.",
     });
   }
-  sockets.io
-    .of("sessionNamespace")
-    .emit("session-start", "A session has been started.");
-  return Session.create({
+  return session.create({
     name: req.body.name,
     start: new Date(),
     end: null,
@@ -33,7 +29,7 @@ exports.start = (req, res) => {
  * @param id ID of session to end
  */
 exports.end = (req, res) => {
-  return Session.update(
+  return session.update(
     {
       end: new Date(),
     },
@@ -51,11 +47,11 @@ exports.end = (req, res) => {
  * If there is not an acitve session return {session: false}
  */
 exports.check = (req, res) => {
-  return Session.findOne(
+  return session.findOne(
     {
       where: {
-        end: null,
-      },
+        end: null
+      }
     },
     (session) => {
       if (!session) {
@@ -71,37 +67,37 @@ exports.check = (req, res) => {
  *           If there is no id return a list of all the sessions
  */
 exports.get = (req, res) => {
-  if (req.params.id) {
-    return Session.findOne({
-      where: {
-        id: req.params.id,
-      },
-    }).then((session) => {
-      res.json(session);
-    });
-  }
-  return Session.findAll()
+    if (req.params.id) {
+        return session.findOne({
+            where: {
+                id: req.params.id
+            }
+        }).then((session) => {
+            res.json(session);
+        });
+    } 
+    return session.findAll()
     .then((session) => {
-      res.json(session);
+        res.json(session);
     })
     .catch((err) => {
-      res.status(400).json({
-        success: false,
-        msg: "Get sessions from database failed.",
-      });
+        res.status(400).json({
+            success: false,
+            msg: "Get sessions from database failed.",
+        });
     });
 };
 exports.delete = (req, res) => {
-  Session.destroy({
-    where: {
-      id: `${req.params.id}`,
-    },
-  })
+    session.destroy({
+        where: {
+            id: `${req.params.id}`
+        }
+    })
     .then(() => {
-      res.json({ success: true });
+        res.json({ success: true });
     })
     .catch((err) => {
-      res
+        res
         .status(400)
         .json({ success: false, msg: "Failed to delete session." });
     });

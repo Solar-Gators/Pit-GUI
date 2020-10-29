@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   session.init({
-    name: DataTypes.STRING,
+    name:  DataTypes.STRING,
     start: DataTypes.DATE,
     end: {
       type: DataTypes.DATE,

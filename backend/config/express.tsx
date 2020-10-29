@@ -7,24 +7,26 @@ var express = require("express"), //refers to Express the middleware helper for 
   instance = require("../routes/instance.server.routes.js"),
   bms = require("../routes/bms.server.routes.js"),
   gps = require("../routes/gps.server.routes.js");
+  sessionRouter = require("../routes/session.server.routes.js");
 
-module.exports.init = function () {
-  //initialize app
-  var app = express();
+  module.exports.init = function () {
+      //initialize app
+      var app = express();
 
-  //enable request logging for development debugging
-  //app.use(morgan("dev"));
+      //enable request logging for development debugging
+      //app.use(morgan("dev"));
 
-  //body parsing middleware
-  app.use(bodyParser.json());
+      //body parsing middleware
+      app.use(bodyParser.json());
 
-  //routers
-  app.use("/api/live", liveRouter);
-  app.use("/api/graph", graphRouter);
-  app.use("/api/bms", bms);
-  app.use("/api/gps", gps);
-  app.use("/api/car", car);
-  app.use("/api/instance", instance);
+      //routers
+      app.use("/api/live", liveRouter);
+      app.use("/api/graph", graphRouter);
+      app.use("/api/bms", bms);
+      app.use("/api/gps", gps);
+      app.use("/api/car", car);
+      app.use("/api/instance", instance);
+      app.use("/api/history", sessionRouter);
 
   // app.all('/*', function(req, res)
   // {

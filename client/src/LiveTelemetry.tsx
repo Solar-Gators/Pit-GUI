@@ -4,6 +4,7 @@ import Col from "react-bootstrap/Col"
 import Row from "react-bootstrap/Row"
 import Map from "./Map"
 import axios from "axios"
+import SessionButton from "./SessionButton"
 
 function ThreeRow(item1, item2, item3) {
   return (
@@ -96,6 +97,7 @@ class LiveTelemetry extends Component {
 
     return (
       <div>
+		<SessionButton />
         <Row>
           <h1>Live Telemetry</h1>
           <Map center={carLocation} zoom={16} heading={heading} />

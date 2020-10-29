@@ -2,9 +2,9 @@
 
 /* Style the lines by removing the fill and applying a stroke */
 .line {
-    fill: none;
-    stroke: #ffab00;
-    stroke-width: 3;
+  fill: none;
+  stroke: #ffab00;
+  stroke-width: 3;
 }
   
 .overlay {
@@ -14,11 +14,11 @@
 
 /* Style the dots by assigning a fill and stroke */
 .dot {
-    fill: #ffab00;
-    stroke: #fff;
+  fill: #ffab00;
+  stroke: #fff;
 }
   
-  .focus circle {
+.focus circle {
   fill: none;
   stroke: steelblue;
 }
@@ -68,12 +68,4 @@
 .sidebar-item:hover {
   background: #F0F0F0;
   color: black;
-}
-
-Table {
-  overflow-y: auto;
-}
-
-Button {
-  color: blueviolet;
 }
