@@ -2,13 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\backend",
-    "\\backend\\controllers",
+    "\\backend\\config",
     "\\backend\\models",
     "\\backend\\routes",
     "\\client",
     "\\client\\public",
     "\\client\\src"
   ],
-  "SelectedNode": "\\backend\\models\\session.js",
+  "SelectedNode": "\\client\\src\\LiveTelemetry.tsx",
   "PreviewInSolutionExplorer": false
 }
