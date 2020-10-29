@@ -1,7 +1,7 @@
 //Unit Test file; runs on dev mode Mocha with chai framework
 
 // define the app ref
-var express = require("../config/express.tsx");
+var express = require("../config/express.js");
 var app = express.init();
 var request = require("supertest");
 var should = require("should");

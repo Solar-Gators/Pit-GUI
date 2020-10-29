@@ -1,6 +1,6 @@
 //Unit Test file; runs on dev mode Mocha with chai framework
 
-var express = require("../config/express.tsx");
+var express = require("../config/express.js");
 var app = express.init();
 var chai = require("chai");
 var chaiHttp = require("chai-http");
