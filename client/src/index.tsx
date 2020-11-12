@@ -2,18 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './style.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import "react-sliding-pane/dist/react-sliding-pane.css"
 import App from './App'
 
-const routing = (
-  <Router>
-    <div>
-      <Switch>
-        <Route exact path="/" component={App} />
-        <Route path="/users/:id" component={App} />
-        <Route path="/contact" component={App} />
-      </Switch>
-    </div>
-  </Router>
-)
-ReactDOM.render(routing, document.getElementById('root'))
+ReactDOM.render(<App />, document.getElementById('root'))

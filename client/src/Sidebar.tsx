@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Nav from "react-bootstrap/Nav"
-
+import logo from './images/logo.png'
 class Sidebar extends Component {
     render() {
         return (
@@ -8,7 +8,7 @@ class Sidebar extends Component {
             activeKey="/home"
             onSelect={selectedKey => alert(`selected ${selectedKey}`)}
             >
-                <img className="m-auto d-block" alt="logo" width="160px" height="100px" src="./logo.png" />
+                <img className="m-auto d-block" alt="logo" width="160px" height="100px" src={logo} />
                 <div className="sidebar-sticky"></div>
                 <Nav.Item>
                     <Nav.Link className="sidebar-item active">Live</Nav.Link>
