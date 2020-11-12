@@ -20,7 +20,7 @@
     "mysql2": "^2.1.0",
     "request": "^2.88.0",
     "sequelize": "^6.3.4",
-    "serialport": "^7.1.5",
+    "serialport": "^9.0.2",
     "should": "^13.2.3",
     "socket.io": "^2.3.0",
     "supertest": "^4.0.2"
