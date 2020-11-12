@@ -13,13 +13,13 @@ chai.use(chaiHttp);
 /**
  * Test that we can create a new session and get its ID back
  */
-describe("POST /api/session", function () {
+describe("POST /api/history", function () {
   let sessionID = null;
   describe("Should respond with 200 status and the new session ID", function () {
     it("Responds with status 200", function () {
       return chai
         .request(app)
-        .post("/api/session")
+        .post("/api/history")
         .send({
           name: "Test Session",
         })
