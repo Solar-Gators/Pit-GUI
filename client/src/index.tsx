@@ -4,6 +4,7 @@ import './style.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
 import App from './App'
+import Graph from './Graph'
 
 const routing = (
   <Router>
@@ -12,6 +13,7 @@ const routing = (
         <Route exact path="/" component={App} />
         <Route path="/users/:id" component={App} />
         <Route path="/contact" component={App} />
+        <Route path="/graph" component={Graph} />
       </Switch>
     </div>
   </Router>
