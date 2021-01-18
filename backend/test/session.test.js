@@ -22,16 +22,17 @@ describe("POST /api/history", function () {
         .post("/api/history")
         .send({
           name: "Test Session",
+          start: new Date()
         })
         .then(function (res) {
           expect(res).to.have.status(200);
-          expect(res.body).to.have.id;
           expect(res.body.name).to.be.equals("Test Session");
+          expect(res.body).to.have.property('id');
           sessionID = res.body.id;
         });
     });
   });
   after("Removing Session.", function () {
-    return models.Session.destroy({ where: { id: sessionID } });
+    return models.session.destroy({ where: { id: sessionID } });
   });
 });
