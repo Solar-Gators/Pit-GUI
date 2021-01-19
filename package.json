@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "all": "0.0.0",
     "concurrently": "^4.0.1",
     "mocha": "^8.1.3"
   },
