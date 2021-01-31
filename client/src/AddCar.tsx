@@ -11,16 +11,13 @@ class CreateCar extends React.Component<{ updateCarName : (value: string) => voi
     render() {
         return (
             <Form>
+                <p className="mt-4">
+                    Setting up your car is simple, start by defining a unique name for your car, then click the next button below to define the unique telemetry items.
+                </p>
                 <Form.Group>
                     <Form.Label>Car Name</Form.Label>
                     <Form.Control type="input" placeholder="Enter car name" onChange={(event) => { this.props.updateCarName(event.target.value) }} />
                 </Form.Group>
-
-                
-
-                <Button variant="primary" type="submit">
-                    Submit
-                </Button>
             </Form>
         )
     }
@@ -30,43 +27,75 @@ class Telemetry extends React.Component {
     state = {
         instanceName: "",
         decodeLogic: "",
-        instanceID: ""
+        messages: []
     }
     render() {
+
+        let { messages } = this.state
+
         return (
-            <Row>
-                <Col>
-                    <Form.Group>
-                        <Form.Label>Instance Name</Form.Label>
-                        <Form.Control type="input" placeholder="Enter Instance Name" onChange={(event) => this.setState({ instanceName: event.target.value })} />
-                    </Form.Group>
-                </Col>
+            <div className="border border-primary my-4 p-3">
+                <Row>
+                    <Col>
+                        <Form.Group>
+                            <Form.Label>Group Name</Form.Label>
+                            <Form.Control type="input" placeholder="Enter Group Name" onChange={(event) => this.setState({ instanceName: event.target.value })} />
+                        </Form.Group>
+                    </Col>
 
-                <Col>
-                    <Form.Group>
-                        <Form.Label>Decode Logic</Form.Label>
-                        <Form.Control as="select" placeholder="Select decode logic" onChange={(event) => this.setState({ decodeLogic: event.target.value })}>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </Form.Control>
-                    </Form.Group>
-                </Col>
+                    <Col>
+                        <Form.Group>
+                            <Form.Label>Message ID</Form.Label>
+                            <Form.Control type="input" placeholder="Enter Message ID" onChange={(event) => this.setState({ instanceName: event.target.value })} />
+                        </Form.Group>
+                    </Col>
 
-                <Col>
-                    <Form.Group>
-                        <Form.Label>Instance ID</Form.Label>
-                        <Form.Control type="number" placeholder="Enter Instance ID" onChange={(event) => this.setState({ instanceID: event.target.value })} />
-                    </Form.Group>
-                </Col>
-            </Row>
+                    <Col>
+                        <Form.Group>
+                            <Form.Label># of Telemetries</Form.Label>
+                            <Form.Control type="number" placeholder="Enter Number of Messages" onChange={(event) => {
+                                let numOfMessages = parseInt(event.target.value)
+                                let _messages = messages
+                                while (_messages.length < numOfMessages) {
+                                    _messages.push({ name: '' })
+                                }
+
+                                this.setState({ messages: _messages })
+
+                            }} />
+                        </Form.Group>
+                    </Col>
+                </Row>
+
+                {messages.map((message, index) => {
+                    return <Row>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>#{index + 1} Telemetry Name</Form.Label>
+                                <Form.Control type="input" placeholder="Enter Instance Name" defaultValue={message.name} onChange={(event) => this.setState({ instanceName: event.target.value })} />
+                            </Form.Group>
+                        </Col>
+
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>Data Type</Form.Label>
+                                <Form.Control as="select" placeholder="Select decode logic" onChange={(event) => this.setState({ decodeLogic: event.target.value })}>
+                                    <option value="1">uint_16</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                })}
+            </div>
         )
     }
 }
 
-class CreateTelemetry extends React.Component {
+class CreateTelemetry extends React.Component<{ updateTelemetry : (value: string) => void }> {
     state = {
         count: 0
     }
@@ -96,7 +125,8 @@ class SectionLabel extends React.Component<{ value: string, url: string, disable
 
 export default class AddCar extends React.Component {
     state = {
-        name: ""
+        carName: "",
+        telemetry: []
     }
     render() {
         return <React.Fragment>
@@ -115,13 +145,16 @@ export default class AddCar extends React.Component {
                                 }} />
                             </Route>
                             <Route exact path="/telemetry">
-                                <CreateTelemetry />
+                                <CreateTelemetry updateTelemetry={(telemetry) => {
+                                    this.setState({telemetry: telemetry})
+                                }} />
                             </Route>
                             <Route exact path="/finish">
-
+                                <p>Car Name: {this.state.carName}</p>
+                                <p># of Telemetry: {this.state.telemetry.length}</p>
                             </Route>
                         </MemoryRouter>
-
+                        <Button className="float-right mt-4">Next</Button>
                     </Col>
                 </Row>
             </React.Fragment>
