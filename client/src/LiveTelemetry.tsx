@@ -1,40 +1,41 @@
 // /client/App.js
-import React, { Component } from "react"
-import Col from "react-bootstrap/Col"
-import Row from "react-bootstrap/Row"
-import Map from "./Map"
-import axios from "axios"
+import React, { Component } from "react";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
+import Map from "./Map";
+import axios from "axios";
 
 function ThreeRow(item1, item2, item3) {
   return (
     <Row>
-      <Col>
-        {item1}
-      </Col>
-      <Col>
-        {item2}
-      </Col>
-      <Col>
-        {item3}
-      </Col>
+      <Col>{item1}</Col>
+      <Col>{item2}</Col>
+      <Col>{item3}</Col>
     </Row>
-  )
+  );
 }
 
 interface TelemetryData {
-  label : string
-  value : string
+  label: string;
+  value: string;
 }
 
-function telemetryRow(data1: TelemetryData, data2: TelemetryData, data3: TelemetryData) {
+function telemetryRow(
+  data1: TelemetryData,
+  data2: TelemetryData,
+  data3: TelemetryData
+) {
   return (
     <React.Fragment>
-      { ThreeRow(<strong>{data1.label}</strong>, <strong>{data2.label}</strong>, <strong>{data3.label}</strong>) }
-      { ThreeRow(data1.value, data2.value, data3.value) }
+      {ThreeRow(
+        <strong>{data1.label}</strong>,
+        <strong>{data2.label}</strong>,
+        <strong>{data3.label}</strong>
+      )}
+      {ThreeRow(data1.value, data2.value, data3.value)}
     </React.Fragment>
-  )
+  );
 }
-
 
 class LiveTelemetry extends Component {
   state = {
@@ -54,7 +55,7 @@ class LiveTelemetry extends Component {
   };
 
   componentDidMount() {
-    setInterval(this.getDataFromDb, 100);
+    // setInterval(this.getDataFromDb, 100);
   }
 
   getDataFromDb = () => {
@@ -101,57 +102,66 @@ class LiveTelemetry extends Component {
           <Map center={carLocation} zoom={16} heading={heading} />
         </Row>
         <Row>
-            {/* BMS */}
-            <Col className="rounded mt-5 pb-3 text-center" style={{ border: '4px solid #343a40' }}>
-              <h3 style={{ marginTop: '-17px', background: 'white', display: 'table' }}>BMS</h3>
+          {/* BMS */}
+          <Col
+            className="rounded mt-5 pb-3 text-center"
+            style={{ border: "4px solid #343a40" }}
+          >
+            <h3
+              style={{
+                marginTop: "-17px",
+                background: "white",
+                display: "table",
+              }}
+            >
+              BMS
+            </h3>
+            {telemetryRow(
               {
-                telemetryRow({
-                  label: "State of Charge",
-                  value: "0.00"
-                },
-                {
-                  label: "Volt. (40-72V)",
-                  value: "0.00 V"
-                },
-                {
-                  label: "Curr.(0-480A)",
-                  value: "0.00 A"
-                })
-              }
-
+                label: "State of Charge",
+                value: "0.00",
+              },
               {
-                telemetryRow({
-                  label: "State of Charge",
-                  value: "0.00"
-                },
-                {
-                  label: "Volt. (40-72V)",
-                  value: "0.00 V"
-                },
-                {
-                  label: "Curr.(0-480A)",
-                  value: "0.00 A"
-                })
-              }
-
+                label: "Volt. (40-72V)",
+                value: "0.00 V",
+              },
               {
-                telemetryRow({
-                  label: "State of Charge",
-                  value: "0.00"
-                },
-                {
-                  label: "Volt. (40-72V)",
-                  value: "0.00 V"
-                },
-                {
-                  label: "Curr.(0-480A)",
-                  value: "0.00 A"
-                })
+                label: "Curr.(0-480A)",
+                value: "0.00 A",
               }
+            )}
 
-            </Col>
-            <Col>
-            </Col>
+            {telemetryRow(
+              {
+                label: "State of Charge",
+                value: "0.00",
+              },
+              {
+                label: "Volt. (40-72V)",
+                value: "0.00 V",
+              },
+              {
+                label: "Curr.(0-480A)",
+                value: "0.00 A",
+              }
+            )}
+
+            {telemetryRow(
+              {
+                label: "State of Charge",
+                value: "0.00",
+              },
+              {
+                label: "Volt. (40-72V)",
+                value: "0.00 V",
+              },
+              {
+                label: "Curr.(0-480A)",
+                value: "0.00 A",
+              }
+            )}
+          </Col>
+          <Col></Col>
         </Row>
       </div>
     );
