@@ -9,16 +9,16 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       lowCellVoltage: {
-        type: Sequelize.INTEGER
+        type: Sequelize.FLOAT
       },
       highCellVoltage: {
-        type: Sequelize.INTEGER
+        type: Sequelize.FLOAT
       },
       avgCellVoltage: {
-        type: Sequelize.INTEGER
+        type: Sequelize.FLOAT
       },
       packSumVoltage: {
-        type: Sequelize.INTEGER
+        type: Sequelize.FLOAT
       },
       createdAt: {
         allowNull: false,

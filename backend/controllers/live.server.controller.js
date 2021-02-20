@@ -49,6 +49,7 @@ exports.data = (req, res) =>
         {
             json[names[index]] = response[index]
         }
+        console.log(json) //TODO: this is the car/emulator input
         res.json(json)
     })
     .catch((err) => {

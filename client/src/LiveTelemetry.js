@@ -14,7 +14,10 @@ class LiveTelemetry extends Component
     state =
         {
             speed: 0,
-            voltage: 0,
+            lowCellVoltage: 0,
+            highCellVoltage: 0,
+            avgCellVoltage: 0,
+            packSumVoltage: 0,
             duration: 0,
             temperature: 0,
             stateOfCharge: 0,
@@ -24,7 +27,8 @@ class LiveTelemetry extends Component
             carLocation: {
                 lat: 29.651979, lng: -82.325020
             },
-            loading: true
+            loading: true,
+            status: "Disconnected"
         }
 
     componentDidMount()
@@ -37,28 +41,36 @@ class LiveTelemetry extends Component
         axios.get('/api/live/data')
         .then((res) => 
         {
-            // var {voltage, gps} = res.data
-            // if (voltage[0] && gps[0]) {
-            //     this.setState({
-            //         voltage: voltage[0].Voltage,
-            //         heading: gps[0].heading,
-            //         speed: gps[0].speed,
-            //         carLocation: {
-            //             lat: parseFloat(gps[0].coordinates.latitude),
-            //             lng: parseFloat(gps[0].coordinates.longitude)
-            //         },
-            //         loading: false
-            //     })
-            // }
-            // else {
-                this.setState({ loading: false })
-            // }
+            var {voltage} = res.data
+            if (voltage){//[0] && gps[0]) {
+                this.setState({
+                    lowCellVoltage: voltage.lowCellVoltage,
+                    highCellVoltage: voltage.highCellVoltage,
+                    avgCellVoltage: voltage.avgCellVoltage,
+                    packSumVoltage: voltage.packSumVoltage,
+                    // voltage: voltage[0].Voltage,
+                    // heading: gps[0].heading,
+                    // speed: gps[0].speed,
+                    // carLocation: {
+                    //     lat: parseFloat(gps[0].coordinates.latitude),
+                    //     lng: parseFloat(gps[0].coordinates.longitude)
+                    // },
+                    status: "Online",
+                    loading: false
+                })
+            }
+            else {
+                this.setState({
+                    status: "ERROR!!!!!!",
+                    loading: false
+                })
+            }
         });
     };
 
     render()
     {
-        const { speed, voltage, duration, temperature, stateOfCharge, consumption, panelPower, carLocation, heading, loading } = this.state;
+        const { speed, lowCellVoltage, highCellVoltage, avgCellVoltage, packSumVoltage, duration, temperature, stateOfCharge, consumption, panelPower, carLocation, heading, loading, status } = this.state;
 
         if (loading)
             return <p>Loading....</p>
@@ -67,6 +79,7 @@ class LiveTelemetry extends Component
             <div>
             <Row>
             <h2>Live Telemetry</h2>
+            <p>{status}</p>
     <Map center={carLocation} zoom={16} heading={heading} />
     </Row>
     <Row>
@@ -93,10 +106,10 @@ class LiveTelemetry extends Component
     </div>
 
     <Row>
-    <Label svgSrc="./voltage.svg" label="Pack Sum" value={voltage + " V"} />
-    <Label label="Low" value={stateOfCharge + " V"} />
-    <Label label="High" value={duration + " V"} />
-    <Label label="Average" value={temperature + " V"} />
+    <Label svgSrc="./voltage.svg" label="Pack Sum" value={packSumVoltage + " V"} />
+    <Label label="Low" value={lowCellVoltage + " V"} />
+    <Label label="High" value={highCellVoltage + " V"} />
+    <Label label="Average" value={avgCellVoltage + " V"} />
     </Row>
     <Row>
     <Label svgSrc="./temperature.svg" label="High Temp" value={stateOfCharge + " V"} />
@@ -119,7 +132,7 @@ class LiveTelemetry extends Component
     <h3>Motor Controllers</h3>
     <div class="center-align">
         <Row>
-        <Label svgSrc="./voltage.svg" label="RPM" value={voltage + " V"} />
+        <Label svgSrc="./voltage.svg" label="RPM" value={packSumVoltage + " V"} />
     <Label svgSrc="./clock.svg" label="Temperature" value={duration + " V"} />
     <Label svgSrc="./temperature.svg" label="Duty Cycle" value={temperature + " V"} />
     </Row>
