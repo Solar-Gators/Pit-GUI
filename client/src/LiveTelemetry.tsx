@@ -40,7 +40,7 @@ function telemetryRow(data1: TelemetryData, data2: TelemetryData, data3: Telemet
 class LiveTelemetry extends Component {
   state = {
     speed: 0,
-    voltage: 0,
+    voltage: 5,
     duration: 0,
     temperature: 0,
     stateOfCharge: 0,
@@ -60,29 +60,30 @@ class LiveTelemetry extends Component {
 
   getDataFromDb = () => {
     axios.get("/api/live/data").then((res) => {
-      // var {voltage, gps} = res.data
-      // if (voltage[0] && gps[0]) {
-      //     this.setState({
-      //         voltage: voltage[0].Voltage,
-      //         heading: gps[0].heading,
-      //         speed: gps[0].speed,
-      //         carLocation: {
-      //             lat: parseFloat(gps[0].coordinates.latitude),
-      //             lng: parseFloat(gps[0].coordinates.longitude)
-      //         },
-      //         loading: false
-      //     })
-      // }
-      // else {
-      this.setState({ loading: false });
-      // }
+      var {voltage} = res.data
+      console.log(voltage)
+      if (voltage){//[0] && gps[0]) {
+          this.setState({
+              voltage: voltage.lowCellVoltage,
+              // heading: gps[0].heading,
+              // speed: gps[0].speed,
+              // carLocation: {
+              //     lat: parseFloat(gps[0].coordinates.latitude),
+              //     lng: parseFloat(gps[0].coordinates.longitude)
+              // },
+              loading: false
+          })
+      }
+      else {
+        this.setState({ loading: false });
+      }
     });
   };
 
   render() {
     const {
       // speed,
-      // voltage,
+      voltage,
       // duration,
       // temperature,
       // stateOfCharge,
@@ -109,7 +110,7 @@ class LiveTelemetry extends Component {
               {
                 telemetryRow({
                   label: "State of Charge",
-                  value: "0.00"
+                  value: String(voltage) + " V"
                 },
                 {
                   label: "Volt. (40-72V)",
