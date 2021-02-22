@@ -40,7 +40,10 @@ function telemetryRow(data1: TelemetryData, data2: TelemetryData, data3: Telemet
 class LiveTelemetry extends Component {
   state = {
     speed: 0,
-    voltage: 5,
+    lowCellVoltage: 0,
+    highCellVoltage: 0,
+    avgCellVoltage: 0,
+    packSumVoltage: 0,
     duration: 0,
     temperature: 0,
     stateOfCharge: 0,
@@ -64,7 +67,10 @@ class LiveTelemetry extends Component {
       console.log(voltage)
       if (voltage){//[0] && gps[0]) {
           this.setState({
-              voltage: voltage.lowCellVoltage,
+            lowCellVoltage: voltage.lowCellVoltage,
+            highCellVoltage: voltage.highCellVoltage,
+            avgCellVoltage: voltage.avgCellVoltage,
+            packSumVoltage: voltage.packSumVoltage,
               // heading: gps[0].heading,
               // speed: gps[0].speed,
               // carLocation: {
@@ -83,7 +89,10 @@ class LiveTelemetry extends Component {
   render() {
     const {
       // speed,
-      voltage,
+      lowCellVoltage,
+      highCellVoltage,
+      avgCellVoltage,
+      packSumVoltage,
       // duration,
       // temperature,
       // stateOfCharge,
@@ -110,18 +119,33 @@ class LiveTelemetry extends Component {
               {
                 telemetryRow({
                   label: "State of Charge",
-                  value: String(voltage) + " V"
+                  value: String(lowCellVoltage) + " V"
                 },
                 {
                   label: "Volt. (40-72V)",
-                  value: "0.00 V"
+                  value: String(highCellVoltage) + " V"
                 },
                 {
                   label: "Curr.(0-480A)",
-                  value: "0.00 A"
+                  value: String(avgCellVoltage) + " V"
                 })
               }
 
+              {
+                telemetryRow({
+                  label: "Pack Sum Voltage",
+                  value: String(avgCellVoltage) + " V"
+                },
+                {
+                  label: "",
+                  value: ""
+                },
+                {
+                  label: "",
+                  value: ""
+                })
+              }
+{/* 
               {
                 telemetryRow({
                   label: "State of Charge",
@@ -135,22 +159,7 @@ class LiveTelemetry extends Component {
                   label: "Curr.(0-480A)",
                   value: "0.00 A"
                 })
-              }
-
-              {
-                telemetryRow({
-                  label: "State of Charge",
-                  value: "0.00"
-                },
-                {
-                  label: "Volt. (40-72V)",
-                  value: "0.00 V"
-                },
-                {
-                  label: "Curr.(0-480A)",
-                  value: "0.00 A"
-                })
-              }
+              } */}
 
             </Col>
             <Col>
