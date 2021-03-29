@@ -2,30 +2,32 @@ import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 
 
-const AnyReactComponent = ({heading}) => <img alt="Car Location" style={{ transform : `translate(-25px, -25px) rotate(${heading}deg)` }} width="50px" src="./car.png"></img>;
- 
-class Map extends Component<{ center: { lat: number, lng: number}, zoom: number, heading: number }> {
- 
+const AnyReactComponent = ({ heading }) => <img alt="Car Location" style={{ transform: `translate(-25px, -25px) rotate(${heading}deg)` }} width="50px" src="./car.png"></img>;
+
+class Map extends Component<{ center: { lat: number, lng: number }, zoom: number, heading: number }> {
+
   render() {
-    var {center, zoom, heading } = this.props
+    var { center, zoom, heading } = this.props
     return (
       // Important! Always set the container height explicitly
       <div style={{ height: '40vh', width: '100%' }}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: 'AIzaSyAXbhJRwjC-e24IwENYq2vaB0C3WgVuBGw' }}
+          bootstrapURLKeys={{ key: 'AIzaSyDJAyO8JdXDagvMGE-VbTYPzf4d9njNWts' }}
           defaultCenter={center}
           defaultZoom={zoom}
+        //  zoomControl={false}
+          // options={{mapTypeId: maps.MapTypeId.SATELLITE}}
         >
           <AnyReactComponent
             // lat={center.lat}
             // lng={center.lng}
             heading={heading}
           />
-          
+
         </GoogleMapReact>
       </div>
     );
   }
 }
- 
+
 export default Map;

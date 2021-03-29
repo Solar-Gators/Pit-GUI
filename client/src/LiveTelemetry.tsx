@@ -23,15 +23,15 @@ function ThreeRow(item1, item2, item3) {
 }
 
 interface TelemetryData {
-  label : string
-  value : string
+  label: string
+  value: string
 }
 
 function telemetryRow(data1: TelemetryData, data2: TelemetryData, data3: TelemetryData) {
   return (
     <React.Fragment>
-      { ThreeRow(<strong>{data1.label}</strong>, <strong>{data2.label}</strong>, <strong>{data3.label}</strong>) }
-      { ThreeRow(data1.value, data2.value, data3.value) }
+      { ThreeRow(<strong>{data1.label}</strong>, <strong>{data2.label}</strong>, <strong>{data3.label}</strong>)}
+      { ThreeRow(data1.value, data2.value, data3.value)}
     </React.Fragment>
   )
 }
@@ -63,22 +63,32 @@ class LiveTelemetry extends Component {
 
   getDataFromDb = () => {
     axios.get("/api/live/data").then((res) => {
-      var {voltage} = res.data
-      console.log(voltage)
-      if (voltage){//[0] && gps[0]) {
+      var { voltage } = res.data
+      var { gps } = res.data
+      // console.log(res.data) //TODO
+      if (res.data) {
+        if (voltage) {
           this.setState({
             lowCellVoltage: voltage.lowCellVoltage,
             highCellVoltage: voltage.highCellVoltage,
             avgCellVoltage: voltage.avgCellVoltage,
             packSumVoltage: voltage.packSumVoltage,
-              // heading: gps[0].heading,
-              // speed: gps[0].speed,
-              // carLocation: {
-              //     lat: parseFloat(gps[0].coordinates.latitude),
-              //     lng: parseFloat(gps[0].coordinates.longitude)
-              // },
-              loading: false
           })
+        }
+        if (gps) {
+          this.setState({
+            heading: gps.heading,
+            speed: gps.speed,
+            carLocation: {
+              lat: parseFloat(gps.latitude),
+              lng: parseFloat(gps.longitude)
+            },
+          })
+        }
+        this.setState({
+
+          loading: false
+        })
       }
       else {
         this.setState({ loading: false });
@@ -88,7 +98,7 @@ class LiveTelemetry extends Component {
 
   render() {
     const {
-      // speed,
+      speed,
       lowCellVoltage,
       highCellVoltage,
       avgCellVoltage,
@@ -107,45 +117,45 @@ class LiveTelemetry extends Component {
 
     return (
       <div>
-		<SessionButton />
+        <SessionButton />
         <Row>
           <h1>Live Telemetry</h1>
-          <Map center={carLocation} zoom={16} heading={heading} />
+          <Map center={carLocation} zoom={64} heading={heading} />
         </Row>
         <Row>
-            {/* BMS */}
-            <Col className="rounded mt-5 pb-3 text-center" style={{ border: '4px solid #343a40' }}>
-              <h3 style={{ marginTop: '-17px', background: 'white', display: 'table' }}>BMS</h3>
-              {
-                telemetryRow({
-                  label: "State of Charge",
-                  value: String(lowCellVoltage) + " V"
+          {/* GPS */}
+          <Col className="rounded mt-5 pb-3 text-center" style={{ border: '4px solid #343a40' }}>
+            <h3 style={{ marginTop: '-17px', background: 'white', display: 'table' }}>Speed</h3>
+            {
+              telemetryRow({
+                label: "Speed",
+                value: String(speed) + ""
+              },
+                {
+                  label: "Heading",
+                  value: String(heading) + ""
                 },
                 {
-                  label: "Volt. (40-72V)",
-                  value: String(highCellVoltage) + " V"
-                },
-                {
-                  label: "Curr.(0-480A)",
-                  value: String(avgCellVoltage) + " V"
+                  label: "",
+                  value: ""
                 })
-              }
+            }
 
-              {
-                telemetryRow({
-                  label: "Pack Sum Voltage",
-                  value: String(avgCellVoltage) + " V"
-                },
+            {
+              telemetryRow({
+                label: "Latitude",
+                value: String(carLocation.lat) + ""
+              },
                 {
-                  label: "",
-                  value: ""
+                  label: "Longitude",
+                  value: String(carLocation.lng) +""
                 },
                 {
                   label: "",
                   value: ""
                 })
-              }
-{/* 
+            }
+            {/* 
               {
                 telemetryRow({
                   label: "State of Charge",
@@ -161,9 +171,58 @@ class LiveTelemetry extends Component {
                 })
               } */}
 
-            </Col>
-            <Col>
-            </Col>
+          </Col>
+          {/* BMS */}
+          <Col className="rounded mt-5 pb-3 text-center" style={{ border: '4px solid #343a40' }}>
+            <h3 style={{ marginTop: '-17px', background: 'white', display: 'table' }}>BMS</h3>
+            {
+              telemetryRow({
+                label: "State of Charge",
+                value: String(lowCellVoltage) + " V"
+              },
+                {
+                  label: "Volt. (40-72V)",
+                  value: String(highCellVoltage) + " V"
+                },
+                {
+                  label: "Curr.(0-480A)",
+                  value: String(avgCellVoltage) + " V"
+                })
+            }
+
+            {
+              telemetryRow({
+                label: "Pack Sum Voltage",
+                value: String(packSumVoltage) + " V"
+              },
+                {
+                  label: "",
+                  value: ""
+                },
+                {
+                  label: "",
+                  value: ""
+                })
+            }
+            {/* 
+              {
+                telemetryRow({
+                  label: "State of Charge",
+                  value: "0.00"
+                },
+                {
+                  label: "Volt. (40-72V)",
+                  value: "0.00 V"
+                },
+                {
+                  label: "Curr.(0-480A)",
+                  value: "0.00 A"
+                })
+              } */}
+
+          </Col>
+          <Col>
+          </Col>
         </Row>
       </div>
     );
