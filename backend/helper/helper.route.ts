@@ -1,11 +1,13 @@
+import { Model } from 'sequelize'
+
+class CustomModel extends Model {}
 
 /**
  * Gets most recent entry when given a sequelize model
  * 
  * @param {SequlizeModel} model 
  */
-exports.getMostRecent = (model) =>
-{
+export default function getMostRecent(model: typeof CustomModel) {
     return model.findAll({
         limit: 1,
         order: [ [ 'createdAt', 'DESC' ]]
@@ -17,5 +19,4 @@ exports.getMostRecent = (model) =>
         
         return Promise.resolve(null)
     })
-
 }

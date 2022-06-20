@@ -1,13 +1,13 @@
 /* Dependencies */
-var models = require('../models'),
-    helper = require('../helper/helper.route')
+import GPS from "../models/GPS/GPS"
+import getMostRecent from "../helper/helper.route"
 
 /**
 *   Get the most recent GPS coordinate for the live map
 */
 exports.coord = (req, res) =>
 {
-    helper.getMostRecent(models.GPS)
+    getMostRecent(GPS)
     .then((data) => {
         res.json({ success: true, data: data });
     })

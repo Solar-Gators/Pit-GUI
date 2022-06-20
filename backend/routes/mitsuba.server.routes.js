@@ -1,9 +1,9 @@
 
-var bms = require('../controllers/bms.server.controller'), 
+var mitsuba = require('../controllers/mitsuba.server.controller'), 
 express = require('express'), //refers to Express the middleware helper for Node.js
 router = express.Router(); //refers to the Router() function in Express the middleware helper for Node.js
 
 router.route('/')
-.post(bms.post)
+.post(mitsuba.post)
 
 module.exports = router;

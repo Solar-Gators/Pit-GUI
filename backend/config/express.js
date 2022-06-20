@@ -4,7 +4,8 @@ var express = require('express'),  //refers to Express the middleware helper for
     liveRouter = require('../routes/live.server.routes.js'), 
     graphRouter = require('../routes/graph.server.routes.js'),
     bms = require('../routes/bms.server.routes.js'),
-    gps = require('../routes/gps.server.routes.js')
+    gps = require('../routes/gps.server.routes.js'),
+    mitsuba = require('../routes/mitsuba.server.routes.js')
 
 module.exports.init = function() {
   //initialize app
@@ -21,6 +22,7 @@ module.exports.init = function() {
   app.use('/api/graph', graphRouter);
   app.use('/api/bms', bms);
   app.use('/api/gps', gps);
+  app.use('/api/mitsuba', mitsuba);
 
 
   // app.all('/*', function(req, res)
