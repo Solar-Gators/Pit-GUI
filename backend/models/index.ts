@@ -1,8 +1,6 @@
 'use strict';
 import { Sequelize } from 'sequelize-typescript'
-
-import GPS from './GPS/GPS';
-import Mitsuba_RX0 from './Mitsuba/RX0';
+import glob = require("glob")
 
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
@@ -15,7 +13,13 @@ export const sequelize = new Sequelize(
   config
 )
 
-sequelize.addModels([
-  GPS,
-  Mitsuba_RX0
-])
+// Add all models
+glob(__dirname + "/**/*.ts", function (er, files) {
+  const models = files
+    .filter((file) => file !== __dirname + "/index.ts")
+    .map(file => require(file).default);
+  sequelize.addModels(models)
+  sequelize.sync()
+})
+
+export default sequelize

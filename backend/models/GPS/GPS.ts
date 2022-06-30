@@ -4,7 +4,7 @@ import { Table, Column, Model, DataType } from 'sequelize-typescript'
 @Table
 export default class GPS extends Model {
   @Column({
-    type: DataType.NUMBER
+    type: DataType.INTEGER
   })
   heading: number
 
@@ -19,7 +19,7 @@ export default class GPS extends Model {
   longitude: string
 
   @Column({
-    type: DataType.NUMBER
+    type: DataType.INTEGER
   })
   speed: number
 }

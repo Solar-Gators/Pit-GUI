@@ -3,30 +3,22 @@ import GoogleMapReact from 'google-map-react';
 
 
 const AnyReactComponent = ({heading}) => <img style={{ transform : `translate(-25px, -25px) rotate(${heading}deg)` }} width="50px" src="./car.png"></img>;
- 
-class Map extends Component {
- 
-  render() {
-    var {center, zoom, heading } = this.props
-    console.log(center)
-    return (
+
+function Map({center, zoom, heading }) {
+  return (
       // Important! Always set the container height explicitly
       <div style={{ height: '40vh', width: '100%' }}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: 'AIzaSyA4FDicjH6v28z_F_3h2-lyTNK56XEetSA' }}
+          bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAPS_KEY }}
           center={center}
           defaultZoom={zoom}
         >
           <AnyReactComponent
-            lat={center.lat}
-            lng={center.lng}
             heading={heading}
           />
-          
         </GoogleMapReact>
       </div>
-    );
-  }
+  );
 }
- 
+
 export default Map;

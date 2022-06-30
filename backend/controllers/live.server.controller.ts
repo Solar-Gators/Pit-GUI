@@ -1,5 +1,7 @@
 /* Dependencies */
 import Mitsuba_RX0 from "../models/Mitsuba/RX0"
+import Mitsuba_RX1 from "../models/Mitsuba/RX1"
+import Mitsuba_RX2 from "../models/Mitsuba/RX2"
 import getMostRecent from "../helper/helper.route"
 
 
@@ -8,47 +10,13 @@ import getMostRecent from "../helper/helper.route"
 */
 exports.data = async (req, res) => {
     return res.json({
+        "gps": {
+
+        },
         "mitsuba": {
-            "rx0": await getMostRecent(Mitsuba_RX0)
+            "rx0": await getMostRecent(Mitsuba_RX0),
+            "rx1": await getMostRecent(Mitsuba_RX1),
+            "rx2": await getMostRecent(Mitsuba_RX2)
         }
     })
-    // var names = [
-    //     "speed",
-    //     "voltage",
-    //     "duration",
-    //     "temperature",
-    //     "stateofCharge",
-    //     "consumption",
-    //     "panelPower",
-    //     "gps"
-    // ]
-    // var models = [
-    //         sequelizeModels.Speed,
-    //         sequelizeModels.Voltage,
-    //         sequelizeModels.Duration,
-    //         sequelizeModels.Temperature,
-    //         sequelizeModels.StateofCharge,
-    //         sequelizeModels.Consumption,
-    //         sequelizeModels.PanelPower,
-    //         sequelizeModels.GPS
-    //     ]
-    // var modelPromises = []
-
-    // for (var index = 0; index < names.length; index++) {
-    //     modelPromises.push(helper.getMostRecent(models[index]))
-    // }
-
-    // Promise.all(modelPromises)
-    // .then((response) => 
-    // {
-    //     let json = {}
-    //     for (var index = 0; index < names.length; index++)
-    //     {
-    //         json[names[index]] = response[index]
-    //     }
-    //     res.json(json)
-    // })
-    // .catch((err) => {
-    //     res.json({ success: false, error: err });
-    // })
 };
