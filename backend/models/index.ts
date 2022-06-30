@@ -12,14 +12,13 @@ export const sequelize = new Sequelize(
   config.password,
   config
 )
-
 // Add all models
-glob(__dirname + "/**/*.ts", function (er, files) {
+glob(__dirname + "/../shared/models/**/*.js", { nonull: true }, function (er, files) {
   const models = files
     .filter((file) => file !== __dirname + "/index.ts")
     .map(file => require(file).default);
   sequelize.addModels(models)
-  sequelize.sync()
+  sequelize.sync({ force: true })
 })
 
 export default sequelize

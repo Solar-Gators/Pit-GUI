@@ -1,5 +1,8 @@
 'use strict';
+import { InferAttributes } from "sequelize"
 import { Table, Column, Model, DataType } from 'sequelize-typescript'
+
+export type GPS_Type = InferAttributes<GPS>
 
 @Table
 export default class GPS extends Model {

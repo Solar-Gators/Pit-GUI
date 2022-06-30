@@ -9,9 +9,8 @@
         "sourceMap": true,
         "forceConsistentCasingInFileNames": true,
         "outDir": "dist",
-        "declaration": false,
-        "experimentalDecorators": true,
-        "allowJs": true
+        "declaration": true,
+        "experimentalDecorators": true
     },
     "include": [
         "./**/*.ts"

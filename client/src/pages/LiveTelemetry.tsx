@@ -4,20 +4,45 @@ import 'materialize-css/dist/css/materialize.min.css';
 import { Row, Col } from 'react-materialize';
 import Label from '../component/Label'
 import ReactSpeedometer from 'react-d3-speedometer';
-import Map from '../component/Map.tsx'
-import axios from 'axios'
+import Map from '../component/Map'
 import CarStatus from '../component/CarStatus';
+import * as telemetry from "../shared/sdk/telemetry"
 
 function LiveTelemetry() {
+    const [data, setData] = React.useState<telemetry.DataResponse>()
+    const [speed, setSpeed] = React.useState(0)
+
+    React.useEffect(() => {
+        telemetry.getAll()
+        .then((response) => {
+            setData(response)
+
+            //Calculate speed
+            const WHEEL_DIAM_IN = 23.071;
+            const WHEEL_DIAM_MI = (WHEEL_DIAM_IN / 63360) * Math.PI;
+            const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0
+            setSpeed(rpm * 60 * WHEEL_DIAM_MI)
+        })
+    }, [])
+
+
+    if (!data) {
+        return <p>Loading..</p>
+    }
+
+
     return (
         <>
             <Row>
                 <h2>Live Telemetry</h2>
-                {/* <Map
-                    center={carLocation}
+                <Map
+                    center={{
+                        lat: parseFloat(data.gps.latitude),
+                        lng: parseFloat(data.gps.longitude)
+                    }}
                     zoom={16}
-                    heading={heading}
-                /> */}
+                    heading={data.gps.heading}
+                />
             </Row>
             <Row>
                 <CarStatus />

@@ -1,23 +1,33 @@
 'use strict';
+import { InferAttributes } from "sequelize"
 import { Table, Column, Model, DataType } from 'sequelize-typescript'
 
+export type BMS_RX2_Type = InferAttributes<BMS_RX2>
+
 @Table
-export default class BMS_RX3 extends Model {
+export default class BMS_RX2 extends Model<BMS_RX2_Type> {
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    low_cell_res_: number
+    pack_dcl_: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    high_cell_res_: number
+    pack_ccl_: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    pack_res_: number
+    pack_current_: number
+
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: null
+    })
+    constant_val_: number
+
 }

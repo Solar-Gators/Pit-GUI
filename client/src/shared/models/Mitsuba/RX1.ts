@@ -1,8 +1,11 @@
 'use strict';
+import { InferAttributes } from "sequelize"
 import { Table, Column, Model, DataType } from 'sequelize-typescript'
 
+export type Mitsuba_RX1_Type = InferAttributes<Mitsuba_RX1>
+
 @Table
-export default class Mitsuba_RX1 extends Model {
+export default class Mitsuba_RX1 extends Model<Mitsuba_RX1_Type> {
     @Column({
         type: DataType.BOOLEAN,
         defaultValue: null

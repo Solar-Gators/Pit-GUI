@@ -1,8 +1,8 @@
 
 import * as express from "express"
-import Mitsuba_RX0 from "../models/Mitsuba/RX0";
-import Mitsuba_RX1 from "../models/Mitsuba/RX1";
-import Mitsuba_RX2 from "../models/Mitsuba/RX2";
+import Mitsuba_RX0 from "../shared/models/Mitsuba/RX0";
+import Mitsuba_RX1 from "../shared/models/Mitsuba/RX1";
+import Mitsuba_RX2 from "../shared/models/Mitsuba/RX2";
 import connection from "../models";
 import { ModelRestApi } from 'sx-sequelize-api';
 const router = express.Router(); //refers to the Router() function in Express the middleware helper for Node.js
