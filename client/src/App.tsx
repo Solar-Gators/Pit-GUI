@@ -6,7 +6,7 @@ import LiveTelemetry from './pages/LiveTelemetry.tsx'
 export default function App() {
     return (<>
         <Sidebar/>
-        <div style={{"width": "90%"}} className = "container">
+        <div style={{"marginLeft": "30%"}}>
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<LiveTelemetry />} />

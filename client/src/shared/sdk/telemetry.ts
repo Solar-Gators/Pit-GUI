@@ -12,19 +12,19 @@ import { Mitsuba_RX2_Type } from "../models/Mitsuba/RX2"
 
 
 export interface DataResponse {
-    gps: GPS_Type | null
+    gps: GPS_Type
     bms: {
-        rx0: BMS_RX0_Type | null
-        rx1: BMS_RX1_Type | null
-        rx2: BMS_RX2_Type | null
-        rx3: BMS_RX3_Type | null
-        rx4: BMS_RX4_Type | null
-        rx5: BMS_RX5_Type | null
+        rx0: BMS_RX0_Type
+        rx1: BMS_RX1_Type
+        rx2: BMS_RX2_Type
+        rx3: BMS_RX3_Type
+        rx4: BMS_RX4_Type
+        rx5: BMS_RX5_Type
     }
     mitsuba: {
-        rx0: Mitsuba_RX0_Type | null
-        rx1: Mitsuba_RX1_Type | null
-        rx2: Mitsuba_RX2_Type | null
+        rx0: Mitsuba_RX0_Type
+        rx1: Mitsuba_RX1_Type
+        rx2: Mitsuba_RX2_Type
     }
 }
 

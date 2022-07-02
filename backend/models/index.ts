@@ -3,7 +3,8 @@ import { Sequelize } from 'sequelize-typescript'
 import glob = require("glob")
 
 const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
+import configs from "../config/config"
+const config = configs[env]
 
 
 export const sequelize = new Sequelize(

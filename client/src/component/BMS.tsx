@@ -1,0 +1,194 @@
+import React from "react"
+import { Row } from 'react-materialize';
+import { InferAttributes, Model } from "sequelize/types";
+import Label from '../component/Label'
+import * as telemetry from "../shared/sdk/telemetry"
+import NoData from './NoData';
+
+
+interface TelemetryTabbed<
+    T extends { [key: string]: any }
+> {
+    title: string
+    data: Partial<{ [Property in keyof T]:
+            Partial<Record<keyof T[Property], {
+                icon?: string
+                label: string
+                unit?: string
+            }>>
+        }>
+}
+
+
+export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
+    title: "BMS",
+    data: {
+        rx0: {
+            avg_cell_volt_: {
+                label: "Average Cell Voltage",
+                unit: "V"
+            },
+            high_cell_volt_: {
+                label: "High Cell Voltage"
+            },
+            low_cell_volt_: {
+                label: "Low Cell Voltage"
+            },
+            pack_sum_volt_: {
+                label: "Pack Sum Voltage"
+            }
+        },
+        rx1: {
+            high_temp_: {
+                label: "Cell High Temp",
+                unit: "C"
+            },
+            low_temp_: {
+                label: "Cell Low Temp",
+                unit: "C"
+            },
+            avg_temp_: {
+                label: "Cel Average Temp",
+                unit: "C"
+            },
+            internal_temp_: {
+                label: "Internal Temp",
+                unit: "C"
+            }
+        },
+        rx4: {
+
+            internal_cell_communication_fault_: {
+                label: "Internal CAN"
+            },
+
+            cell_balancing_stuck_off_fault_: {
+                label: "Cell Balance"
+            },
+
+            weak_cell_fault_: {
+                label: "Weak Cell"
+            },
+
+
+            low_cell_voltage_fault_: {
+                label: "Low Cell"
+            },
+
+            cell_open_wiring_fault_: {
+                label: "Open Wiring"
+            },
+
+            current_sensor_fault_: {
+                label: "Current Sensor"
+            },
+
+            cell_voltage_over_5v_fault_: {
+                label: "Over 5V"
+            },
+
+            cell_bank_fault_: {
+                label: "Cell Bank"
+            },
+
+            weak_pack_fault_: {
+                label: "Weak Pack"
+            },
+
+            fan_monitor_fault_: {
+                label: "Fan Monitor"
+            },
+
+            thermistor_fault_: {
+                label: "Thermistor"
+            },
+
+
+            can_communication_fault_: {
+                label: "CAN"
+            },
+
+            redundant_power_supply_fault_: {
+                label: "Redundant Power Supply"
+            },
+
+
+            high_voltage_isolation_fault_: {
+                label: "High Voltage Isolation"
+            },
+
+            invalid_input_supply_voltage_fault_: {
+                label: "Invalid Input Supply Voltage"
+            },
+
+            chargeenable_relay_fault_: {
+                label: "Charge Enable Relay"
+            },
+
+            dischargeenable_relay_fault_: {
+                label: "Discharge Enable"
+            },
+
+            charger_safety_relay_fault_: {
+                label: "Charger Safety Relay"
+            },
+
+            internal_hardware_fault_: {
+                label: "Internal Hardware"
+            },
+
+
+            internal_heatsink_thermistor_fault_: {
+                label: "Internal Heat Sink Thermistor"
+            },
+
+            internal_logic_fault_: {
+                label: "Internal Logic"
+            },
+
+            highest_cell_voltage_too_high_fault_: {
+                label: "Highest Cell too High"
+            },
+
+            lowest_cell_voltage_too_low_fault_: {
+                label: "Lowest Cell too Low"
+            },
+
+            pack_too_hot_fault_: {
+                label: "Pack too Hot"
+            }
+        }
+    }
+}
+
+
+export default function TelemetryCAN<T>({ config, data }: { config: TelemetryTabbed<T>, data: T }) {
+    return (<>
+        <h3>{config.title}</h3>
+        <div className="center-align">
+            {Object.keys(config.data).map((messageName: string) => {
+                const message = config.data[messageName]
+
+                if (!message) return
+
+                return <Row>
+                <h4 style={{ textAlign: "left" }}>{messageName.toUpperCase()}</h4>
+                {Object.keys(message)
+                .map((telemetryName) => {
+                    const telemetry = message[telemetryName]
+
+                    if (!telemetry) return
+                    return <>
+                        <Label
+                            svgSrc={telemetry.icon}
+                            label={telemetry.label}
+                            unit={telemetry.unit}
+                            value={data[messageName]?.[telemetryName] ?? "N/D"}
+                        />
+                    </>
+                })}
+                </Row>
+            })}
+        </div>
+    </>)
+}

@@ -1,4 +1,4 @@
-var config = require('./app-config'), 
+var config = require('./app-config'),
     express = require('./express'); // refers to express.js file in our application not Express the Middleware helper for Node.js
 
 module.exports.start = function() {

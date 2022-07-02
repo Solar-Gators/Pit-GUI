@@ -6,7 +6,7 @@
     stroke: #ffab00;
     stroke-width: 3;
 }
-  
+
 .overlay {
   fill: none;
   pointer-events: all;
@@ -17,8 +17,37 @@
     fill: #ffab00;
     stroke: #fff;
 }
-  
-  .focus circle {
+
+.focus circle {
   fill: none;
   stroke: steelblue;
+}
+
+.sidenav {
+  width: 20% !important;
+}
+
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.break {
+  height: 0;
+  flex-basis: 100%;
+}
+
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

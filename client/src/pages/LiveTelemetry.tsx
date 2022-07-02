@@ -7,6 +7,7 @@ import ReactSpeedometer from 'react-d3-speedometer';
 import Map from '../component/Map'
 import CarStatus from '../component/CarStatus';
 import * as telemetry from "../shared/sdk/telemetry"
+import TelemetryCAN, { bmsShape } from "../component/BMS"
 
 function LiveTelemetry() {
     const [data, setData] = React.useState<telemetry.DataResponse>()
@@ -33,83 +34,50 @@ function LiveTelemetry() {
 
     return (
         <>
+            <h2>Live Telemetry</h2>
             <Row>
-                <h2>Live Telemetry</h2>
-                <Map
-                    center={{
-                        lat: parseFloat(data.gps.latitude),
-                        lng: parseFloat(data.gps.longitude)
-                    }}
-                    zoom={16}
-                    heading={data.gps.heading}
-                />
-            </Row>
-            <Row>
-                <CarStatus />
-            </Row>
-            {/* <Row>
-                <Col className="center-align" s={6} offset="s3">
+                <Col>
+                    <Map
+                        gps={data.gps}
+                        zoom={16}
+                    />
+                </Col>
+                <Col className="flex-center">
                     <ReactSpeedometer
                         maxValue={40}
                         value={speed}
-                        needleColor="red"
-                        startColor="black"
+                        needleColor="black"
+                        startColor="white"
                         segments={4}
-                        endColor="black"
+                        endColor="white"
                         height={180}
                         currentValueText={"${value} MPH"}
                         valueFormat={"d"}
                     />
                 </Col>
             </Row>
+            <Row>
+                <CarStatus
+                    bmsFault={
+                        data.bms.rx4 ?
+                        Object.keys(data.bms.rx4).some((key) => {
+                            return data.bms.rx4[key] === true
+                        }) : null
+                    }
+                    mitsubaFault={
+                        data.mitsuba.rx2 ?
+                        Object.keys(data.mitsuba.rx2).some((key) => {
+                            return data.mitsuba.rx2[key] === true
+                        }) : null
+                    }
+                />
+            </Row>
 
-            <h3>Battery Management System</h3>
-            <div className="center-align">
-                <div>
-                    <p>State of Charge</p>
+            <TelemetryCAN
+                config={bmsShape}
+                data={data.bms}
+            />
 
-                </div>
-
-                <Row>
-                    <Label svgSrc="./voltage.svg" label="Pack Sum" value={packSumVoltage + " V"} />
-                    <Label label="Low" value={lowCellVoltage + " V"} />
-                    <Label label="High" value={highCellVoltage + " V"} />
-                    <Label label="Average" value={avgCellVoltage + " V"} />
-                </Row>
-                <Row>
-                    <Label svgSrc="./temperature.svg" label="High Temp" value={stateOfCharge + " V"} />
-                    <Label label="Low Temp" value={consumption + " V"} />
-                </Row>
-                <Row>
-                    <Label svgSrc="./battery.svg" label="State of Charge" value={stateOfCharge + " V"} />
-                    <Label label="Amp Hours" value={consumption + " V"} />
-                </Row>
-                <Row>
-                    <Label svgSrc="./battery.svg" label="Pack current" value={stateOfCharge + " V"} />
-                    <Label label="Pack current charge limit" value={consumption + " V"} />
-                    <Label label="Pack discharge current limit" value={panelPower + " V"} />
-                </Row>
-                <Row>
-                    <Label svgSrc="./solar-power.svg" label="Fail Safe Status" value={panelPower + " V"} />
-                </Row>
-            </div>
-
-            <h3>Motor Controllers</h3>
-            <div className="center-align">
-                <Row>
-                    <Label label="Motor RPM" value={this.state.mitsuba.rx0.motorRPM} />
-                    <Label label="FET Temp" value={this.state.mitsuba.rx0.FETtemp + " C"} />
-                    <Label label="PWM Duty Cycle" value={this.state.mitsuba.rx0.PWMDuty} />
-                </Row>
-                <Row>
-                    <Label label="Battery Voltage" value={this.state.mitsuba.rx0.battVoltage/2 + " V"} />
-                    <Label label="Battery Current" value={this.state.mitsuba.rx0.battCurrent} />
-                    <Label label="Average Current" value={this.state.mitsuba.rx0.motorCurrentPkAvg} />
-                </Row>
-                <Row>
-                    <Label label="Lead Angle" value={this.state.mitsuba.rx0.LeadAngle} />
-                </Row>
-            </div> */}
         </>
     )
 }
