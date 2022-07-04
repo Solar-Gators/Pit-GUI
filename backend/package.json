@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
+    "buid": "tsc",
+    "start": "node dist/server.js",
     "drop-db": "sequelize db:drop",
     "create-db": "sequelize db:create",
     "migrate": "sequelize db:migrate",

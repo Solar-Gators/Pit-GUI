@@ -1,6 +1,6 @@
 const config = {
   "development": {
-    "username": "root",
+    "username": "solargators",
     "password": null,
     "database": "SolarGators_Telemetry_Dev",
     "host": "127.0.0.1",
@@ -8,7 +8,7 @@ const config = {
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
+    "username": "solargators",
     "password": null,
     "database": "SolarGators_Telemetry_Prod",
     "host": "127.0.0.1",
