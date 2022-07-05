@@ -3,6 +3,7 @@ var morgan = require('morgan'),
     liveRouter = require('../routes/live.server.routes.js')
 import * as express from "express"
 import mitsuba from '../routes/mitsuba.server.routes'
+import bms from '../routes/bms.server.routes'
 
 module.exports.init = function() {
   //initialize app
@@ -17,7 +18,7 @@ module.exports.init = function() {
   //routers
   app.use('/api/live', liveRouter);
   // app.use('/api/graph', graphRouter);
-  // app.use('/api/bms', bms);
+  app.use('/api/bms', bms);
   // app.use('/api/gps', gps);
   app.use('/api/mitsuba', mitsuba);
 
