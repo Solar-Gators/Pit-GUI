@@ -1,29 +1,35 @@
 import React, { Component } from 'react';
 import 'materialize-css'; // It installs the JS asset only
 import 'materialize-css/dist/css/materialize.min.css';
-import { Row, Col } from 'react-materialize';
-import Label from '../component/Label'
+import { Row, Col } from 'react-bootstrap';
+import Mitsuba, { mitsubaShape } from "../component/Mitsuba"
 import ReactSpeedometer from 'react-d3-speedometer';
 import Map from '../component/Map'
 import CarStatus from '../component/CarStatus';
 import * as telemetry from "../shared/sdk/telemetry"
-import TelemetryCAN, { bmsShape } from "../component/BMS"
+import { bmsShape } from "../component/BMS"
+import TelemetryCAN from '../component/TelemetryCan';
+import Nav from 'react-bootstrap/Nav'
+import { NavLink, Route, Routes } from "react-router-dom"
+import Label from '../component/Label';
 
 function LiveTelemetry() {
     const [data, setData] = React.useState<telemetry.DataResponse>()
     const [speed, setSpeed] = React.useState(0)
 
     React.useEffect(() => {
-        telemetry.getAll()
-        .then((response) => {
-            setData(response)
+        setInterval(() => {
+            telemetry.getAll()
+            .then((response) => {
+                setData(response)
 
-            //Calculate speed
-            const WHEEL_DIAM_IN = 23.071;
-            const WHEEL_DIAM_MI = (WHEEL_DIAM_IN / 63360) * Math.PI;
-            const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0
-            setSpeed(rpm * 60 * WHEEL_DIAM_MI)
-        })
+                //Calculate speed
+                const WHEEL_DIAM_IN = 23.071;
+                const WHEEL_DIAM_MI = (WHEEL_DIAM_IN / 63360) * Math.PI;
+                const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0
+                setSpeed(rpm * 60 * WHEEL_DIAM_MI)
+            })
+        }, 1000)
     }, [])
 
 
@@ -73,10 +79,64 @@ function LiveTelemetry() {
                 />
             </Row>
 
-            <TelemetryCAN
-                config={bmsShape}
-                data={data.bms}
-            />
+            <h3>Quick Facts</h3>
+            <Row>
+                <Label
+                    label="Pack Voltage"
+                    value={data.bms.rx0?.pack_sum_volt_ ?? "N/D"}
+                    unit="V"
+                />
+                <Label
+                    label="Power"
+                    value={
+                        (data.bms.rx0?.pack_sum_volt_) ?? 0
+                        *
+                        (data.bms.rx2?.pack_ccl_) ?? 0
+                    }
+                    unit="W"
+                />
+                <Label
+                    label="State of Charge"
+                    value={
+                        data.bms.rx4.pack_soc_
+                    }
+                    unit="%"
+                />
+            </Row>
+
+            <h3>Raw Messages</h3>
+            <Nav variant="tabs">
+                <Nav.Item>
+                    <Nav.Link as={NavLink} to="/">Motor Controller</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={NavLink} to="/bms">BMS</Nav.Link>
+                </Nav.Item>
+            </Nav>
+
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        // <Mitsuba
+                        //     mitsuba={data.mitsuba}
+                        // />
+                        <TelemetryCAN
+                            config={mitsubaShape}
+                            data={data.mitsuba}
+                        />
+                    }
+                />
+                <Route
+                    path="/bms"
+                    element={
+                        <TelemetryCAN
+                            config={bmsShape}
+                            data={data.bms}
+                        />
+                    }
+                />
+            </Routes>
 
         </>
     )

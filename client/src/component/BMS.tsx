@@ -1,24 +1,6 @@
 import React from "react"
-import { Row } from 'react-materialize';
-import { InferAttributes, Model } from "sequelize/types";
-import Label from '../component/Label'
 import * as telemetry from "../shared/sdk/telemetry"
-import NoData from './NoData';
-
-
-interface TelemetryTabbed<
-    T extends { [key: string]: any }
-> {
-    title: string
-    data: Partial<{ [Property in keyof T]:
-            Partial<Record<keyof T[Property], {
-                icon?: string
-                label: string
-                unit?: string
-            }>>
-        }>
-}
-
+import { TelemetryTabbed } from "./TelemetryCan";
 
 export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
     title: "BMS",
@@ -54,6 +36,28 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
             internal_temp_: {
                 label: "Internal Temp",
                 unit: "C"
+            }
+        },
+        rx2: {
+            pack_ccl_: {
+                label: "Pack Charge Current Limit"
+            },
+            pack_current_: {
+                label: "Pack Current"
+            },
+            pack_dcl_: {
+                label: "Pack Discharge Current Limit"
+            }
+        },
+        rx3: {
+            low_cell_res_: {
+                label: "Low Cell Resistance"
+            },
+            high_cell_res_: {
+                label: "High Cell Resistance"
+            },
+            pack_res_: {
+                label: "Pack Resistance"
             }
         },
         rx4: {
@@ -157,38 +161,17 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
             pack_too_hot_fault_: {
                 label: "Pack too Hot"
             }
+        },
+        rx5: {
+            max_pack_ccl_: {
+                label: "Max Charge Current Limit"
+            },
+            max_pack_dcl_: {
+                label: "Max Pack Discharge Current Limit"
+            },
+            max_pack_volt_: {
+                label: "Max Pack Voltage"
+            }
         }
     }
-}
-
-
-export default function TelemetryCAN<T>({ config, data }: { config: TelemetryTabbed<T>, data: T }) {
-    return (<>
-        <h3>{config.title}</h3>
-        <div className="center-align">
-            {Object.keys(config.data).map((messageName: string) => {
-                const message = config.data[messageName]
-
-                if (!message) return
-
-                return <Row>
-                <h4 style={{ textAlign: "left" }}>{messageName.toUpperCase()}</h4>
-                {Object.keys(message)
-                .map((telemetryName) => {
-                    const telemetry = message[telemetryName]
-
-                    if (!telemetry) return
-                    return <>
-                        <Label
-                            svgSrc={telemetry.icon}
-                            label={telemetry.label}
-                            unit={telemetry.unit}
-                            value={data[messageName]?.[telemetryName] ?? "N/D"}
-                        />
-                    </>
-                })}
-                </Row>
-            })}
-        </div>
-    </>)
 }
