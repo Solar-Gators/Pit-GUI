@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'materialize-css'; // It installs the JS asset only
 import 'materialize-css/dist/css/materialize.min.css';
 import { Row, Col } from 'react-bootstrap';
-import Mitsuba, { mitsubaShape } from "../component/Mitsuba"
+import { mitsubaShape } from "../component/Mitsuba"
 import ReactSpeedometer from 'react-d3-speedometer';
 import Map from '../component/Map'
 import CarStatus from '../component/CarStatus';
@@ -89,9 +89,9 @@ function LiveTelemetry() {
                 <Label
                     label="Power"
                     value={
-                        (data.bms.rx0?.pack_sum_volt_) ?? 0
+                        (data.bms.rx0?.pack_sum_volt_ ?? 0)
                         *
-                        (data.bms.rx2?.pack_ccl_) ?? 0
+                        (data.bms.rx2?.pack_current_ ?? 0)
                     }
                     unit="W"
                 />
@@ -118,9 +118,6 @@ function LiveTelemetry() {
                 <Route
                     path="/"
                     element={
-                        // <Mitsuba
-                        //     mitsuba={data.mitsuba}
-                        // />
                         <TelemetryCAN
                             config={mitsubaShape}
                             data={data.mitsuba}

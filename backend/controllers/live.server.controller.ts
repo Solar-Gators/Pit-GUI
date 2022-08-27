@@ -1,7 +1,7 @@
 import Mitsuba_RX0 from "../shared/models/Mitsuba/RX0"
 import Mitsuba_RX1 from "../shared/models/Mitsuba/RX1"
 import Mitsuba_RX2 from "../shared/models/Mitsuba/RX2"
-import getMostRecent from "../helper/helper.route"
+import { getMostRecent } from "../helper/helper.route"
 import { Response } from "express";
 import { DataResponse } from "../shared/sdk/telemetry";
 import BMS_RX0 from "../shared/models/BMS/RX0";
