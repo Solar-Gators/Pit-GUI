@@ -1,3 +1,4 @@
+import React from 'react';
 import { Row } from 'react-materialize';
 import Label from '../component/Label'
 
@@ -22,20 +23,22 @@ export default function TelemetryCAN<T>({ config, data }: { config: TelemetryTab
                 const message = config.data[messageName]
 
                 if (!message) return
+                const telemetryData = data[messageName]
 
                 return <Row>
                 <h4 style={{ textAlign: "left" }}>{messageName.toUpperCase()}</h4>
+                <p className='text-start'>Received: {telemetryData?.['createdAt'] ? new Date(telemetryData['createdAt']).toString() : 'N/A'}</p>
                 {Object.keys(message)
                 .map((telemetryName) => {
-                    const telemetry = message[telemetryName]
+                    const telemetryInfo = message[telemetryName]
 
-                    if (!telemetry) return
+                    if (!telemetryInfo) return
                     return <>
                         <Label
-                            svgSrc={telemetry.icon}
-                            label={telemetry.label}
-                            unit={telemetry.unit}
-                            value={data[messageName]?.[telemetryName] ?? "N/D"}
+                            svgSrc={telemetryInfo.icon}
+                            label={telemetryInfo.label}
+                            unit={telemetryInfo.unit}
+                            value={telemetryData?.[telemetryName] ?? "N/D"}
                         />
                     </>
                 })}
