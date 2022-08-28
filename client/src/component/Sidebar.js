@@ -23,7 +23,7 @@ class Sidebar extends Component {
                         <a href="/">Live</a>
                     </li>
                     <li>
-                        <a href="/history">Download Data</a>
+                        <a href="/history">Data Export</a>
                     </li>
                 </ul>
             </div>
