@@ -7,14 +7,14 @@ import ArchivedTelemetry from './pages/ArchivedTelemetry';
 
 export default function App() {
     return (<>
-        <Sidebar/>
-        <div style={{"marginLeft": "30%"}}>
             <BrowserRouter>
-                <Routes>
-                    <Route path="/history" element={<ArchivedTelemetry />} />
-                    <Route path="*" element={<LiveTelemetry />} />
-                </Routes>
+                <Sidebar/>
+                <div style={{"marginLeft": "25%", "marginRight": "5%"}}>
+                    <Routes>
+                        <Route path="/history" element={<ArchivedTelemetry />} />
+                        <Route path="*" element={<LiveTelemetry />} />
+                    </Routes>
+                </div>
             </BrowserRouter>
-        </div>
     </>)
 }

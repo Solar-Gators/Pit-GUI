@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import 'materialize-css'; // It installs the JS asset only
 import 'materialize-css/dist/css/materialize.min.css';
 import M from "materialize-css/dist/js/materialize.min.js";
+import { Link } from 'react-router-dom';
 
 
 class Sidebar extends Component {
@@ -20,10 +21,10 @@ class Sidebar extends Component {
                         <img width="160px" height="100px" src="./logo.png" />
                     </li>
                     <li class="bold active">
-                        <a href="/">Live</a>
+                        <Link to="/">Live</Link>
                     </li>
                     <li>
-                        <a href="/history">Data Export</a>
+                        <Link to="/history">Data Export</Link>
                     </li>
                 </ul>
             </div>
