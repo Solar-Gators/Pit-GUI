@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize-typescript'
 import glob = require("glob")
 
 const env = process.env.NODE_ENV || 'development';
-import configs from "../config/config"
+import configs = require("../config/config")
 const config = configs[env]
 const operatorsAliases = {
   $eq: Op.eq,
