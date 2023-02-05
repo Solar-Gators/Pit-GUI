@@ -7,9 +7,9 @@
     "test": "mocha",
     "buid": "tsc",
     "start": "node dist/server.js",
-    "drop-db": "sequelize db:drop",
-    "create-db": "sequelize db:create",
-    "migrate": "sequelize db:migrate",
+    "drop-db": "node_modules/.bin/sequelize db:drop",
+    "create-db": "node_modules/.bin/sequelize db:create",
+    "migrate": "node_modules/.bin/sequelize db:migrate",
     "build": "rm -rf ./dist && tsc"
   },
   "author": "",
