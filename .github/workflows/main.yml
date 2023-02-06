@@ -2,22 +2,28 @@ name: CI
 
 on: [push]
 
-jobs:
-  build:
+defaults:
+  run:
+    working-directory: backend
 
+jobs:
+  backend-build:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
-        node-version: 12.x
+        node-version: 16.x
+    - run: cd ../ && npm ci
     - run: sudo apt install mysql-server
     - run: sudo /etc/init.d/mysql start
     - run: sudo mysql -u root -proot -e "CREATE USER 'solargators'@'localhost' IDENTIFIED BY '';"
     - run: sudo mysql -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'solargators'@'localhost';"
-    - run: npm run install-all
-    - run: cd backend && npm run build && npm run create-db && npm run migrate
+    - run: npm ci --force
+    - run: npm run build
+    - run: npm run create-db
+    - run: npm run migrate
 
     # Uncomment this when we've added tests
     # - run: npm test
