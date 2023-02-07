@@ -4,10 +4,16 @@ var morgan = require('morgan'),
 import * as express from "express"
 import mitsuba from '../routes/mitsuba.server.routes'
 import bms from '../routes/bms.server.routes'
+import cors from 'cors'
 
 module.exports.init = function() {
   //initialize app
   var app = express();
+
+  // Allow all origins
+  app.use(cors({
+    origin: '*'
+  }))
 
   //enable request logging for development debugging
   // app.use(morgan('dev'));
