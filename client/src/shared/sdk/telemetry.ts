@@ -30,13 +30,17 @@ export interface DataResponse extends CanData {
     gps: GPS_Type
 }
 
+export const telemetryApi = axios.create({
+    baseURL: process.env.REACT_APP_TELEMETRY_API
+});
+
 export function getAll(): Promise<DataResponse> {
-    return axios.get("/api/live/data")
+    return telemetryApi.get("/api/live/data")
     .then((response) => response.data)
 }
 
 export function getAllModule<T extends keyof CanData, P extends keyof CanData[T]>(module: T, message: P, where: Record<string, any> = null): Promise<CanData[T][P][]> {
-    return axios.get(`/api/${module}/${String(message)}`, {
+    return telemetryApi.get(`/api/${module}/${String(message)}`, {
         params: {
             ...(where && { where: JSON.stringify(where) })
         }
@@ -55,7 +59,7 @@ type telemetryModels = bmsModels | mitsubaModels
 
 export function countOne(telemetry: telemetryModels, where: Record<string, any>): Promise<number> {
     const [telemetryType, message] = telemetry.split('.')
-    return axios.get(`/api/${telemetryType}/${message}/cnt`, {
+    return telemetryApi.get(`/api/${telemetryType}/${message}/cnt`, {
         params: {
             ...(where && { where: JSON.stringify(where) })
         }

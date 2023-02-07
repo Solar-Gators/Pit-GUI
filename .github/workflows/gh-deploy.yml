@@ -28,6 +28,8 @@ jobs:
       - run: cd ../ && npm ci
       - run: npm ci --force
       - run: npm run build
+        env:
+          REACT_APP_TELEMETRY_API: telemetry-api.ufsolargators.org
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
