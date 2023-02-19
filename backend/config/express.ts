@@ -4,7 +4,7 @@ var morgan = require('morgan'),
 import * as express from "express"
 import mitsuba from '../routes/mitsuba.server.routes'
 import bms from '../routes/bms.server.routes'
-import cors from 'cors'
+const cors = require('cors')
 
 module.exports.init = function() {
   //initialize app
