@@ -81,7 +81,16 @@ export default function ArchivedTelemetry(){
                 onClick={async () => {
                     Object.keys(countData).forEach((telemetryType: any) => {
                         {Object.keys(countData[telemetryType]).forEach(async (message: any) => {
-                            const module = await getAllModule(telemetryType, message)
+                            const module = await getAllModule(
+                                telemetryType,
+                                message,
+                                {
+                                    createdAt: {
+                                        $gte: startDate,
+                                        ...( endDate && { $lte: endDate })
+                                    }
+                                }
+                            )
                             const url = window.URL.createObjectURL(
                                 new Blob([parse(module)]),
                             );
