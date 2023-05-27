@@ -4,7 +4,7 @@ import { TelemetryTabbed } from "./TelemetryCan";
 
 
 export const mpptShape: TelemetryTabbed<telemetry.MPPT_Group> = {
-    title: "Motor Controller",
+    title: "MPPTs",
     data: {
         rx0: {
             inputCurrent: {
