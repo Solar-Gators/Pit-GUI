@@ -11,6 +11,7 @@ data: Partial<{ [Property in keyof T]:
             icon?: string
             label: string
             unit?: string
+            booleanError?: boolean
         }>>
     }>
 }
@@ -25,24 +26,30 @@ export default function TelemetryCAN<T>({ config, data }: { config: TelemetryTab
                 if (!message) return
                 const telemetryData = data?.[messageName]
 
-                return <Row>
-                <h4 style={{ textAlign: "left" }}>{messageName.toUpperCase()}</h4>
-                <p className='text-start'>Received: {telemetryData?.['createdAt'] ? new Date(telemetryData['createdAt']).toString() : 'N/A'}</p>
-                {Object.keys(message)
-                .map((telemetryName) => {
-                    const telemetryInfo = message[telemetryName]
+                return (
+                    <Row id={messageName}>
+                        <h4 style={{ textAlign: "left" }}>{messageName.toUpperCase()}</h4>
+                        <p className='text-start'>Received: {
+                            telemetryData?.['createdAt'] ?
+                            new Date(telemetryData['createdAt']).toString() : 'N/A'
+                        }
+                        </p>
+                        {Object.keys(message).map((telemetryName) => {
+                            const telemetryInfo = message[telemetryName]
 
-                    if (!telemetryInfo) return
-                    return <>
-                        <Label
-                            svgSrc={telemetryInfo.icon}
-                            label={telemetryInfo.label}
-                            unit={telemetryInfo.unit}
-                            value={telemetryData?.[telemetryName] ?? "N/D"}
-                        />
-                    </>
-                })}
-                </Row>
+                            if (!telemetryInfo) return
+                            return <>
+                                <Label
+                                    svgSrc={telemetryInfo.icon}
+                                    label={telemetryInfo.label}
+                                    unit={telemetryInfo.unit}
+                                    booleanError={telemetryInfo.booleanError}
+                                    value={telemetryData?.[telemetryName] ?? "N/D"}
+                                />
+                            </>
+                        })}
+                    </Row>
+                )
             })}
         </div>
     </>)

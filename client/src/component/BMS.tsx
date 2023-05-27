@@ -1,4 +1,3 @@
-import React from "react"
 import * as telemetry from "../shared/sdk/telemetry"
 import { TelemetryTabbed } from "./TelemetryCan";
 
@@ -63,103 +62,127 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
         rx4: {
 
             internal_cell_communication_fault_: {
-                label: "Internal CAN"
+                label: "Internal CAN",
+                booleanError: true
             },
 
             cell_balancing_stuck_off_fault_: {
-                label: "Cell Balance"
+                label: "Cell Balance",
+                booleanError: true
             },
 
             weak_cell_fault_: {
-                label: "Weak Cell"
+                label: "Weak Cell",
+                booleanError: true
             },
 
 
             low_cell_voltage_fault_: {
-                label: "Low Cell"
+                label: "Low Cell",
+                booleanError: true
             },
 
             cell_open_wiring_fault_: {
-                label: "Open Wiring"
+                label: "Open Wiring",
+                booleanError: true
             },
 
             current_sensor_fault_: {
-                label: "Current Sensor"
+                label: "Current Sensor",
+                booleanError: true
             },
 
             cell_voltage_over_5v_fault_: {
-                label: "Over 5V"
+                label: "Over 5V",
+                booleanError: true
             },
 
             cell_bank_fault_: {
-                label: "Cell Bank"
+                label: "Cell Bank",
+                booleanError: true
             },
 
             weak_pack_fault_: {
-                label: "Weak Pack"
+                label: "Weak Pack",
+                booleanError: true
             },
 
             fan_monitor_fault_: {
-                label: "Fan Monitor"
+                label: "Fan Monitor",
+                booleanError: true
             },
 
             thermistor_fault_: {
-                label: "Thermistor"
+                label: "Thermistor",
+                booleanError: true
             },
 
 
             can_communication_fault_: {
-                label: "CAN"
+                label: "CAN",
+                booleanError: true
             },
 
             redundant_power_supply_fault_: {
-                label: "Redundant Power Supply"
+                label: "Redundant Power Supply",
+                booleanError: true
             },
 
 
             high_voltage_isolation_fault_: {
-                label: "High Voltage Isolation"
+                label: "High Voltage Isolation",
+                booleanError: true
             },
 
             invalid_input_supply_voltage_fault_: {
-                label: "Invalid Input Supply Voltage"
+                label: "Invalid Input Supply Voltage",
+                booleanError: true
             },
 
             chargeenable_relay_fault_: {
-                label: "Charge Enable Relay"
+                label: "Charge Enable Relay",
+                booleanError: true
             },
 
             dischargeenable_relay_fault_: {
-                label: "Discharge Enable"
+                label: "Discharge Enable",
+                booleanError: true
             },
 
             charger_safety_relay_fault_: {
-                label: "Charger Safety Relay"
+                label: "Charger Safety Relay",
+                booleanError: true
             },
 
             internal_hardware_fault_: {
-                label: "Internal Hardware"
+                label: "Internal Hardware",
+                booleanError: true
             },
 
 
             internal_heatsink_thermistor_fault_: {
-                label: "Internal Heat Sink Thermistor"
+                label: "Internal Heat Sink Thermistor",
+                booleanError: true
             },
 
             internal_logic_fault_: {
-                label: "Internal Logic"
+                label: "Internal Logic",
+                booleanError: true
             },
 
             highest_cell_voltage_too_high_fault_: {
-                label: "Highest Cell too High"
+                label: "Highest Cell too High",
+                booleanError: true
             },
 
             lowest_cell_voltage_too_low_fault_: {
-                label: "Lowest Cell too Low"
+                label: "Lowest Cell too Low",
+                booleanError: true
             },
 
             pack_too_hot_fault_: {
-                label: "Pack too Hot"
+                label: "Pack too Hot",
+                booleanError: true
             }
         },
         rx5: {

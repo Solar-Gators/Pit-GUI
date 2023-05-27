@@ -1,6 +1,4 @@
-import React from 'react';
-import 'materialize-css'; // It installs the JS asset only
-import 'materialize-css/dist/css/materialize.min.css';
+import React, { useEffect } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { mitsubaShape } from "../component/Mitsuba"
 import { mpptShape } from "../component/MPPT"
@@ -11,12 +9,32 @@ import * as telemetry from "../shared/sdk/telemetry"
 import { bmsShape } from "../component/BMS"
 import TelemetryCAN from '../component/TelemetryCan';
 import Nav from 'react-bootstrap/Nav'
-import { NavLink, Route, Routes } from "react-router-dom"
+import { NavLink, Route, Routes, useLocation } from "react-router-dom"
 import Label from '../component/Label';
 
 function LiveTelemetry() {
     const [data, setData] = React.useState<telemetry.DataResponse>()
     const [speed, setSpeed] = React.useState(0)
+
+
+    const { pathname, hash, key } = useLocation();
+
+    useEffect(() => {
+        // if not a hash link, scroll to top
+        if (hash === '') {
+        window.scrollTo(0, 0);
+        }
+        // else scroll to id
+        else {
+        setTimeout(() => {
+            const id = hash.replace('#', '');
+            const element = document.getElementById(id);
+            if (element) {
+            element.scrollIntoView();
+            }
+        }, 0);
+        }
+    }, [pathname, hash, key]); // do this on route change
 
     React.useEffect(() => {
         setInterval(() => {

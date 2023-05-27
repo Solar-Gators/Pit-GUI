@@ -1,11 +1,12 @@
 import React from "react"
+import { useNavigate } from "react-router-dom";
 import car_image from "../content/car.png"
 
 interface PopupLocation {
     x: number
     y: number
     name: string
-    status: "Ok" | "Fault" | "No Data"
+    status: string
 }
 
 const StatusContext = React.createContext<{
@@ -34,7 +35,8 @@ export default function CarStatus({
             },
             onHoverExit: () => setPopupLocation(null)
         }}>
-            <svg width="700" height="300">
+
+            <svg width="100%" viewBox="0 0 700 300">
                 <image
                     href={car_image}
                     y="0"
@@ -42,6 +44,7 @@ export default function CarStatus({
                 />
                 <Section
                     name="BMS"
+                    errorLink="/bms#rx4"
                     isFault={bmsFault}
                     height="26"
                     width="134"
@@ -50,6 +53,7 @@ export default function CarStatus({
                 />
                 <Section
                     name="Motor Controller"
+                    errorLink="/#rx2"
                     isFault={mitsubaFault}
                     height="42"
                     width="19"
@@ -58,7 +62,6 @@ export default function CarStatus({
                 />
                 <Section
                     name={"Rear Lights"}
-                    isFault={false}
                     height="36"
                     width="15"
                     y="180"
@@ -66,7 +69,6 @@ export default function CarStatus({
                 />
                 <Section
                     name="Steering Wheel"
-                    isFault={false}
                     transform="rotate(-21 230 110)"
                     height="40"
                     width="20"
@@ -75,11 +77,34 @@ export default function CarStatus({
                 />
                 <Section
                     name="Front Lights"
-                    isFault={false}
                     height="22"
                     width="22"
                     y="190"
                     x="80"
+                />
+                <Section
+                    name="MPPT #1"
+                    isFault={false}
+                    height="22"
+                    width="22"
+                    y="200"
+                    x="250"
+                />
+                <Section
+                    name="MPPT #2"
+                    isFault={false}
+                    height="22"
+                    width="22"
+                    y="200"
+                    x="290"
+                />
+                <Section
+                    name="MPPT #3"
+                    isFault={false}
+                    height="22"
+                    width="22"
+                    y="200"
+                    x="330"
                 />
                 {popupLocation !== null && <Popup info={popupLocation} />}
             </svg>
@@ -124,22 +149,47 @@ function Popup({ info }: { info: PopupLocation }) {
     )
 }
 
+interface SectionProps extends React.SVGProps<SVGRectElement> {
+    errorLink?: string
+    isFault?: boolean | null
+    name: string
+    x: string
+    y: string
+}
 
-function Section({ isFault, name, ...rest}: React.SVGProps<SVGRectElement> & { isFault: boolean | null, name: string, x: string, y: string }) {
+function Section({ isFault, errorLink, name, ...rest}: SectionProps ) {
     const status = React.useContext(StatusContext)
+    const navigate = useNavigate()
     const [isHover, setIsHover] = React.useState(false)
+    let fillColor = "#D3D3D3"
+    let statusLabel = "Not Implemented"
+    if (isFault) {
+        fillColor = "#ff0000"
+        statusLabel = "Fault"
+        statusLabel = (errorLink ? "Click to see " : "") + statusLabel
+    }
+    else if (isFault == false) {
+        fillColor = "#00ff00"
+        statusLabel = "Ok"
+    }
+
     return <rect
         {...rest}
         stroke="#000"
         strokeWidth={isHover ? "4px" : "2px"}
-        fill={isFault === false ? "#00ff00" : isFault === true ? "#ff0000" : "#ffff00"}
+        fill={fillColor}
         cursor="pointer"
+        onClick={() => {
+            if (errorLink) {
+                navigate(errorLink)
+            }
+        }}
         onMouseEnter={() => {
             status.onHover({
                 x: parseInt(rest.x),
                 y: parseInt(rest.y),
                 name: name,
-                status: isFault === false ? "Ok" : isFault === true ? "Fault" : "No Data"
+                status: statusLabel
             })
             setIsHover(true)
         }}

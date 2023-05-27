@@ -1,8 +1,4 @@
-import React from "react"
-import { Row } from 'react-materialize';
-import Label from '../component/Label'
 import * as telemetry from "../shared/sdk/telemetry"
-import NoData from './NoData';
 import { TelemetryTabbed } from "./TelemetryCan";
 
 
@@ -61,124 +57,94 @@ export const mitsubaShape: TelemetryTabbed<telemetry.DataResponse["mitsuba"]> = 
                 label: "Over Heat Level"
             },
             adSensorError: {
-                label: "Ad Sensor Error"
+                label: "Ad Sensor Error",
+                booleanError: true
             },
 
             motorCurrSensorUError : {
-                label: "motor Current Sensor U Error"
+                label: "motor Current Sensor U Error",
+                booleanError: true
             },
 
             motorCurrSensorWError: {
-                label: "Motor Current Sensor W Error"
+                label: "Motor Current Sensor W Error",
+                booleanError: true
             },
 
             fetThermError: {
-                label: "FET Thermal Error"
+                label: "FET Thermal Error",
+                booleanError: true
             },
 
             battVoltSensorError: {
-                label: "Battery Voltage Sensor Error"
+                label: "Battery Voltage Sensor Error",
+                booleanError: true
             },
 
             battCurrSensorError: {
-                label: "Battery current sensor error"
+                label: "Battery current sensor error",
+                booleanError: true
             },
 
             battCurrSensorAdjError: {
-                label: "Current Sensor Adj Error"
+                label: "Current Sensor Adj Error",
+                booleanError: true
             },
 
             motorCurrSensorAdjError: {
-                label: "Motor Current Sensor Adj Error"
+                label: "Motor Current Sensor Adj Error",
+                booleanError: true
             },
 
             accelPosError: {
-                label: "Accelerator Position Error"
+                label: "Accelerator Position Error",
+                booleanError: true
             },
 
             contVoltSensorError: {
-                label: "Cont Voltage Sensor Error"
+                label: "Cont Voltage Sensor Error",
+                booleanError: true
             },
 
             powerSystemError: {
-                label: "Power System Error"
+                label: "Power System Error",
+                booleanError: true
             },
 
             overCurrError: {
-                label: "Over Current Error"
+                label: "Over Current Error",
+                booleanError: true
             },
 
             overVoltError: {
-                label: "Over Voltage Error"
+                label: "Over Voltage Error",
+                booleanError: true
             },
 
             overCurrLimit: {
-                label: "Over current limit"
+                label: "Over current limit",
+                booleanError: true
             },
 
             motorSystemError: {
-                label: "Motor System Error"
+                label: "Motor System Error",
+                booleanError: true
             },
 
             motorLock: {
-                label: "Motor Lock"
+                label: "Motor Lock",
+                booleanError: true
             },
 
             hallSensorShort: {
-                label: "Hall Sensor Short"
+                label: "Hall Sensor Short",
+                booleanError: true
             },
 
             hallSensorOpen: {
-                label: "Hall Sensor Open"
+                label: "Hall Sensor Open",
+                booleanError: true
             }
         }
     }
-}
-
-export default function Mitsuba({ mitsuba }: { mitsuba: telemetry.DataResponse["mitsuba"] }) {
-    return (<>
-        <h3>Motor Controllers</h3>
-        {!mitsuba ? <NoData /> :
-        <div className="center-align">
-            <Row>
-                <Label
-                    label="Motor RPM"
-                    value={mitsuba.rx0?.motorRPM}
-                />
-                <Label
-                    label="FET Temp"
-                    value={mitsuba.rx0?.FETtemp}
-                    unit="C"
-                />
-                <Label
-                    label="PWM Duty Cycle"
-                    value={mitsuba.rx0?.PWMDuty}
-                />
-            </Row>
-            <Row>
-                <Label
-                    label="Battery Voltage"
-                    value={mitsuba.rx0?.battVoltage ? mitsuba.rx0?.battVoltage/2 : undefined}
-                    unit="V"
-                />
-                <Label
-                    label="Battery Current"
-                    value={mitsuba.rx0?.battCurrent}
-                    unit="A"
-                />
-                <Label
-                    label="Average Current"
-                    value={mitsuba.rx0?.motorCurrentPkAvg}
-                    unit="A"
-                />
-            </Row>
-            <Row>
-                <Label
-                    label="Lead Angle"
-                    value={mitsuba.rx0?.LeadAngle}
-                />
-            </Row>
-        </div>
-        }
-    </>)
 }

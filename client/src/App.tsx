@@ -9,7 +9,7 @@ export default function App() {
     return (<>
             <BrowserRouter>
                 <Sidebar/>
-                <div style={{"marginLeft": "25%", "marginRight": "5%"}}>
+                <div className='page-content'>
                     <Routes>
                         <Route path="/history" element={<ArchivedTelemetry />} />
                         <Route path="*" element={<LiveTelemetry />} />
