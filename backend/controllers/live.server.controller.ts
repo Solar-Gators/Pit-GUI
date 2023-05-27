@@ -10,6 +10,11 @@ import BMS_RX2 from "../shared/models/BMS/RX2";
 import BMS_RX3 from "../shared/models/BMS/RX3";
 import BMS_RX4 from "../shared/models/BMS/RX4";
 import BMS_RX5 from "../shared/models/BMS/RX5";
+import MPPT_RX0 from "../shared/models/MPPT/RX0";
+import MPPT_RX1 from "../shared/models/MPPT/RX1";
+import MPPT_RX2 from "../shared/models/MPPT/RX2";
+import MPPT_RX3 from "../shared/models/MPPT/RX3";
+import MPPT_RX4 from "../shared/models/MPPT/RX4";
 import GPS from "../shared/models/GPS/GPS";
 
 
@@ -17,6 +22,17 @@ import GPS from "../shared/models/GPS/GPS";
     Return data for the sensor read outs on the live tab
 */
 exports.data = async (req, res: Response<DataResponse>) => {
+
+    async function getMppt(mpptNumber: number) {
+        return {
+            rx0: await getMostRecent(MPPT_RX0, { mpptNumber }),
+            rx1: await getMostRecent(MPPT_RX1, { mpptNumber }),
+            rx2: await getMostRecent(MPPT_RX2, { mpptNumber }),
+            rx3: await getMostRecent(MPPT_RX3, { mpptNumber }),
+            rx4: await getMostRecent(MPPT_RX4, { mpptNumber })
+        }
+    }
+
     return res.json({
         gps: await getMostRecent(GPS),
         bms: {
@@ -31,6 +47,11 @@ exports.data = async (req, res: Response<DataResponse>) => {
             rx0: await getMostRecent(Mitsuba_RX0),
             rx1: await getMostRecent(Mitsuba_RX1),
             rx2: await getMostRecent(Mitsuba_RX2),
+        },
+        mppt: {
+            "0": await getMppt(0),
+            "1": await getMppt(1),
+            "2": await getMppt(2),
         }
     })
 };

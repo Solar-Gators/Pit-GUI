@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Model } from 'sequelize'
+import { Attributes, Model, WhereOptions } from 'sequelize'
 import connection from "../models";
 import { ModelRestApi } from 'sx-sequelize-api'
 
@@ -10,8 +10,12 @@ class CustomModel extends Model {}
  *
  * @param {SequlizeModel} model
  */
-export function getMostRecent(model: typeof CustomModel) {
+export function getMostRecent<T extends (typeof CustomModel)>(
+    model: T,
+    where: WhereOptions<InstanceType<T>['_attributes']> = {}
+) {
     return model.findAll({
+        where,
         limit: 1,
         order: [ [ 'createdAt', 'DESC' ]]
     })

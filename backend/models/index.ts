@@ -58,7 +58,7 @@ glob(__dirname + "/../shared/models/**/*.js", { nonull: true }, function (er, fi
     .filter((file) => file !== __dirname + "/index.ts")
     .map(file => require(file).default);
   sequelize.addModels(models)
-  sequelize.sync()
+  sequelize.sync({ alter: true })
 })
 
 export default sequelize

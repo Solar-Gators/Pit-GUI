@@ -4,6 +4,7 @@ var morgan = require('morgan'),
 import * as express from "express"
 import mitsuba from '../routes/mitsuba.server.routes'
 import bms from '../routes/bms.server.routes'
+import mppt from '../routes/mppt.server.routes'
 const cors = require('cors')
 
 module.exports.init = function() {
@@ -27,6 +28,7 @@ module.exports.init = function() {
   app.use('/api/bms', bms);
   // app.use('/api/gps', gps);
   app.use('/api/mitsuba', mitsuba);
+  app.use('/api/mppt', mppt);
 
 
   // app.all('/*', function(req, res)

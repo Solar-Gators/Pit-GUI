@@ -119,6 +119,40 @@ module.exports = {
       ...common
     }])
 
+    // MMPT
+    for (let mpptNumber = 0; mpptNumber < 4; mpptNumber++) {
+      await queryInterface.bulkInsert('MPPT_RX0s', [{
+        inputVoltage: 0,
+        inputCurrent: 0,
+        mpptNumber,
+        ...common
+      }])
+      await queryInterface.bulkInsert('MPPT_RX1s', [{
+        outputVoltage: 0,
+        outputCurrent: 0,
+        mpptNumber,
+        ...common
+      }])
+      await queryInterface.bulkInsert('MPPT_RX2s', [{
+        mosfetTemp: 0,
+        controllerTemp: 0,
+        mpptNumber,
+        ...common
+      }])
+      await queryInterface.bulkInsert('MPPT_RX3s', [{
+        aux12V: 0,
+        aux3V: 0,
+        mpptNumber,
+        ...common
+      }])
+      await queryInterface.bulkInsert('MPPT_RX4s', [{
+        maxOutputVoltage: 0,
+        maxInputCurrent: 0,
+        mpptNumber,
+        ...common
+      }])
+    }
+
     //GPS
     await queryInterface.bulkInsert('GPs', [{
       heading: 90,
