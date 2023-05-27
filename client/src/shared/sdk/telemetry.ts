@@ -9,8 +9,21 @@ import { GPS_Type } from "../models/GPS/GPS";
 import { Mitsuba_RX0_Type } from "../models/Mitsuba/RX0"
 import { Mitsuba_RX1_Type } from "../models/Mitsuba/RX1"
 import { Mitsuba_RX2_Type } from "../models/Mitsuba/RX2"
+import { MPPT_RX0_Type } from "../models/MPPT/RX0"
+import { MPPT_RX1_Type } from "../models/MPPT/RX1"
+import { MPPT_RX2_Type } from "../models/MPPT/RX2"
+import { MPPT_RX3_Type } from "../models/MPPT/RX3"
+import { MPPT_RX4_Type } from "../models/MPPT/RX4"
 
-interface CanData {
+export type MPPT_Group = {
+    rx0: MPPT_RX0_Type
+    rx1: MPPT_RX1_Type
+    rx2: MPPT_RX2_Type
+    rx3: MPPT_RX3_Type
+    rx4: MPPT_RX4_Type
+}
+
+export interface CanData {
     bms: {
         rx0: BMS_RX0_Type
         rx1: BMS_RX1_Type
@@ -23,6 +36,11 @@ interface CanData {
         rx0: Mitsuba_RX0_Type
         rx1: Mitsuba_RX1_Type
         rx2: Mitsuba_RX2_Type
+    },
+    mppt: {
+        "0": MPPT_Group,
+        "1": MPPT_Group,
+        "2": MPPT_Group
     }
 }
 

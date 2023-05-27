@@ -20,10 +20,10 @@ export default function TelemetryCAN<T>({ config, data }: { config: TelemetryTab
         <h3>{config.title}</h3>
         <div className="center-align">
             {Object.keys(config.data).map((messageName: string) => {
-                const message = config.data[messageName]
+                const message = config.data?.[messageName]
 
                 if (!message) return
-                const telemetryData = data[messageName]
+                const telemetryData = data?.[messageName]
 
                 return <Row>
                 <h4 style={{ textAlign: "left" }}>{messageName.toUpperCase()}</h4>

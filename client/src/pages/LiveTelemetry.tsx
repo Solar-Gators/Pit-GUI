@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import 'materialize-css'; // It installs the JS asset only
 import 'materialize-css/dist/css/materialize.min.css';
 import { Row, Col } from 'react-bootstrap';
 import { mitsubaShape } from "../component/Mitsuba"
+import { mpptShape } from "../component/MPPT"
 import ReactSpeedometer from 'react-d3-speedometer';
 import Map from '../component/Map'
 import CarStatus from '../component/CarStatus';
@@ -67,13 +68,13 @@ function LiveTelemetry() {
                     bmsFault={
                         data.bms.rx4 ?
                         Object.keys(data.bms.rx4).some((key) => {
-                            return data.bms.rx4[key] === true
+                            return data?.bms?.rx4[key] === true
                         }) : null
                     }
                     mitsubaFault={
                         data.mitsuba.rx2 ?
                         Object.keys(data.mitsuba.rx2).some((key) => {
-                            return data.mitsuba.rx2[key] === true
+                            return data?.mitsuba?.rx2[key] === true
                         }) : null
                     }
                 />
@@ -83,22 +84,22 @@ function LiveTelemetry() {
             <Row>
                 <Label
                     label="Pack Voltage"
-                    value={data.bms.rx0?.pack_sum_volt_ ?? "N/D"}
+                    value={data?.bms?.rx0?.pack_sum_volt_ ?? "N/D"}
                     unit="V"
                 />
                 <Label
                     label="Power"
                     value={
-                        (data.bms.rx0?.pack_sum_volt_ ?? 0)
+                        (data?.bms?.rx0?.pack_sum_volt_ ?? 0)
                         *
-                        (data.bms.rx2?.pack_current_ ?? 0)
+                        (data?.bms?.rx2?.pack_current_ ?? 0)
                     }
                     unit="W"
                 />
                 <Label
                     label="State of Charge"
                     value={
-                        data.bms.rx4.pack_soc_
+                        data?.bms?.rx4?.pack_soc_
                     }
                     unit="%"
                 />
@@ -112,6 +113,15 @@ function LiveTelemetry() {
                 <Nav.Item>
                     <Nav.Link as={NavLink} to="/bms">BMS</Nav.Link>
                 </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={NavLink} to="/mppt_1">MPPT #1</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={NavLink} to="/mppt_2">MPPT #2</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={NavLink} to="/mppt_3">MPPT #3</Nav.Link>
+                </Nav.Item>
             </Nav>
 
             <Routes>
@@ -120,7 +130,7 @@ function LiveTelemetry() {
                     element={
                         <TelemetryCAN
                             config={mitsubaShape}
-                            data={data.mitsuba}
+                            data={data?.mitsuba}
                         />
                     }
                 />
@@ -129,7 +139,34 @@ function LiveTelemetry() {
                     element={
                         <TelemetryCAN
                             config={bmsShape}
-                            data={data.bms}
+                            data={data?.bms}
+                        />
+                    }
+                />
+                <Route
+                    path="/mppt_1"
+                    element={
+                        <TelemetryCAN
+                            config={mpptShape}
+                            data={data?.mppt?.['0']}
+                        />
+                    }
+                />
+                <Route
+                    path="/mppt_2"
+                    element={
+                        <TelemetryCAN
+                            config={mpptShape}
+                            data={data?.mppt?.['1']}
+                        />
+                    }
+                />
+                <Route
+                    path="/mppt_3"
+                    element={
+                        <TelemetryCAN
+                            config={mpptShape}
+                            data={data?.mppt?.['2']}
                         />
                     }
                 />
