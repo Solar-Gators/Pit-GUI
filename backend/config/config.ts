@@ -1,19 +1,21 @@
+const commonConfig = {
+  "username": "solargators",
+  "host": "mysql",
+  "logging": false,
+  "dialect": "mysql"
+}
+
+
 const config = {
   "development": {
-    "username": "solargators",
-    "password": null,
+    "password": "password",
     "database": "SolarGators_Telemetry_Dev",
-    "host": "localhost",
-    "logging": false,
-    "dialect": "mysql"
+    ...commonConfig
   },
   "production": {
     "username": "solargators",
-    "password": null,
     "database": "SolarGators_Telemetry_Prod",
-    "host": "localhost",
-    "logging": false,
-    "dialect": "mysql"
+    ...commonConfig
   }
 }
 export = config;

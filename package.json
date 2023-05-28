@@ -6,7 +6,8 @@
   "scripts": {
     "start": "concurrently \"cd backend && npm start\" \"cd client && npm start\"",
     "test": "cd backend && npm test",
-    "install-all": "npm i && cd backend && npm i && cd ../client && npm i"
+    "install-all": "npm i && cd backend && npm i && cd ../client && npm i",
+    "cypress": "cypress open"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "sequelize-typescript": "^2.1.3"
   },
   "devDependencies": {
-    "chai": "^4.2.0"
+    "chai": "^4.2.0",
+    "cypress": "^12.13.0"
   }
 }

@@ -21,11 +21,7 @@ function LiveTelemetry() {
 
     useEffect(() => {
         // if not a hash link, scroll to top
-        if (hash === '') {
-        window.scrollTo(0, 0);
-        }
-        // else scroll to id
-        else {
+        if (hash !== '') {
         setTimeout(() => {
             const id = hash.replace('#', '');
             const element = document.getElementById(id);
