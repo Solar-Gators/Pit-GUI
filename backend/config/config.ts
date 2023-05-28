@@ -1,6 +1,7 @@
 const commonConfig = {
-  "username": "solargators",
-  "host": "mysql",
+  "username": process.env["DATABASE_USER"] || "solargators",
+  "password": process.env["DATABASE_PASSWORD"] || null,
+  "host": process.env["DATABASE_HOST"] || "localhost",
   "logging": false,
   "dialect": "mysql"
 }
@@ -8,12 +9,10 @@ const commonConfig = {
 
 const config = {
   "development": {
-    "password": "password",
     "database": "SolarGators_Telemetry_Dev",
     ...commonConfig
   },
   "production": {
-    "username": "solargators",
     "database": "SolarGators_Telemetry_Prod",
     ...commonConfig
   }
