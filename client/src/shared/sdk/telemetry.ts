@@ -14,6 +14,7 @@ import { MPPT_RX1_Type } from "../models/MPPT/RX1"
 import { MPPT_RX2_Type } from "../models/MPPT/RX2"
 import { MPPT_RX3_Type } from "../models/MPPT/RX3"
 import { MPPT_RX4_Type } from "../models/MPPT/RX4"
+import { MPPT_RX5_Type } from "../models/MPPT/RX5"
 
 export type MPPT_Group = {
     rx0: MPPT_RX0_Type
@@ -21,6 +22,7 @@ export type MPPT_Group = {
     rx2: MPPT_RX2_Type
     rx3: MPPT_RX3_Type
     rx4: MPPT_RX4_Type
+    rx5: MPPT_RX5_Type
 }
 
 export interface CanData {
