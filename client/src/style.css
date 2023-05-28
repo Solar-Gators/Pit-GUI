@@ -51,3 +51,15 @@
   align-items: center;
   justify-content: center;
 }
+
+.page-content {
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+@media (min-width: 914px) {
+  .page-content {
+    margin-left: 25%;
+    margin-right: 5%;
+  }
+}
