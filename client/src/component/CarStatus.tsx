@@ -23,9 +23,15 @@ const StatusContext = React.createContext<{
 export default function CarStatus({
     bmsFault,
     mitsubaFault,
+    mppt1Fault,
+    mppt2Fault,
+    mppt3Fault
 }: {
     bmsFault: boolean | null
     mitsubaFault: boolean | null
+    mppt1Fault: boolean | null
+    mppt2Fault: boolean | null
+    mppt3Fault: boolean | null
 }) {
     const [popupLocation, setPopupLocation] = React.useState<PopupLocation | null>(null)
     return (
@@ -84,7 +90,8 @@ export default function CarStatus({
                 />
                 <Section
                     name="MPPT #1"
-                    isFault={false}
+                    isFault={mppt1Fault}
+                    errorLink="/mppt_1#rx5"
                     height="22"
                     width="22"
                     y="200"
@@ -92,7 +99,8 @@ export default function CarStatus({
                 />
                 <Section
                     name="MPPT #2"
-                    isFault={false}
+                    isFault={mppt2Fault}
+                    errorLink="/mppt_2#rx5"
                     height="22"
                     width="22"
                     y="200"
@@ -100,7 +108,8 @@ export default function CarStatus({
                 />
                 <Section
                     name="MPPT #3"
-                    isFault={false}
+                    isFault={mppt3Fault}
+                    errorLink="/mppt_3#rx5"
                     height="22"
                     width="22"
                     y="200"
