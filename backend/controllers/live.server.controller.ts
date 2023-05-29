@@ -51,9 +51,9 @@ exports.data = async (req, res: Response<DataResponse>) => {
             rx2: await getMostRecent(Mitsuba_RX2),
         },
         mppt: {
-            "0": await getMppt(0),
             "1": await getMppt(1),
             "2": await getMppt(2),
+            "3": await getMppt(3),
         }
     })
 };

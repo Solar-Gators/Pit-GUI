@@ -35,10 +35,10 @@ export default function ArchivedTelemetry(){
             for (let mpptNumber = 0; mpptNumber < 3; mpptNumber++) {
                 newFilters.push(
                     ...Object.keys(mpptShape.data).map<Filters>((message) => ({
-                        label: "mmpt #" + mpptNumber,
+                        label: "mmpt #" + mpptNumber + 1,
                         telemetryType: 'mppt',
                         message,
-                        customWhere: { mpptNumber }
+                        customWhere: { mpptNumber: mpptNumber + 1 }
                     }))
                 )
             }
@@ -109,7 +109,6 @@ export default function ArchivedTelemetry(){
                 disabled={!startDate}
                 onClick={async () => {
                     filters.forEach(async ({ telemetryType, message, customWhere, label }) => {
-                        console.log({ telemetryType, message, customWhere, label })
                         const module = await getAllModule(
                             telemetryType,
                             message as never,

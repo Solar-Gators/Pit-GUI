@@ -40,9 +40,9 @@ export interface CanData {
         rx2: Mitsuba_RX2_Type
     },
     mppt: {
-        "0": MPPT_Group,
         "1": MPPT_Group,
-        "2": MPPT_Group
+        "2": MPPT_Group,
+        "3": MPPT_Group
     }
 }
 

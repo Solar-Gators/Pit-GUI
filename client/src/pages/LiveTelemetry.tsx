@@ -92,21 +92,21 @@ function LiveTelemetry() {
                         }) : false
                     }
                     mppt1Fault={
-                        data?.mppt?.[0]?.rx5 ?
-                        Object.keys(data.mppt[0].rx5).some((key) => {
-                            return data.mppt[0].rx5[key] === true
+                        data?.mppt?.['1']?.rx5 ?
+                        Object.keys(data.mppt['1'].rx5).some((key) => {
+                            return data.mppt['1'].rx5[key] === true
                         }) : false
                     }
                     mppt2Fault={
-                        data?.mppt?.[1]?.rx5 ?
-                        Object.keys(data.mppt[1].rx5 ?? {}).some((key) => {
-                            return data.mppt[1].rx5[key] === true
+                        data?.mppt?.['2']?.rx5 ?
+                        Object.keys(data.mppt['2'].rx5 ?? {}).some((key) => {
+                            return data.mppt['2'].rx5[key] === true
                         }) : false
                     }
                     mppt3Fault={
-                        data?.mppt?.[2]?.rx5 ?
-                        Object.keys(data.mppt[2].rx5 ?? {}).some((key) => {
-                            return data.mppt[2].rx5[key] === true
+                        data?.mppt?.['3']?.rx5 ?
+                        Object.keys(data.mppt['3'].rx5 ?? {}).some((key) => {
+                            return data.mppt['3'].rx5[key] === true
                         }) : false
                     }
                 />
@@ -180,7 +180,7 @@ function LiveTelemetry() {
                     element={
                         <TelemetryCAN
                             config={mpptShape}
-                            data={data?.mppt?.['0']}
+                            data={data?.mppt?.['1']}
                         />
                     }
                 />
@@ -189,7 +189,7 @@ function LiveTelemetry() {
                     element={
                         <TelemetryCAN
                             config={mpptShape}
-                            data={data?.mppt?.['1']}
+                            data={data?.mppt?.['2']}
                         />
                     }
                 />
@@ -198,7 +198,7 @@ function LiveTelemetry() {
                     element={
                         <TelemetryCAN
                             config={mpptShape}
-                            data={data?.mppt?.['2']}
+                            data={data?.mppt?.['3']}
                         />
                     }
                 />
