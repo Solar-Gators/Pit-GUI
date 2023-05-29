@@ -83,13 +83,31 @@ function LiveTelemetry() {
                         data.bms.rx4 ?
                         Object.keys(data.bms.rx4).some((key) => {
                             return data?.bms?.rx4[key] === true
-                        }) : null
+                        }) : false
                     }
                     mitsubaFault={
                         data.mitsuba.rx2 ?
                         Object.keys(data.mitsuba.rx2).some((key) => {
                             return data?.mitsuba?.rx2[key] === true
-                        }) : null
+                        }) : false
+                    }
+                    mppt1Fault={
+                        data?.mppt?.[0]?.rx5 ?
+                        Object.keys(data.mppt[0].rx5).some((key) => {
+                            return data.mppt[0].rx5[key] === true
+                        }) : false
+                    }
+                    mppt2Fault={
+                        data?.mppt?.[1]?.rx5 ?
+                        Object.keys(data.mppt[1].rx5 ?? {}).some((key) => {
+                            return data.mppt[1].rx5[key] === true
+                        }) : false
+                    }
+                    mppt3Fault={
+                        data?.mppt?.[2]?.rx5 ?
+                        Object.keys(data.mppt[2].rx5 ?? {}).some((key) => {
+                            return data.mppt[2].rx5[key] === true
+                        }) : false
                     }
                 />
             </Row>

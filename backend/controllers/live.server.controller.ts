@@ -15,6 +15,7 @@ import MPPT_RX1 from "../shared/models/MPPT/RX1";
 import MPPT_RX2 from "../shared/models/MPPT/RX2";
 import MPPT_RX3 from "../shared/models/MPPT/RX3";
 import MPPT_RX4 from "../shared/models/MPPT/RX4";
+import MPPT_RX5 from "../shared/models/MPPT/RX5";
 import GPS from "../shared/models/GPS/GPS";
 
 
@@ -29,7 +30,8 @@ exports.data = async (req, res: Response<DataResponse>) => {
             rx1: await getMostRecent(MPPT_RX1, { mpptNumber }),
             rx2: await getMostRecent(MPPT_RX2, { mpptNumber }),
             rx3: await getMostRecent(MPPT_RX3, { mpptNumber }),
-            rx4: await getMostRecent(MPPT_RX4, { mpptNumber })
+            rx4: await getMostRecent(MPPT_RX4, { mpptNumber }),
+            rx5: await getMostRecent(MPPT_RX5, { mpptNumber }),
         }
     }
 
