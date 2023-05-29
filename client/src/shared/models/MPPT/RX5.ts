@@ -14,19 +14,19 @@ export default class MPPT_RX5 extends Model<MPPT_RX5_Type> {
       mpptNumber: number
 
     @Column({
-        type: DataType.NUMBER,
+        type: DataType.INTEGER,
         defaultValue: null
     })
     CANRXerr: number
 
     @Column({
-        type: DataType.NUMBER,
+        type: DataType.INTEGER,
         defaultValue: null
     })
     CANTXerr: number
 
     @Column({
-        type: DataType.NUMBER,
+        type: DataType.INTEGER,
         defaultValue: null
     })
     CANTXoverflow: number
