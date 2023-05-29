@@ -15,4 +15,4 @@ COPY ./backend .
 
 RUN npm run build
 
-CMD npm run start
+CMD npm run start & node udp/server.js

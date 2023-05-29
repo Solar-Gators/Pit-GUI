@@ -10,7 +10,9 @@ RUN npm ci --force
 ARG REACT_APP_TELEMETRY_API
 ENV REACT_APP_TELEMETRY_API=$REACT_APP_TELEMETRY_API
 
-COPY ./client .
+COPY ./client/src ./src
+COPY ./client/public ./public
+COPY ./client/tsconfig.json ./tsconfig.json
 
 RUN npm run build
 
