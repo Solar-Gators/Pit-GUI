@@ -17,7 +17,7 @@ module.exports.init = function() {
   }))
 
   //enable request logging for development debugging
-  // app.use(morgan('dev'));
+  //app.use(morgan('dev'));
 
   //body parsing middleware
   app.use(bodyParser.json());

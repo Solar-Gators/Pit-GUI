@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Attributes, Model, WhereOptions } from 'sequelize'
+import { Model, WhereOptions } from 'sequelize'
 import connection from "../models";
 import { ModelRestApi } from 'sx-sequelize-api'
 

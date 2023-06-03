@@ -183,6 +183,10 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
             pack_too_hot_fault_: {
                 label: "Pack too Hot",
                 booleanError: true
+            },
+            pack_soc_: {
+                label: "Pack State of charge",
+                unit: "%"
             }
         },
         rx5: {

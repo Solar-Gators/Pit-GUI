@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import M from "materialize-css/dist/js/materialize.min.js";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 
 function Sidebar() {
@@ -10,6 +10,8 @@ function Sidebar() {
             edge: "left"
         });
     }, [])
+
+    const location = useLocation()
 
     return (
         <div>
@@ -24,16 +26,19 @@ function Sidebar() {
                 data-target="slide-out"
                 className="sidenav-trigger"
             >
-                <span class="fa fa-bars" />
+                <span className="fa fa-bars" />
             </button>
             <ul id="slide-out" style={{"fontSize": "15px"}} className="sidenav sidenav-fixed">
                 <li style={{textAlign: "center"}}>
                     <img width="160px" height="100px" src="./logo.png" />
                 </li>
-                <li className="bold active">
+                <li className={location.pathname == '/' && 'bold active'}>
                     <Link to="/">Live</Link>
                 </li>
-                <li>
+                <li className={location.pathname == '/charts' && 'bold active'}>
+                    <Link to="/charts">Detailed Charts</Link>
+                </li>
+                <li className={location.pathname == '/history' && 'bold active'}>
                     <Link to="/history">Data Export</Link>
                 </li>
             </ul>
