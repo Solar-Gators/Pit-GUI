@@ -1,7 +1,7 @@
 'use strict';
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
-import glob = require("glob")
+const { globSync } = require("glob")
 
 const env = process.env.NODE_ENV || 'development';
 import configs = require("../config/config")
@@ -53,12 +53,10 @@ export const sequelize = new Sequelize(
   }
 )
 // Add all models
-glob(__dirname + "/../shared/models/**/*.js", { nonull: true }, function (er, files) {
-  const models = files
-    .filter((file) => file !== __dirname + "/index.ts")
-    .map(file => require(file).default);
-  sequelize.addModels(models)
-  sequelize.sync({ alter: true })
-})
+const files = globSync(__dirname + "/../shared/models/**/*.js", { nonull: true })
+const models = files
+  .filter((file) => file !== __dirname + "/index.ts")
+  .map(file => require(file).default);
+sequelize.addModels(models)
 
 export default sequelize
