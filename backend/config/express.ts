@@ -2,12 +2,13 @@ var morgan = require('morgan'),
     bodyParser = require('body-parser'),
     liveRouter = require('../routes/live.server.routes.js')
 import * as express from "express"
+import sequelize from "../models"
 import mitsuba from '../routes/mitsuba.server.routes'
 import bms from '../routes/bms.server.routes'
 import mppt from '../routes/mppt.server.routes'
 const cors = require('cors')
 
-module.exports.init = function() {
+module.exports.init = async () => {
   //initialize app
   var app = express();
 
@@ -15,6 +16,8 @@ module.exports.init = function() {
   app.use(cors({
     origin: '*'
   }))
+
+  await sequelize.sync({ alter: true })
 
   //enable request logging for development debugging
   //app.use(morgan('dev'));

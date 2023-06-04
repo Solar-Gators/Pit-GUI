@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Row, Col, Form } from "react-bootstrap";
-import { getAllModule } from '../shared/sdk/telemetry';
+import { getAllModuleItem } from '../shared/sdk/telemetry';
 import { bmsShape } from '../component/BMS'
 import { mitsubaShape } from '../component/Mitsuba'
 import { mpptShape } from '../component/MPPT'
@@ -30,6 +30,7 @@ function Charts() {
   const [startTime, setStartTime] = useState(searchParams.get("start") ?? localGraph["start"] ?? '2023-04-16 12:00')
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
 
+
   useEffect(() => {
     const data = {
       key: dataKey,
@@ -41,17 +42,14 @@ function Charts() {
     setSearchParams(data)
     localStorage.setItem("graph", JSON.stringify(data))
 
-  }, [dataKey, telemetryType, messageNumber, startTime, endTime])
-
-  useEffect(() => {
-    getAllModule(telemetryType as any, messageNumber, {
+    getAllModuleItem(telemetryType as any, messageNumber, dataKey, {
         createdAt: {
             $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
         }
     })
     .then(setData as any)
-  }, [telemetryType, messageNumber, startTime, endTime])
+  }, [dataKey, telemetryType, messageNumber, startTime, endTime])
   return <>
       <Row>
           <Col>

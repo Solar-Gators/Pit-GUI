@@ -68,6 +68,15 @@ export function getAllModule<T extends keyof CanData, P extends keyof CanData[T]
     .then((response) => response.data) as any
 }
 
+export function getAllModuleItem<T extends keyof CanData, P extends keyof CanData[T], Q extends keyof CanData[T][P]>(module: T, message: P, item: Q, where: Record<string, any> = null): Promise<CanData[T][P][]> {
+    return telemetryApi.get(`/api/${module}/${String(message)}/item/${String(item)}`, {
+        params: {
+            ...(where && { where: JSON.stringify(where) })
+        }
+    })
+    .then((response) => response.data) as any
+}
+
 type addPrefixToObject<T, P extends string> = {
     [K in keyof T as K extends string ? `${P}${K}` : never]: T[K]
 }

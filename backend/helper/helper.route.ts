@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { Model, WhereOptions } from 'sequelize'
+import { ModelStatic, Model } from 'sequelize'
+import { WhereOptions } from 'sequelize'
 import connection from "../models";
 import { ModelRestApi } from 'sx-sequelize-api'
 
@@ -30,7 +31,7 @@ export function getMostRecent<T extends (typeof CustomModel)>(
 
 
 export function configureREST({ router, endPoints }: { router: Router, endPoints: {
-    model: typeof CustomModel,
+    model: ModelStatic<CustomModel>,
     path: string
 }[] }) {
     endPoints.forEach(item => {
@@ -41,5 +42,14 @@ export function configureREST({ router, endPoints }: { router: Router, endPoints
 
         router.route(`/${item.path}/cnt`)
             .get(api.count())
+
+
+        const attributes = item.model.getAttributes()
+        for (const attribute in attributes) {
+            router.route(`/${item.path}/item/${attribute}`)
+            .get(api.getAll(
+                Object.keys(attributes).filter((value) => ![attribute, "id", "createdAt", "updatedAt"].includes(value))
+            ))
+        }
     });
 }
