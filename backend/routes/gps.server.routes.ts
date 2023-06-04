@@ -1,9 +1,15 @@
 
-var gps = require('../controllers/gps.server.controller'), 
-express = require('express'), //refers to Express the middleware helper for Node.js
-router = express.Router(); //refers to the Router() function in Express the middleware helper for Node.js
+import * as express from "express"
+import GPS from "../shared/models/GPS/GPS";
+import { configureREST } from "../helper/helper.route"
+const router = express.Router(); //refers to the Router() function in Express the middleware helper for Node.js
 
-router.route('/')
-.post(gps.post)
+configureREST({
+    router,
+    endPoints: [{
+        model: GPS,
+        path: 'rx0'
+    }]
+})
 
-module.exports = router;
+export default router

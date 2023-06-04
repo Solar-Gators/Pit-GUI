@@ -6,6 +6,7 @@ import sequelize from "../models"
 import mitsuba from '../routes/mitsuba.server.routes'
 import bms from '../routes/bms.server.routes'
 import mppt from '../routes/mppt.server.routes'
+import gps from '../routes/gps.server.routes'
 const cors = require('cors')
 
 module.exports.init = async () => {
@@ -27,17 +28,10 @@ module.exports.init = async () => {
 
   //routers
   app.use('/api/live', liveRouter);
-  // app.use('/api/graph', graphRouter);
   app.use('/api/bms', bms);
-  // app.use('/api/gps', gps);
+  app.use('/api/gps', gps);
   app.use('/api/mitsuba', mitsuba);
   app.use('/api/mppt', mppt);
-
-
-  // app.all('/*', function(req, res)
-  // {
-  //  res.sendFile(path.resolve(__dirname + '/../../client/build/index.html'));
-  // });
 
   return app;
 };
