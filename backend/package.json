@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha dist/tests/*.test.js",
     "buid": "tsc",
     "start": "node dist/server.js",
     "drop-db": "node_modules/.bin/sequelize db:drop",
