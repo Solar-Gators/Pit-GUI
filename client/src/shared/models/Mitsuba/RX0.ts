@@ -10,41 +10,41 @@ export default class Mitsuba_RX0 extends Model<Mitsuba_RX0_Type> {
     type: DataType.INTEGER,
     defaultValue: null
   })
-  battVoltage: number
+  battVoltage?: number
 
   @Column({
     type: DataType.INTEGER,
     defaultValue: null
   })
-  battCurrent: number
+  battCurrent?: number
 
   @Column({
     type: DataType.INTEGER,
     defaultValue: null
   })
-  motorCurrentPkAvg: number
+  motorCurrentPkAvg?: number
 
   @Column({
     type: DataType.INTEGER,
     defaultValue: null
   })
-  FETtemp: number
+  FETtemp?: number
 
   @Column({
     type: DataType.INTEGER,
     defaultValue: null
   })
-  motorRPM: number
+  motorRPM?: number
 
   @Column({
     type: DataType.INTEGER,
     defaultValue: null
   })
-  PWMDuty: number
+  PWMDuty?: number
 
   @Column({
     type: DataType.INTEGER,
     defaultValue: null
   })
-  LeadAngle: number
+  LeadAngle?: number
 }

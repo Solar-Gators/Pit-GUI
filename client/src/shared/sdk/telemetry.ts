@@ -15,6 +15,22 @@ import { MPPT_RX2_Type } from "../models/MPPT/RX2"
 import { MPPT_RX3_Type } from "../models/MPPT/RX3"
 import { MPPT_RX4_Type } from "../models/MPPT/RX4"
 import { MPPT_RX5_Type } from "../models/MPPT/RX5"
+import { DistanceTraveled_Type } from "../models/Stats/DistanceTraveled";
+
+
+export const INCHES_PER_MILE = 63360
+/**
+ * Diameter of the car's wheel in inches
+ */
+export const WHEEL_DIAM_IN = 23.071;
+/**
+ * Diameter of the car's wheel in miles
+ */
+export const WHEEL_DIAM_MI = (WHEEL_DIAM_IN / INCHES_PER_MILE);
+/**
+ * Radius of the car's wheel in miles
+ */
+export const WHEEL_RADIUS_MI = WHEEL_DIAM_MI * Math.PI;
 
 export type MPPT_Group = {
     rx0: MPPT_RX0_Type
@@ -38,6 +54,7 @@ export interface CanData {
         rx0: Mitsuba_RX0_Type
         rx1: Mitsuba_RX1_Type
         rx2: Mitsuba_RX2_Type
+        distance_traveled: DistanceTraveled_Type
     },
     mppt: {
         "1": MPPT_Group,
@@ -86,7 +103,12 @@ type mitsubaModels = keyof addPrefixToObject<DataResponse['mitsuba'], 'mitsuba.'
 
 type telemetryModels = bmsModels | mitsubaModels
 
-export function countOne(telemetry: telemetryModels, where: Record<string, any>): Promise<number> {
+export async function createModuleItem<T extends keyof CanData, P extends keyof CanData[T]>(module: T, message: P, data: CanData[T][P]) {
+    await telemetryApi.post(`/api/${module}/${String(message)}`, data)
+}
+
+
+export function countOne(telemetry: telemetryModels, where?: Record<string, any>): Promise<number> {
     const [telemetryType, message] = telemetry.split('.')
     return telemetryApi.get(`/api/${telemetryType}/${message}/cnt`, {
         params: {
