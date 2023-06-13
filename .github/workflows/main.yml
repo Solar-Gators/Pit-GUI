@@ -109,7 +109,7 @@ jobs:
           SERVICE_CONTAINER: ${{ job.services.api.id }}
 
       - name: Integration Tests
-        run: cd backend && npm run build && npm test
+        run: npm ci && cd backend && npm ci && npm run build && npm test
         env:
           REACT_APP_TELEMETRY_API: http://localhost:9000
 
