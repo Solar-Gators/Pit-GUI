@@ -112,6 +112,8 @@ jobs:
         run: npm ci && cd backend && npm ci && npm run build && npm test
         env:
           REACT_APP_TELEMETRY_API: http://localhost:9000
+          DATABASE_PASSWORD: 'password'
+          DATABASE_HOST: 'mysql'
 
       - run: docker logs "${{ job.services.api.id }}"
         if: always()
