@@ -39,10 +39,8 @@ function LiveTelemetry() {
                 setData(response)
 
                 //Calculate speed
-                const WHEEL_DIAM_IN = 23.071;
-                const WHEEL_DIAM_MI = (WHEEL_DIAM_IN / 63360) * Math.PI;
                 const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0
-                setSpeed(rpm * 60 * WHEEL_DIAM_MI)
+                setSpeed(rpm * 60 * telemetry.WHEEL_RADIUS_MI)
             })
         }, 1000)
     }, [])
@@ -134,6 +132,13 @@ function LiveTelemetry() {
                         data?.bms?.rx4?.pack_soc_
                     }
                     unit="%"
+                />
+                <Label
+                    label="Distance Traveled"
+                    value={
+                        data?.mitsuba?.distance_traveled?.distance?.toFixed(1)
+                    }
+                    unit="Mi"
                 />
             </Row>
 
