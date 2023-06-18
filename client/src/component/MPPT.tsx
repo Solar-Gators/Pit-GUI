@@ -26,36 +26,37 @@ export const mpptShape: TelemetryTabbed<telemetry.MPPT_Group> = {
                 unit: "V"
             }
         },
-        rx2: {
-            mosfetTemp: {
-                label: "MOSFET Temp",
-                unit: "C"
-            },
-            controllerTemp: {
-                label: "Controller Temp",
-                unit: "C"
-            }
-        },
-        rx3: {
-            aux12V: {
-                label: "Aux 12V",
-                unit: "V"
-            },
-            aux3V: {
-                label: "Aux 3V",
-                unit: "V"
-            }
-        },
-        rx4: {
-            maxInputCurrent: {
-                label: "Max Input Current",
-                unit: "A"
-            },
-            maxOutputVoltage: {
-                label: "Max Output Voltage",
-                unit: "V"
-            }
-        },
+        // Don't have data for RX2 - RX4 for now, so commenting out
+        // rx2: {
+        //     mosfetTemp: {
+        //         label: "MOSFET Temp",
+        //         unit: "C"
+        //     },
+        //     controllerTemp: {
+        //         label: "Controller Temp",
+        //         unit: "C"
+        //     }
+        // },
+        // rx3: {
+        //     aux12V: {
+        //         label: "Aux 12V",
+        //         unit: "V"
+        //     },
+        //     aux3V: {
+        //         label: "Aux 3V",
+        //         unit: "V"
+        //     }
+        // },
+        // rx4: {
+        //     maxInputCurrent: {
+        //         label: "Max Input Current",
+        //         unit: "A"
+        //     },
+        //     maxOutputVoltage: {
+        //         label: "Max Output Voltage",
+        //         unit: "V"
+        //     }
+        // },
         rx5: {
             CANRXerr: {
                 label: "CAN Receive Errors"
@@ -67,25 +68,32 @@ export const mpptShape: TelemetryTabbed<telemetry.MPPT_Group> = {
                 label: "CAN TX Overflow Errors"
             },
             error_low_array_power: {
-                label: "Low Array Power Error"
+                label: "Low Array Power Error",
+                booleanError: true,
             },
             error_mosfet_overheat: {
-                label: "Mosfet Overheating Error"
+                label: "Mosfet Overheating Error",
+                booleanError: true,
             },
             error_battery_low: {
-                label: "Battery Low Error"
+                label: "Battery Low Error",
+                booleanError: true,
             },
             error_battery_full: {
-                label: "Battery Full Error"
+                label: "Battery Full Error",
+                booleanError: true,
             },
             error_12v_undervolt: {
-                label: "12v under-volt Error"
+                label: "12v under-volt Error",
+                booleanError: true,
             },
             error_hw_overcurrent: {
-                label: "HW over-current error"
+                label: "HW over-current error",
+                booleanError: true,
             },
             error_hw_overvolt: {
-                label: "HW over-volt Error"
+                label: "HW over-volt Error",
+                booleanError: true,
             },
 
             flag_input_current_min: {
