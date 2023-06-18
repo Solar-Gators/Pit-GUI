@@ -92,19 +92,28 @@ function LiveTelemetry() {
                     mppt1Fault={
                         data?.mppt?.['1']?.rx5 ?
                         Object.keys(data.mppt['1'].rx5).some((key) => {
-                            return data.mppt['1'].rx5[key] === true
+                            return (
+                                data.mppt['1'].rx5[key] === true &&
+                                mpptShape?.data?.rx5?.[key as any]?.['booleanError']
+                            )
                         }) : false
                     }
                     mppt2Fault={
                         data?.mppt?.['2']?.rx5 ?
                         Object.keys(data.mppt['2'].rx5 ?? {}).some((key) => {
-                            return data.mppt['2'].rx5[key] === true
+                            return (
+                                data.mppt['2'].rx5[key] === true &&
+                                mpptShape?.data?.rx5?.[key as any]?.['booleanError']
+                            )
                         }) : false
                     }
                     mppt3Fault={
                         data?.mppt?.['3']?.rx5 ?
                         Object.keys(data.mppt['3'].rx5 ?? {}).some((key) => {
-                            return data.mppt['3'].rx5[key] === true
+                            return (
+                                data.mppt['3'].rx5[key] === true &&
+                                mpptShape?.data?.rx5?.[key as any]?.['booleanError']
+                            )
                         }) : false
                     }
                 />
@@ -118,11 +127,22 @@ function LiveTelemetry() {
                     unit="V"
                 />
                 <Label
-                    label="Power"
+                    label="Consumption"
                     value={
                         (data?.bms?.rx0?.pack_sum_volt_ ?? 0)
                         *
                         (data?.bms?.rx2?.pack_current_ ?? 0)
+                    }
+                    unit="W"
+                />
+                <Label
+                    label="Array Power"
+                    value={
+                        calcArrayPower(data?.mppt?.[1])
+                        +
+                        calcArrayPower(data?.mppt?.[2])
+                        +
+                        calcArrayPower(data?.mppt?.[3])
                     }
                     unit="W"
                 />
@@ -211,6 +231,10 @@ function LiveTelemetry() {
 
         </>
     )
+}
+
+function calcArrayPower(mppt: telemetry.MPPT_Group) {
+    return (mppt?.rx0?.inputCurrent ?? 0) * (mppt?.rx0?.inputVoltage ?? 0)
 }
 
 export default LiveTelemetry;

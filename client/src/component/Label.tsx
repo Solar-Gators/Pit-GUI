@@ -14,7 +14,7 @@ function Label({svgSrc, label, value, unit, booleanError}: Props) {
     let finalValue = value
     let rowColor = ""
     let fontColor = "black"
-
+    console.log(value, isNaN(Number(finalValue)))
     if (typeof value === "boolean") {
         finalValue = value ? "Yes" : "No"
 
@@ -22,6 +22,10 @@ function Label({svgSrc, label, value, unit, booleanError}: Props) {
             rowColor = value ? "red" : ""
             fontColor = value ? "white" : fontColor
         }
+    }
+    // Default fix to 1 decimal point for all floats
+    else if (!isNaN(Number(finalValue)) && String(finalValue).indexOf('.') != -1) {
+        finalValue = Number(finalValue).toFixed(1)
     }
 
     return (

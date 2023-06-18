@@ -10,13 +10,16 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
                 unit: "V"
             },
             high_cell_volt_: {
-                label: "High Cell Voltage"
+                label: "High Cell Voltage",
+                unit: "V"
             },
             low_cell_volt_: {
-                label: "Low Cell Voltage"
+                label: "Low Cell Voltage",
+                unit: "V"
             },
             pack_sum_volt_: {
-                label: "Pack Sum Voltage"
+                label: "Pack Sum Voltage",
+                unit: "V"
             }
         },
         rx1: {
@@ -39,13 +42,16 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
         },
         rx2: {
             pack_ccl_: {
-                label: "Pack Charge Current Limit"
+                label: "Pack Charge Current Limit",
+                unit: "A"
             },
             pack_current_: {
-                label: "Pack Current"
+                label: "Pack Current",
+                unit: "A"
             },
             pack_dcl_: {
-                label: "Pack Discharge Current Limit"
+                label: "Pack Discharge Current Limit",
+                unit: "A"
             }
         },
         rx3: {
