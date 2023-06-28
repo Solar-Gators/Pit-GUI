@@ -75,12 +75,14 @@ function Strategy() {
     }));
     
   let scaledXAxis = Array.from({length: xValues.length * toExtrapolate}, (_, i) => i);
-
+  
+  const xValGap = filteredResponse[filteredResponse.length - 1]["dateStamp"] - xValues.length;
+  
   // Map new x values to regression prediction
   let extendedRegression = scaledXAxis.map((xValue) => {
     let obj = {
-      dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : xValue,
-      regression: regression.predict((filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : xValue)),
+      dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : (xValue + xValGap),
+      regression: regression.predict((filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : (xValue + xValGap))),
     };
     obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
     return obj;
