@@ -81,8 +81,8 @@ function Strategy() {
   // Map new x values to regression prediction
   let extendedRegression = scaledXAxis.map((xValue) => {
     let obj = {
-      dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : (xValue + xValGap),
-      regression: regression.predict((filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : (xValue + xValGap))),
+      dateStamp: xValue,
+      regression: regression.predict(xValue + xValGap),
     };
     obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
     return obj;
