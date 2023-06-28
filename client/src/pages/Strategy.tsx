@@ -6,6 +6,7 @@ import { bmsShape } from '../component/BMS'
 import { mitsubaShape } from '../component/Mitsuba'
 import { mpptShape } from '../component/MPPT'
 import * as moment from 'moment'
+import { SimpleLinearRegression } from 'ml-regression';
 import { useSearchParams } from "react-router-dom";
 
 const allShape = {
@@ -52,14 +53,30 @@ function Strategy() {
         }
     })
 .then(response => {
+const firstTimestamp = new Date(response[0]["createdAt"]).getTime();
 const filteredResponse = response
     .filter((dataPoint) => dataPoint[dataKey] !== 0).map((dataPoint) => ({
       ...dataPoint,
-      test: dataPoint[dataKey] - 10,
+      dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
     }));    
-	  setData(filteredResponse as any);
     
-    console.log(filteredResponse);
+    console.log(filteredResponse);    
+
+  const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
+  const yValues = filteredResponse.map(dataPoint => dataPoint[dataKey]);
+
+  let regression = new SimpleLinearRegression(xValues, yValues);    
+    
+  const responseWithReg = filteredResponse
+    .map((dataPoint) => ({
+      ...dataPoint,
+      regression: regression.predict(dataPoint["dateStamp"]),
+    }));
+  setData(responseWithReg as any);
+  
+      console.log(responseWithReg);    
+
+    
     
 	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime])
   return <>
@@ -154,7 +171,7 @@ const filteredResponse = response
           />
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
-          <Line type="monotone" dataKey="test" stroke="#8884d8" dot={false} />
+          <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />
         </LineChart>
       </ResponsiveContainer>
   </>

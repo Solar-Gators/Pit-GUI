@@ -14,6 +14,7 @@
     "google-map-react": "^2.2.0",
     "json2csv": "^5.0.7",
     "materialize-css": "^1.0.0",
+    "ml-regression": "^5.0.0",
     "moment": "^2.29.4",
     "react": "^18.3.0-canary-6aacd3fa1-20230626",
     "react-bootstrap": "^2.4.0",
