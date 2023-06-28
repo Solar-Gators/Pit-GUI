@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Row, Col, Form } from "react-bootstrap";
-import regression from 'regression';
 import { getAllModuleItem } from '../shared/sdk/telemetry';
 import { bmsShape } from '../component/BMS'
 import { mitsubaShape } from '../component/Mitsuba'
@@ -30,6 +29,8 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_")
   const [startTime, setStartTime] = useState(searchParams.get("start") ?? localGraph["start"] ?? '2023-04-16 12:00')
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
+  const [filterZeroes, setFilterZeroes] = useState(false)
+
 
 
   useEffect(() => {
@@ -40,47 +41,27 @@ function Strategy() {
       start: startTime,
       end: endTime,
     }
+
     setSearchParams(data)
     localStorage.setItem("graph", JSON.stringify(data))
 
-
-	getAllModuleItem(telemetryType as any, messageNumber, dataKey, {
-	  createdAt: {
-		$gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-		$lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-	  }
-	})
-	.then(response => {
-	  const filteredResponse = response.filter((dataPoint) => dataPoint[dataKey] !== 0);
+    getAllModuleItem(telemetryType as any, messageNumber, dataKey, {
+        createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        }
+    })
+.then(response => {
+const filteredResponse = response
+    .filter((dataPoint) => dataPoint[dataKey] !== 0).map((dataPoint) => ({
+      ...dataPoint,
+      test: dataPoint[dataKey] - 10,
+    }));    
 	  setData(filteredResponse as any);
-
-	  const baseTime = new Date(startTime).getTime();
-
-	  const dataWithTimeAsNumber = filteredResponse.map((dataPoint) => {
-		return { ...dataPoint, timeAsNumber: (new Date(dataPoint.createdAt).getTime() - baseTime) / 1000 };
-	  });
-	  
-	  console.log(dataWithTimeAsNumber);
-
-	  const result = regression.linear(dataWithTimeAsNumber.map((dataPoint) => [dataPoint.timeAsNumber, dataPoint[dataKey]]));
-	  
-	  console.log(result);
-
-	  const gradient = result.equation[0];
-	  const yIntercept = result.equation[1];
-	  //const gradient = -0.0000013;
-	  //const yIntercept = 85;
-
-	  console.log("gradient: " + gradient);
-	  console.log("yIntercept: " + yIntercept);
-
-	  const lineOfBestFit = dataWithTimeAsNumber.map((dataPoint) => ({ ...dataPoint, lineOfBestFit: gradient * dataPoint.timeAsNumber + yIntercept }));
-
-	  setData(lineOfBestFit);
-	});	
-	}, [dataKey, telemetryType, messageNumber, startTime, endTime]);
-  
-  
+    
+    console.log(filteredResponse);
+    
+	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime])
   return <>
       <Row>
           <Col>
@@ -173,7 +154,7 @@ function Strategy() {
           />
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
-          <Line type="monotone" dataKey="lineOfBestFit" stroke="#ff0000" dot={false} />
+          <Line type="monotone" dataKey="test" stroke="#8884d8" dot={false} />
         </LineChart>
       </ResponsiveContainer>
   </>
