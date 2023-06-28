@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Row, Col, Form } from "react-bootstrap";
 import { getAllModuleItem } from '../shared/sdk/telemetry';
 import { bmsShape } from '../component/BMS'
@@ -30,10 +30,12 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_")
   const [startTime, setStartTime] = useState(searchParams.get("start") ?? localGraph["start"] ?? '2023-04-16 12:00')
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
+
   
-  
+  // options bc radio switches are hard
   const filterZeroes = true;
-  const toExtrapolate = 2;
+  const toExtrapolate = 3;
+  const showRegression = true;
 
 
   useEffect(() => {
@@ -66,7 +68,12 @@ function Strategy() {
     
   const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
   const yValues = filteredResponse.map(dataPoint => dataPoint[dataKey]);
-  let regression = new SimpleLinearRegression(xValues, yValues);    
+  let regression = new SimpleLinearRegression(xValues, yValues);  
+    
+  const regStats = regression.score(xValues, yValues);
+
+  console.log(regression);
+  console.log(regStats);
     
   const responseWithReg = filteredResponse
     .map((dataPoint) => ({
@@ -93,9 +100,6 @@ function Strategy() {
     ...dataPoint,
     createdAt: new Date((dataPoint["dateStamp"]) * 1000 + firstTimestamp).toISOString(),
   }));
-  
-  console.log(extendedRegressionDates);
-
     
   setData(extendedRegressionDates as any);
   
@@ -192,7 +196,7 @@ function Strategy() {
           />
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
-          <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />
+          {showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
         </LineChart>
       </ResponsiveContainer>
   </>
