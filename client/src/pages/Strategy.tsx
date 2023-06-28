@@ -30,8 +30,6 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_")
   const [startTime, setStartTime] = useState(searchParams.get("start") ?? localGraph["start"] ?? '2023-04-16 12:00')
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
-  const [filterZeroes, setFilterZeroes] = useState(false)
-
 
 
   useEffect(() => {
@@ -53,18 +51,17 @@ function Strategy() {
         }
     })
 .then(response => {
-const firstTimestamp = new Date(response[0]["createdAt"]).getTime();
-const filteredResponse = response
-    .filter((dataPoint) => dataPoint[dataKey] !== 0).map((dataPoint) => ({
+  const firstTimestamp = new Date(response[0]["createdAt"]).getTime();
+  const filteredResponse = response
+    .filter((dataPoint) => dataPoint[dataKey] !== 0)
+    .map((dataPoint) => ({
       ...dataPoint,
       dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
-    }));    
-    
-    console.log(filteredResponse);    
+    }));   
 
+    
   const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
   const yValues = filteredResponse.map(dataPoint => dataPoint[dataKey]);
-
   let regression = new SimpleLinearRegression(xValues, yValues);    
     
   const responseWithReg = filteredResponse
@@ -72,12 +69,9 @@ const filteredResponse = response
       ...dataPoint,
       regression: regression.predict(dataPoint["dateStamp"]),
     }));
+    
   setData(responseWithReg as any);
   
-      console.log(responseWithReg);    
-
-    
-    
 	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime])
   return <>
       <Row>
@@ -142,7 +136,7 @@ const filteredResponse = response
               onChange={(event) => setEndTime(event.target.value)}
             />
         </Col>
-      </Row>
+        </Row>
       <ResponsiveContainer width={"100%"} height={300}>
         <LineChart
           data={data}
