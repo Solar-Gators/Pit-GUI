@@ -30,6 +30,9 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_")
   const [startTime, setStartTime] = useState(searchParams.get("start") ?? localGraph["start"] ?? '2023-04-16 12:00')
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
+  
+  
+  const filterZeroes = true;
 
 
   useEffect(() => {
@@ -53,11 +56,11 @@ function Strategy() {
 .then(response => {
   const firstTimestamp = new Date(response[0]["createdAt"]).getTime();
   const filteredResponse = response
-    .filter((dataPoint) => dataPoint[dataKey] !== 0)
+    .filter((dataPoint) => !filterZeroes || dataPoint[dataKey] !== 0)
     .map((dataPoint) => ({
       ...dataPoint,
       dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
-    }));   
+    }));
 
     
   const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
@@ -166,6 +169,7 @@ function Strategy() {
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
           <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />
+          <Line type="monotone" dataKey="regression2" stroke="#ff0000" dot={false} />
         </LineChart>
       </ResponsiveContainer>
   </>
