@@ -5,6 +5,7 @@ import LiveTelemetry from './pages/LiveTelemetry'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ArchivedTelemetry from './pages/ArchivedTelemetry';
 import Charts from './pages/Charts';
+import Strategy from './pages/Strategy';
 
 export default function App() {
     return (<>
@@ -14,6 +15,7 @@ export default function App() {
                     <Routes>
                         <Route path="/history" element={<ArchivedTelemetry />} />
                         <Route path="/charts" element={<Charts />} />
+                        <Route path="/strategy" element={<Strategy />} />
                         <Route path="*" element={<LiveTelemetry />} />
                     </Routes>
                 </div>

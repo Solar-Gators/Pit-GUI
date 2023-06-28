@@ -11,7 +11,10 @@
         "outDir": "dist",
         "declaration": false,
         "experimentalDecorators": true,
-        "allowJs": true
+        "allowJs": true,
+        "lib": ["es6"],
+        "types": ["node", "jest", "mocha"],
+        "skipLibCheck": true
     },
     "include": [
         "./**/*.ts"
