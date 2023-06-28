@@ -33,6 +33,7 @@ function Strategy() {
   
   
   const filterZeroes = true;
+  const toExtrapolate = 2;
 
 
   useEffect(() => {
@@ -60,7 +61,7 @@ function Strategy() {
     .map((dataPoint) => ({
       ...dataPoint,
       dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
-    }));
+    }));   
 
     
   const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
@@ -73,7 +74,28 @@ function Strategy() {
       regression: regression.predict(dataPoint["dateStamp"]),
     }));
     
-  setData(responseWithReg as any);
+  let scaledXAxis = Array.from({length: xValues.length * toExtrapolate}, (_, i) => i);
+
+  // Map new x values to regression prediction
+  let extendedRegression = scaledXAxis.map((xValue) => {
+    let obj = {
+      dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : xValue,
+      regression: regression.predict((filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : xValue)),
+    };
+    obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
+    return obj;
+  });
+  
+  const extendedRegressionDates = extendedRegression
+  .map((dataPoint) => ({
+    ...dataPoint,
+    createdAt: new Date((dataPoint["dateStamp"]) * 1000 + firstTimestamp).toISOString(),
+  }));
+  
+  console.log(extendedRegressionDates);
+
+    
+  setData(extendedRegressionDates as any);
   
 	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime])
   return <>
@@ -169,7 +191,6 @@ function Strategy() {
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
           <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />
-          <Line type="monotone" dataKey="regression2" stroke="#ff0000" dot={false} />
         </LineChart>
       </ResponsiveContainer>
   </>
