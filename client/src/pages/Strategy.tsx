@@ -68,13 +68,21 @@ function Strategy() {
     })
 .then(response => {
   const firstTimestamp = new Date(response[0]["createdAt"]).getTime();
-  const filteredResponse = response
+  const filteredResponseTemp = response
     .filter((dataPoint) => !filterZeroes || dataPoint[dataKey] !== 0)
     .map((dataPoint) => ({
       ...dataPoint,
       dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
     }));   
         
+  const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
+    const duplicateDateStamp = accumulator.find(item => item.dateStamp === currentValue.dateStamp);
+    if (!duplicateDateStamp) {
+      accumulator.push(currentValue);
+    }
+    return accumulator;
+  }, []);
+
   
   const regStartStamp = (new Date(regStartTime).getTime() - firstTimestamp) / 1000 + 3600;
   const regEndStamp = (new Date(regEndTime).getTime() - firstTimestamp) / 1000 + 3600;
