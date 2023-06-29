@@ -24,6 +24,7 @@ function Strategy() {
   const showRegression = true;
   const fancySOCEstimate = true;
   const useRegressionRange = true;
+  const granularityMs = 1000 * 10;
   
   // constants to change
   const overnightSocPerHour = 10;
@@ -71,8 +72,10 @@ function Strategy() {
     .filter((dataPoint) => !filterZeroes || dataPoint[dataKey] !== 0)
     .map((dataPoint) => ({
       ...dataPoint,
-      dateStamp: (new Date(dataPoint["createdAt"]).getTime()) / 1000,
+      dateStamp: Math.floor((new Date(dataPoint["createdAt"]).getTime()) / granularityMs),
     }));   
+    
+    console.log(filteredResponseTemp);
         
   const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
     const duplicateDateStamp = accumulator.find(item => item.dateStamp === currentValue.dateStamp);
@@ -82,13 +85,15 @@ function Strategy() {
     return accumulator;
   }, []);
 
+      console.log(filteredResponse);
+
   
-  const regStartStamp = (new Date(regStartTime).getTime()) / 1000 + 3600;
-  const regEndStamp = (new Date(regEndTime).getTime()) / 1000 + 3600;
+  const regStartStamp = ((new Date(regStartTime).getTime())+ 3600000) / granularityMs;
+  const regEndStamp = ((new Date(regEndTime).getTime()) + 3600000) / granularityMs;
 
   //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
   
-  const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange ||  ((dataPoint["dateStamp"] >= regStartStamp - 3600) && (dataPoint["dateStamp"] <= regEndStamp - 3600))  );
+  const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange ||  ((dataPoint["dateStamp"] >= regStartStamp - (3600000/granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000/granularityMs)))  );
   console.log(filteredRegResponse);
 
   
@@ -127,8 +132,8 @@ function Strategy() {
   const extendedRegressionDates = extendedRegression
   .map((dataPoint) => ({
     ...dataPoint,
-    createdAt: new Date((dataPoint["dateStamp"]) * 1000).toISOString(),
-    regRange: ((dataPoint["dateStamp"] >= regStartStamp - 3600) && (dataPoint["dateStamp"] <= regEndStamp - 3600)) ? 0 : null,
+    createdAt: new Date((dataPoint["dateStamp"]) * granularityMs).toISOString(),
+    regRange: ((dataPoint["dateStamp"] >= regStartStamp - (3600000/granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000/granularityMs))) ? 0 : null,
   }));
       
   setData(extendedRegressionDates as any);
