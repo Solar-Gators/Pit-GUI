@@ -17,6 +17,14 @@ const allShape = {
 
 
 function Strategy() {
+
+  // options bc radio switches are hard
+  const filterZeroes = true;
+  const toExtrapolate = 2.5;
+  const showRegression = true;
+  const useRegressionRange = true;
+
+
   let localGraph = localStorage.getItem("graph") ?? "{}"
   // ensure that if JSON parse fails the app doesn't crash
   try {
@@ -30,14 +38,10 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_")
   const [startTime, setStartTime] = useState(searchParams.get("start") ?? localGraph["start"] ?? '2023-04-16 12:00')
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
-
+  const [regStartTime, setRegStartTime] = useState(searchParams.get("regstart") ?? localGraph["regstart"] ?? '2023-04-16 12:00')
+  const [regEndTime, setRegEndTime] = useState(searchParams.get("regend") ?? localGraph["regend"] ?? '2023-04-16 12:10')
   
-  // options bc radio switches are hard
-  const filterZeroes = true;
-  const toExtrapolate = 3;
-  const showRegression = true;
-
-
+  
   useEffect(() => {
     const data = {
       key: dataKey,
@@ -45,6 +49,8 @@ function Strategy() {
       number: messageNumber,
       start: startTime,
       end: endTime,
+      regstart: regStartTime,
+      regend: regEndTime,
     }
 
     setSearchParams(data)
@@ -64,13 +70,28 @@ function Strategy() {
       ...dataPoint,
       dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
     }));   
+    
+  console.log(filteredResponse);
+    
+  
+  const regStartStamp = (new Date(regStartTime).getTime() - firstTimestamp) / 1000 + 3600;
+  const regEndStamp = (new Date(regEndTime).getTime() - firstTimestamp) / 1000 + 3600;
+  
+  console.log(regStartStamp);
+  console.log(regEndStamp);
+  
+  
+  //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
+  
+  const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange ||  ((dataPoint["dateStamp"] >= regStartStamp) && (dataPoint["dateStamp"] <= regEndStamp))  );
+  console.log(filteredRegResponse);
 
-    
+  
+  const regXValues = filteredRegResponse.map(dataPoint => dataPoint["dateStamp"]);
   const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
-  const yValues = filteredResponse.map(dataPoint => dataPoint[dataKey]);
-  let regression = new SimpleLinearRegression(xValues, yValues);  
-    
-  const regStats = regression.score(xValues, yValues);
+  const regYValues = filteredRegResponse.map(dataPoint => dataPoint[dataKey]);
+  let regression = new SimpleLinearRegression(regXValues, regYValues);      
+  const regStats = regression.score(regXValues, regYValues);
 
   console.log(regression);
   console.log(regStats);
@@ -99,11 +120,12 @@ function Strategy() {
   .map((dataPoint) => ({
     ...dataPoint,
     createdAt: new Date((dataPoint["dateStamp"]) * 1000 + firstTimestamp).toISOString(),
+    regRange: ((dataPoint["dateStamp"] >= regStartStamp - 3600) && (dataPoint["dateStamp"] <= regEndStamp - 3600)) ? 0 : null,
   }));
-    
+      
   setData(extendedRegressionDates as any);
   
-	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime])
+	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime])
   return <>
       <Row>
           <Col>
@@ -168,6 +190,24 @@ function Strategy() {
             />
         </Col>
         </Row>
+      {useRegressionRange && <Row>
+        <Col>
+            <Form.Label>Regression Start</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              value={regStartTime}
+              onChange={(event) => setRegStartTime(event.target.value)}
+            />
+        </Col>
+        <Col>
+            <Form.Label>Regression End</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              value={regEndTime}
+              onChange={(event) => setRegEndTime(event.target.value)}
+            />
+        </Col>
+        </Row>}
       <ResponsiveContainer width={"100%"} height={300}>
         <LineChart
           data={data}
@@ -197,6 +237,7 @@ function Strategy() {
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
           {showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
+          {useRegressionRange && <Line type="monotone" dataKey="regRange" stroke="#000000" dot={true} />}
         </LineChart>
       </ResponsiveContainer>
   </>
