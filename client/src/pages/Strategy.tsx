@@ -81,7 +81,7 @@ function Strategy() {
 
   //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
   
-  const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange ||  ((dataPoint["dateStamp"] >= regStartStamp) && (dataPoint["dateStamp"] <= regEndStamp))  );
+  const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange ||  ((dataPoint["dateStamp"] >= regStartStamp - 3600) && (dataPoint["dateStamp"] <= regEndStamp - 3600))  );
   console.log(filteredRegResponse);
 
   
