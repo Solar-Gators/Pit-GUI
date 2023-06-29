@@ -20,9 +20,13 @@ function Strategy() {
 
   // options bc radio switches are hard
   const filterZeroes = true;
-  const toExtrapolate = 2.5;
+  const toExtrapolate = 7;
   const showRegression = true;
+  const fancySOCEstimate = true;
   const useRegressionRange = true;
+  
+  // constants to change
+  const overnightSocPerHour = 10;
 
 
   let localGraph = localStorage.getItem("graph") ?? "{}"
@@ -70,17 +74,11 @@ function Strategy() {
       ...dataPoint,
       dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
     }));   
-    
-  console.log(filteredResponse);
-    
+        
   
   const regStartStamp = (new Date(regStartTime).getTime() - firstTimestamp) / 1000 + 3600;
   const regEndStamp = (new Date(regEndTime).getTime() - firstTimestamp) / 1000 + 3600;
-  
-  console.log(regStartStamp);
-  console.log(regEndStamp);
-  
-  
+
   //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
   
   const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange ||  ((dataPoint["dateStamp"] >= regStartStamp) && (dataPoint["dateStamp"] <= regEndStamp))  );
@@ -95,12 +93,14 @@ function Strategy() {
 
   console.log(regression);
   console.log(regStats);
-    
-  const responseWithReg = filteredResponse
-    .map((dataPoint) => ({
-      ...dataPoint,
-      regression: regression.predict(dataPoint["dateStamp"]),
-    }));
+  
+  const intercept = regression["intercept"];
+  
+  const lastValue = filteredResponse[filteredResponse.length - 1][dataKey];
+  
+  const lastTimestamp = filteredResponse[filteredResponse.length - 1]["dateStamp"];
+  
+  const regOffset = regression.predict(lastTimestamp) - lastValue;  
     
   let scaledXAxis = Array.from({length: xValues.length * toExtrapolate}, (_, i) => i);
   
@@ -111,6 +111,7 @@ function Strategy() {
     let obj = {
       dateStamp: xValue,
       regression: regression.predict(xValue + xValGap),
+      fancy_estimate: regression.predict(xValue + xValGap) - regOffset,
     };
     obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
     return obj;
@@ -236,8 +237,10 @@ function Strategy() {
           />
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
-          {showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
+          {dataKey != "pack_soc_" && showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
           {useRegressionRange && <Line type="monotone" dataKey="regRange" stroke="#000000" dot={true} />}
+          {dataKey == "pack_soc_" && fancySOCEstimate && <Line type="monotone" dataKey="fancy_estimate" stroke="#ff0000" dot={false} />}
+          
         </LineChart>
       </ResponsiveContainer>
   </>
