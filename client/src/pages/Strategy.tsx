@@ -67,12 +67,11 @@ function Strategy() {
         }
     })
 .then(response => {
-  const firstTimestamp = new Date(response[0]["createdAt"]).getTime();
   const filteredResponseTemp = response
     .filter((dataPoint) => !filterZeroes || dataPoint[dataKey] !== 0)
     .map((dataPoint) => ({
       ...dataPoint,
-      dateStamp: (new Date(dataPoint["createdAt"]).getTime() - firstTimestamp) / 1000,
+      dateStamp: (new Date(dataPoint["createdAt"]).getTime()) / 1000,
     }));   
         
   const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
@@ -84,8 +83,8 @@ function Strategy() {
   }, []);
 
   
-  const regStartStamp = (new Date(regStartTime).getTime() - firstTimestamp) / 1000 + 3600;
-  const regEndStamp = (new Date(regEndTime).getTime() - firstTimestamp) / 1000 + 3600;
+  const regStartStamp = (new Date(regStartTime).getTime()) / 1000 + 3600;
+  const regEndStamp = (new Date(regEndTime).getTime()) / 1000 + 3600;
 
   //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
   
@@ -113,11 +112,11 @@ function Strategy() {
   let scaledXAxis = Array.from({length: xValues.length * toExtrapolate}, (_, i) => i);
   
   const xValGap = filteredResponse[filteredResponse.length - 1]["dateStamp"] - xValues.length;
-  
+    
   // Map new x values to regression prediction
   let extendedRegression = scaledXAxis.map((xValue) => {
     let obj = {
-      dateStamp: xValue,
+      dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : lastTimestamp + (xValue - filteredResponse.length),
       regression: regression.predict(xValue + xValGap),
       estimate: regression.predict(xValue + xValGap) - regOffset,
     };
@@ -128,7 +127,7 @@ function Strategy() {
   const extendedRegressionDates = extendedRegression
   .map((dataPoint) => ({
     ...dataPoint,
-    createdAt: new Date((dataPoint["dateStamp"]) * 1000 + firstTimestamp).toISOString(),
+    createdAt: new Date((dataPoint["dateStamp"]) * 1000).toISOString(),
     regRange: ((dataPoint["dateStamp"] >= regStartStamp - 3600) && (dataPoint["dateStamp"] <= regEndStamp - 3600)) ? 0 : null,
   }));
       
