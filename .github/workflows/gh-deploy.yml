@@ -30,6 +30,7 @@ jobs:
       - run: npm run build
         env:
           REACT_APP_TELEMETRY_API: https://telemetry-api.ufsolargators.org
+          REACT_APP_GOOGLE_MAPS_KEY: "${{ vars.REACT_APP_GOOGLE_MAPS_KEY }}"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
