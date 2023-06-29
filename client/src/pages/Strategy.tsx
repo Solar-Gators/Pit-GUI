@@ -20,7 +20,7 @@ function Strategy() {
 
   // options bc radio switches are hard
   const filterZeroes = true;
-  const toExtrapolate = 7;
+  const toExtrapolate = 3;
   const showRegression = true;
   const fancySOCEstimate = true;
   const useRegressionRange = true;
@@ -111,7 +111,7 @@ function Strategy() {
     let obj = {
       dateStamp: xValue,
       regression: regression.predict(xValue + xValGap),
-      fancy_estimate: regression.predict(xValue + xValGap) - regOffset,
+      estimate: regression.predict(xValue + xValGap) - regOffset,
     };
     obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
     return obj;
@@ -237,9 +237,9 @@ function Strategy() {
           />
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
-          {dataKey != "pack_soc_" && showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
+          {(dataKey != "pack_soc_" || !fancySOCEstimate) && showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
           {useRegressionRange && <Line type="monotone" dataKey="regRange" stroke="#000000" dot={true} />}
-          {dataKey == "pack_soc_" && fancySOCEstimate && <Line type="monotone" dataKey="fancy_estimate" stroke="#ff0000" dot={false} />}
+          {dataKey == "pack_soc_" && fancySOCEstimate && <Line type="monotone" dataKey="estimate" stroke="#ff0000" dot={false} />}
           
         </LineChart>
       </ResponsiveContainer>
