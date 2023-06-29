@@ -79,7 +79,6 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
 
             weak_cell_fault_: {
                 label: "Weak Cell",
-                booleanError: true
             },
 
 
@@ -120,7 +119,6 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
 
             thermistor_fault_: {
                 label: "Thermistor",
-                booleanError: true
             },
 
 
