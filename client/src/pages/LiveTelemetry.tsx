@@ -62,7 +62,7 @@ function LiveTelemetry() {
                 </Col>
                 <Col className="flex-center">
                     <ReactSpeedometer
-                        maxValue={40}
+                        maxValue={60}
                         value={speed}
                         needleColor="black"
                         startColor="white"
