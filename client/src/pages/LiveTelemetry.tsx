@@ -16,7 +16,6 @@ function LiveTelemetry() {
     const [data, setData] = React.useState<telemetry.DataResponse>()
     const [speed, setSpeed] = React.useState(0)
 
-
     const { pathname, hash, key } = useLocation();
 
     useEffect(() => {
