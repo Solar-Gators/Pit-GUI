@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Row, Col, Form } from "react-bootstrap";
-import { getAllModuleItem } from '../shared/sdk/telemetry';
+import { getAllModuleItem, WHEEL_RADIUS_MI } from '../shared/sdk/telemetry';
 import { bmsShape } from '../component/BMS'
 import { mitsubaShape } from '../component/Mitsuba'
 import { mpptShape } from '../component/MPPT'
+import { calculatedShape } from '../component/Calculated'
 import * as moment from 'moment'
 import { SimpleLinearRegression } from 'ml-regression';
 import { useSearchParams } from "react-router-dom";
@@ -15,6 +16,7 @@ const allShape = {
   "bms": bmsShape,
   "mitsuba": mitsubaShape,
   "mppt": mpptShape,
+  "calculated": calculatedShape,
 }
 
 
@@ -39,12 +41,16 @@ function Strategy() {
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
   const [regStartTime, setRegStartTime] = useState(searchParams.get("regstart") ?? localGraph["regstart"] ?? '2023-04-16 12:00')
   const [regEndTime, setRegEndTime] = useState(searchParams.get("regend") ?? localGraph["regend"] ?? '2023-04-16 12:10')
-  const [filterZeroes, setFilterZeroes] = useState(searchParams.get("zeroes") ?? localGraph["zeroes"] ?? true)
-  const [showRegression, setShowRegression] = useState(searchParams.get("showregression") ?? localGraph["showregression"] ?? true)
-  const [fancySOCEstimate, setFancySOCEstimate] = useState(searchParams.get("fancysoc") ?? localGraph["fancysoc"] ?? true)
-  const [useRegressionRange, setUseRegressionRange] = useState(searchParams.get("regrange") ?? localGraph["regrange"] ?? true)
-  const [toExtrapolate, setToExtrapolate] = useState(searchParams.get("extrapolate") ?? localGraph["extrapolate"] ?? 1)
-  const [granularityMs, setGranularityMs] = useState(searchParams.get("granularity") ?? localGraph["granularity"] ?? 10000)
+  const [showRegression, setShowRegression] = useState(false)
+  const [fancySOCEstimate, setFancySOCEstimate] = useState(false)
+  const [useRegressionRange, setUseRegressionRange] = useState(false)
+  const [toExtrapolate, setToExtrapolate] = useState(1)
+  const [granularityMs, setGranularityMs] = useState(searchParams.get("granularity") ?? localGraph["granularity"] ?? 1000)
+  const [maxTrimVal, setMaxTrimVal] = useState(searchParams.get("maxtrim") ?? localGraph["maxtrim"] ?? 999999)
+  const [minTrimVal, setMinTrimVal] = useState(searchParams.get("mintrim") ?? localGraph["mintrim"] ?? 0)
+  const [rangeAverage, setRangeAverage] = useState(0)
+  const [rangeMax, setRangeMax] = useState(0)
+  const [rangeMin, setRangeMin] = useState(0)
   
  const [selectedOption, setSelectedOption] = useState(`${telemetryType}.${messageNumber}.${dataKey}`);
 
@@ -80,33 +86,109 @@ function Strategy() {
       end: endTime,
       regstart: regStartTime,
       regend: regEndTime,
-      zeroes: filterZeroes,
-      showregression: showRegression,
-      fancysoc: fancySOCEstimate,
-      regrange: useRegressionRange,
-      extrapolate: toExtrapolate,
       granularity: granularityMs,
+      maxtrim: maxTrimVal,
+      mintrim: minTrimVal,
     }
 
-    setSearchParams(data)
-    localStorage.setItem("graph", JSON.stringify(data))
+  setSearchParams(data)
+  localStorage.setItem("graph", JSON.stringify(data))
+    
+  let getAllModuleItemPromise = Promise.resolve();
 
-    getAllModuleItem(telemetryType as any, messageNumber, dataKey, {
-        createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-        }
-    })
-.then(response => {
-  const filteredResponseTemp = response
-    .filter((dataPoint) => !filterZeroes || dataPoint[dataKey] !== 0)
-    .map((dataPoint) => ({
+  let currentForWatts;
+  
+  if (dataKey == "power_consumption_watts_") {
+      currentForWatts = getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
+          createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          }
+      });
+      
+      currentForWatts = getAllModuleItem("bms" as any, "rx2", "pack_current_", {
+          createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          }
+      });
+      
+  } else if (dataKey == "car_speed_mph_") {
+      getAllModuleItemPromise = getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
+          createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          }
+      });
+  } else {
+      getAllModuleItemPromise = getAllModuleItem(telemetryType as any, messageNumber, dataKey, {
+          createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          }
+      });
+  }
+  
+ 
+  // Now apply .then on the result
+  getAllModuleItemPromise.then(response => {
+  
+  
+  let toTransform;
+  
+  if(dataKey == "power_consumption_watts_") {
+  
+  console.log(currentForWatts);
+  
+     Promise.all(currentVals).then((currentValsRes) => {
+        toTransform = response.map((dataPoint) => ({
+            ...dataPoint,
+            [dataKey]: dataPoint["pack_sum_volt_"] * currentForWatts[dataPoint]["pack_current_"],
+        }));  
+  
+    });
+    
+  } else if (dataKey == "car_speed_mph_") {
+
+    toTransform = response.map((dataPoint) => ({
+      ...dataPoint,
+      [dataKey]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
+    }));
+    
+  } else {
+    toTransform = response;
+  }
+  
+  const filteredResponseTemp = toTransform.map((dataPoint) => ({
       ...dataPoint,
       dateStamp: Math.floor((new Date(dataPoint["createdAt"]).getTime()) / granularityMs),
-    }));   
+    }))
+    .filter((dataPoint) => dataPoint[dataKey] >= minTrimVal && dataPoint[dataKey] <= maxTrimVal);
     
-    console.log(filteredResponseTemp);
-        
+  let sum = 0;
+  let maxValue = -Infinity;
+  let minValue = Infinity;
+
+  filteredResponseTemp.forEach(dataPoint => {
+    sum += dataPoint[dataKey];
+    
+    if (dataPoint[dataKey] > maxValue) {
+      maxValue = dataPoint[dataKey];
+    }
+    
+    if (dataPoint[dataKey] < minValue) {
+      minValue = dataPoint[dataKey];
+    }
+  });
+
+  let average = sum / filteredResponseTemp.length;
+    
+  setRangeAverage(average);
+  setRangeMax(maxValue);
+  setRangeMin(minValue);
+  
+  
+
   const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
     const duplicateDateStamp = accumulator.find(item => item.dateStamp === currentValue.dateStamp);
     if (!duplicateDateStamp) {
@@ -115,18 +197,15 @@ function Strategy() {
     return accumulator;
   }, []);
 
-      console.log(filteredResponse);
 
-  
   const regStartStamp = ((new Date(regStartTime).getTime())+ 3600000) / granularityMs;
   const regEndStamp = ((new Date(regEndTime).getTime()) + 3600000) / granularityMs;
 
   //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
   
   const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange ||  ((dataPoint["dateStamp"] >= regStartStamp - (3600000/granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000/granularityMs)))  );
-  console.log(filteredRegResponse);
-
   
+
   const regXValues = filteredRegResponse.map(dataPoint => dataPoint["dateStamp"]);
   const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
   const regYValues = filteredRegResponse.map(dataPoint => dataPoint[dataKey]);
@@ -134,7 +213,7 @@ function Strategy() {
   const regStats = regression.score(regXValues, regYValues);
 
   console.log(regression);
-  console.log(regStats);
+  //console.log(regStats);
   
   const intercept = regression["intercept"];
   
@@ -168,7 +247,7 @@ function Strategy() {
       
   setData(extendedRegressionDates as any);
   
-	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, filterZeroes, showRegression, fancySOCEstimate, useRegressionRange, toExtrapolate, granularityMs])
+	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, granularityMs, maxTrimVal, minTrimVal])
   return <>
       <Row>
         <Col>
@@ -255,19 +334,6 @@ function Strategy() {
         <Col>
           <div class="switch">
             <label>
-              Filter Zeroes
-              <input 
-                type="checkbox" 
-                checked={filterZeroes} 
-                onChange={(event) => setFilterZeroes(event.target.checked)}
-              />
-              <span class="lever"></span>
-            </label>
-          </div>
-        </Col>
-        <Col>
-          <div class="switch">
-            <label>
               Show Regression
               <input 
                 type="checkbox" 
@@ -329,6 +395,43 @@ function Strategy() {
               value={granularityMs} 
               onChange={(event) => setGranularityMs(event.target.value)}
             />
+          </div>
+          </Col>
+          <Col>
+          <div class="form-outline" style={{width: '6rem'}}>
+            <label class="form-label" for="typeNumber">Max Trim</label>
+            <input
+              min="0"
+              type="text"
+              id="typeNumber" 
+              class="form-control"
+              value={maxTrimVal} 
+              onChange={(event) => setMaxTrimVal(event.target.value)}
+            />
+          </div>
+          </Col>
+          <Col>
+          <div class="form-outline" style={{width: '6rem'}}>
+            <label class="form-label" for="typeNumber">Min Trim</label>
+            <input
+              min="0"
+              type="text"
+              id="typeNumber" 
+              class="form-control"
+              value={minTrimVal} 
+              onChange={(event) => setMinTrimVal(event.target.value)}
+            />
+          </div>
+          </Col>
+          <Col>
+          <div>
+            <h6 class="form-label" for="typeNumber">Range Average: {rangeAverage}</h6>
+          </div>
+          <div>
+            <h6 class="form-label" for="typeNumber">Range Maximum: {rangeMax}</h6>
+          </div>
+          <div>
+            <h6 class="form-label" for="typeNumber">Range Minimum: {rangeMin}</h6>
           </div>
         </Col>
       </Row>
