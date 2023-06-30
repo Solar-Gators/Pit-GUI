@@ -20,14 +20,6 @@ const allShape = {
 
 function Strategy() {
 
-  // options bc radio switches are hard
-  const filterZeroes = true;
-  const toExtrapolate = 3;
-  const showRegression = true;
-  const fancySOCEstimate = true;
-  const useRegressionRange = true;
-  const granularityMs = 1000 * 10;
-  
   // constants to change
   const overnightSocPerHour = 10;
 
@@ -47,6 +39,12 @@ function Strategy() {
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
   const [regStartTime, setRegStartTime] = useState(searchParams.get("regstart") ?? localGraph["regstart"] ?? '2023-04-16 12:00')
   const [regEndTime, setRegEndTime] = useState(searchParams.get("regend") ?? localGraph["regend"] ?? '2023-04-16 12:10')
+  const [filterZeroes, setFilterZeroes] = useState(searchParams.get("zeroes") ?? localGraph["zeroes"] ?? true)
+  const [showRegression, setShowRegression] = useState(searchParams.get("showregression") ?? localGraph["showregression"] ?? true)
+  const [fancySOCEstimate, setFancySOCEstimate] = useState(searchParams.get("fancysoc") ?? localGraph["fancysoc"] ?? true)
+  const [useRegressionRange, setUseRegressionRange] = useState(searchParams.get("regrange") ?? localGraph["regrange"] ?? true)
+  const [toExtrapolate, setToExtrapolate] = useState(searchParams.get("extrapolate") ?? localGraph["extrapolate"] ?? 1)
+  const [granularityMs, setGranularityMs] = useState(searchParams.get("granularity") ?? localGraph["granularity"] ?? 10000)
   
  const [selectedOption, setSelectedOption] = useState(`${telemetryType}.${messageNumber}.${dataKey}`);
 
@@ -82,6 +80,12 @@ function Strategy() {
       end: endTime,
       regstart: regStartTime,
       regend: regEndTime,
+      zeroes: filterZeroes,
+      showregression: showRegression,
+      fancysoc: fancySOCEstimate,
+      regrange: useRegressionRange,
+      extrapolate: toExtrapolate,
+      granularity: granularityMs,
     }
 
     setSearchParams(data)
@@ -164,7 +168,7 @@ function Strategy() {
       
   setData(extendedRegressionDates as any);
   
-	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime])
+	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, filterZeroes, showRegression, fancySOCEstimate, useRegressionRange, toExtrapolate, granularityMs])
   return <>
       <Row>
         <Col>
@@ -246,6 +250,88 @@ function Strategy() {
           
         </LineChart>
       </ResponsiveContainer>
+      <Row />
+      <Row>
+        <Col>
+          <div class="switch">
+            <label>
+              Filter Zeroes
+              <input 
+                type="checkbox" 
+                checked={filterZeroes} 
+                onChange={(event) => setFilterZeroes(event.target.checked)}
+              />
+              <span class="lever"></span>
+            </label>
+          </div>
+        </Col>
+        <Col>
+          <div class="switch">
+            <label>
+              Show Regression
+              <input 
+                type="checkbox" 
+                checked={showRegression} 
+                onChange={(event) => setShowRegression(event.target.checked)}
+              />
+              <span class="lever"></span>
+            </label>
+          </div>
+        </Col>
+        <Col>
+          <div class="switch">
+            <label>
+              Regression Range
+              <input 
+                type="checkbox" 
+                checked={useRegressionRange} 
+                onChange={(event) => setUseRegressionRange(event.target.checked)}
+              />
+              <span class="lever"></span>
+            </label>
+          </div>
+        </Col>
+        <Col>
+          <div class="switch">
+            <label>
+              Fancy SOC
+              <input 
+                type="checkbox" 
+                checked={fancySOCEstimate} 
+                onChange={(event) => setFancySOCEstimate(event.target.checked)}
+              />
+              <span class="lever"></span>
+            </label>
+          </div>
+        </Col>
+        <Col>
+          <div class="form-outline" style={{width: '3rem'}}>
+            <label class="form-label" for="typeNumber">X Scale</label>
+            <input
+              step="0.1"
+              min="1"
+              type="number"
+              id="typeNumber" 
+              class="form-control"
+              value={toExtrapolate} 
+              onChange={(event) => setToExtrapolate(event.target.value)}
+            />
+          </div>
+        </Col>
+        <Col>
+          <div class="form-outline" style={{width: '6rem'}}>
+            <label class="form-label" for="typeNumber">Resolution (ms)</label>
+            <input
+              min="1"
+              type="text"
+              id="typeNumber" 
+              class="form-control"
+              value={granularityMs} 
+              onChange={(event) => setGranularityMs(event.target.value)}
+            />
+          </div>
+        </Col>
+      </Row>
   </>
 }
 
