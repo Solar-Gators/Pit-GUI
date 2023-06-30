@@ -19,7 +19,7 @@ export default class BMS_RX2 extends Model<BMS_RX2_Type> {
     pack_ccl_: number
 
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.FLOAT,
         defaultValue: null
     })
     pack_current_: number
