@@ -235,7 +235,7 @@ function LiveTelemetry() {
 }
 
 function calcArrayPower(mppt: telemetry.MPPT_Group) {
-    return (mppt?.rx1?.outputCurrent ?? 0) * (mppt?.rx1?.outputVoltage ?? 0)
+    return (mppt?.rx0?.inputCurrent ?? 0) * (mppt?.rx0?.inputVoltage ?? 0)
 }
 
 export default LiveTelemetry;
