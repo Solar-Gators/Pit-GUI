@@ -1,1 +1,0 @@
-{"version":3,"file":"DistanceTraveled.js","sourceRoot":"","sources":["../../../src/shared/models/Stats/DistanceTraveled.ts"],"names":[],"mappings":"AAAA,YAAY,CAAC;;;;;;;;AAEb,+DAAqE;AAKrE,IAAqB,gBAAgB,GAArC,MAAqB,gBAAiB,SAAQ,4BAAK;CAKlD,CAAA;AADC;IAHC,IAAA,6BAAM,EAAC;QACN,IAAI,EAAE,+BAAQ,CAAC,MAAM;KACtB,CAAC;kDACc;AAJG,gBAAgB;IADpC,4BAAK;GACe,gBAAgB,CAKpC;kBALoB,gBAAgB"}
