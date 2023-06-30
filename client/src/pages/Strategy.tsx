@@ -8,6 +8,8 @@ import { mpptShape } from '../component/MPPT'
 import * as moment from 'moment'
 import { SimpleLinearRegression } from 'ml-regression';
 import { useSearchParams } from "react-router-dom";
+import Select from 'react-select';
+
 
 const allShape = {
   "bms": bmsShape,
@@ -45,6 +47,30 @@ function Strategy() {
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
   const [regStartTime, setRegStartTime] = useState(searchParams.get("regstart") ?? localGraph["regstart"] ?? '2023-04-16 12:00')
   const [regEndTime, setRegEndTime] = useState(searchParams.get("regend") ?? localGraph["regend"] ?? '2023-04-16 12:10')
+  
+ const [selectedOption, setSelectedOption] = useState(`${telemetryType}.${messageNumber}.${dataKey}`);
+
+  const handleSelectChange = (selectedOption) => {
+    const { value } = selectedOption;
+    const [type, num, key] = value.split('.');
+    setTelemetryType(type);
+    setMessageNumber(num);
+    setDataKey(key);
+    setSelectedOption(selectedOption);
+  }
+
+  const buildOptions = () => {
+    let options = [];
+    Object.keys(allShape).forEach((type) => {
+      Object.keys(allShape[type].data).forEach((num) => {
+        Object.keys(allShape[type].data[num]).forEach((key) => {
+          const value = `${type}.${num}.${key}`;
+          options.push({ value, label: value });
+        });
+      });
+    });
+    return options;
+  }
   
   
   useEffect(() => {
@@ -141,49 +167,14 @@ function Strategy() {
 	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime])
   return <>
       <Row>
-          <Col>
-              <Form.Label>Type of Telemetry</Form.Label>
-              <Form.Select
-                value={telemetryType}
-                onChange={(value) => {
-                  setTelemetryType(value.target.value)
-                  const newNum = Object.keys(allShape[value.target.value].data)[0]
-                  setMessageNumber(newNum)
-                  setDataKey(Object.keys(allShape[value.target.value].data[newNum])[0])
-                }}
-              >
-                {Object.keys(allShape).map((type) => (
-                  <option value={type}>{type}</option>
-                ))}
-              </Form.Select>
-          </Col>
-          <Col>
-              <Form.Label>Message #</Form.Label>
-              <Form.Select
-                onChange={(value) => {
-                  setMessageNumber(value.target.value)
-                  setDataKey(Object.keys(allShape[telemetryType].data[value.target.value])[0])
-                }}
-                value={messageNumber}
-              >
-                {Object.keys(allShape[telemetryType].data).map((type) => (
-                  <option value={type}>{type}</option>
-                ))}
-              </Form.Select>
-          </Col>
-          <Col>
-              <Form.Label>Item</Form.Label>
-              <Form.Select
-                onChange={(event) => {
-                  setDataKey(event.target.value)
-                }}
-                value={dataKey}
-              >
-                {Object.keys(allShape[telemetryType].data[messageNumber]).map((type) => (
-                  <option value={type}>{type}</option>
-                ))}
-              </Form.Select>
-          </Col>
+        <Col>
+          <Form.Label>Select Statistics</Form.Label>
+          <Select
+            value={selectedOption}
+            onChange={handleSelectChange}
+            options={buildOptions()}
+          />
+        </Col>
       </Row>
       <Row>
         <Col>
