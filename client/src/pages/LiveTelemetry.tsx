@@ -128,11 +128,11 @@ function LiveTelemetry() {
                     unit="V"
                 />
                 <Label
-                    label="Consumption"
+                    label="Motor Consumption"
                     value={
-                        (data?.bms?.rx0?.pack_sum_volt_ ?? 0)
+                        (data?.mitsuba?.rx0?.battCurrent ?? 0)
                         *
-                        (data?.bms?.rx2?.pack_current_ ?? 0)
+                        (data?.mitsuba?.rx0?.battVoltage ?? 0)
                     }
                     unit="W"
                 />
