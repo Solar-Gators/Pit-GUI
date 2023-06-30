@@ -38,6 +38,9 @@ function Sidebar() {
                 <li className={location.pathname == '/charts' && 'bold active'}>
                     <Link to="/charts">Detailed Charts</Link>
                 </li>
+                <li className={location.pathname == '/strategy' && 'bold active'}>
+                    <Link to="/strategy">Strategy</Link>
+                </li>
                 <li className={location.pathname == '/history' && 'bold active'}>
                     <Link to="/history">Data Export</Link>
                 </li>
