@@ -80,7 +80,8 @@ function LiveTelemetry() {
                     bmsFault={
                         data.bms.rx4 ?
                         Object.keys(data.bms.rx4).some((key) => {
-                            return data?.bms?.rx4[key] === true
+                            return data?.bms?.rx4[key] === true &&
+                            bmsShape?.data?.rx4?.[key as any]?.['booleanError']
                         }) : false
                     }
                     mitsubaFault={
