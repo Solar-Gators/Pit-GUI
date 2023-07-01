@@ -156,7 +156,7 @@ function LiveTelemetry() {
                 <Label
                     label="Lap Count"
                     value={
-                        (data?.laps?.rx0.lap ?? 0)
+                        (data?.laps?.rx0?.lap ?? 0)
                     }
                 />
             </Row>
