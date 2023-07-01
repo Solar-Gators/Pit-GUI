@@ -113,7 +113,14 @@ function Strategy() {
           }
       });
       
-  } else if (dataKey == "car_speed_mph_") {
+  } else if (dataKey == "better_soc_") {
+      getAllModuleItemPromise = getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
+          createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          }
+      });
+  }  else if (dataKey == "car_speed_mph_") {
       getAllModuleItemPromise = getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
           createdAt: {
               $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
@@ -153,6 +160,13 @@ function Strategy() {
     toTransform = response.map((dataPoint) => ({
       ...dataPoint,
       [dataKey]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
+    }));
+    
+  }  else if (dataKey == "better_soc_") {
+
+    toTransform = response.map((dataPoint) => ({
+      ...dataPoint,
+      [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
     }));
     
   } else {
@@ -438,4 +452,17 @@ function Strategy() {
   </>
 }
 
+const stateOfCharge = (packVoltage: any) => {
+  let voltage = packVoltage / 26;
+
+  if (voltage >= 4.05) return 100;
+  else if (voltage >= 3.2) return ((voltage - 3.2) * (100 - 10.714) / (4.05 - 3.2)) + 10.714;
+  else if (voltage >= 3.1) return ((voltage - 3.1) * (10.714 - 5.36) / (3.2 - 3.1)) + 5.36;
+  else if (voltage >= 2.5) return (voltage - 2.5) * (5.36 - 0) / (3.1 - 2.5);
+  else return 0;
+};
+
+
 export default Strategy
+
+
