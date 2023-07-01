@@ -7,6 +7,7 @@ import mitsuba from '../routes/mitsuba.server.routes'
 import bms from '../routes/bms.server.routes'
 import mppt from '../routes/mppt.server.routes'
 import gps from '../routes/gps.server.routes'
+import laps from '../routes/laps.server.routes'
 const cors = require('cors')
 
 module.exports.init = async () => {
@@ -32,6 +33,7 @@ module.exports.init = async () => {
   app.use('/api/gps', gps);
   app.use('/api/mitsuba', mitsuba);
   app.use('/api/mppt', mppt);
+  app.use('/api/laps', laps);
 
   return app;
 };
