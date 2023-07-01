@@ -445,6 +445,7 @@ function Strategy() {
                   className="form-control"
                   defaultValue={granularityMs} 
                   onBlur={(event) => setGranularityMs((event.target as HTMLInputElement).value)}
+                  onFocus={(event) => event.target.select()}
                   onKeyDown={(event) => {
                       if (event.key === "Enter") {
                           event.preventDefault();
@@ -458,19 +459,20 @@ function Strategy() {
             <div className="form-outline" style={{width: '6rem'}}>
                 <label className="form-label" htmlFor="typeNumber">Max Trim</label>
                 <input
-                    min="0"
-                    type="text"
-                    id="typeNumber" 
-                    className="form-control"
-                    defaultValue={maxTrimVal} 
-                    onBlur={(event) => setMaxTrimVal(event.target.value)}
-                    onKeyDown={(event) => {
+                  min="0"
+                  type="text"
+                  id="typeNumber" 
+                  className="form-control"
+                  defaultValue={maxTrimVal} 
+                  onFocus={(event) => event.target.select()}
+                  onBlur={(event) => setMaxTrimVal(event.target.value)}
+                  onKeyDown={(event) => {
                       if (event.key === "Enter") {
                           event.preventDefault();
                           (event.target as HTMLInputElement).blur();
                       }
                   }}
-                />
+              />
             </div>
           </Col>}
           {useTrim && <Col>
@@ -479,10 +481,11 @@ function Strategy() {
               <input
                   min="0"
                   type="text"
-                  id="typeNumber" 
+                  id="typeNumber"
                   className="form-control"
                   defaultValue={minTrimVal} 
                   onBlur={(event) => setMinTrimVal(event.target.value)}
+                  onFocus={(event) => event.target.select()}
                   onKeyDown={(event) => {
                     if (event.key === "Enter") {
                         event.preventDefault();
