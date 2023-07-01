@@ -14,6 +14,11 @@ export const calculatedShape: TelemetryTabbed<telemetry.DataResponse["calculated
             better_soc_: {
                 label: "Estimated State of Charge",
                 unit: "%"
+            },
+            power_consumption_watts_: {
+                label: "Power Consumption",
+                unit: "W",
+            
             }
         }
       }

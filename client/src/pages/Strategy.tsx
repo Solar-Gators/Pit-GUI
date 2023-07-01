@@ -11,7 +11,6 @@ import { SimpleLinearRegression } from 'ml-regression';
 import { useSearchParams } from "react-router-dom";
 import Select from 'react-select';
 
-
 const allShape = {
   "bms": bmsShape,
   "mitsuba": mitsubaShape,
@@ -19,12 +18,10 @@ const allShape = {
   "calculated": calculatedShape,
 }
 
-
 function Strategy() {
 
   // constants to change
   const overnightSocPerHour = 10;
-
 
   let localGraph = localStorage.getItem("graph") ?? "{}"
   // ensure that if JSON parse fails the app doesn't crash
@@ -61,7 +58,12 @@ function Strategy() {
     setMessageNumber(num);
     setDataKey(key);
     setSelectedOption(selectedOption);
-    setUseTrim(false);
+
+    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_") {
+      setUseTrim(true);
+    } else {
+      setUseTrim(false);
+    }
   }
 
   const buildOptions = () => {
@@ -103,15 +105,13 @@ function Strategy() {
       setMaxTrimVal(100);
       setMinTrimVal(1);
     } else if (dataKey == "high_temp_") {
-      setMaxTrimVal(45);
+      setMaxTrimVal(48);
       setMinTrimVal(20);
     } else {
       setMaxTrimVal(999999);
       setMinTrimVal(0);
     }
   }
-
-
 
   useEffect(() => {
     const data = {
@@ -128,6 +128,7 @@ function Strategy() {
     }
 
     setSearchParams(data)
+    
     localStorage.setItem("graph", JSON.stringify(data))
 
     let getAllModuleItemPromise: Promise<any> = Promise.resolve();
@@ -172,10 +173,7 @@ function Strategy() {
       });
     }
 
-
-    // Now apply .then on the result
     getAllModuleItemPromise.then(response => {
-
 
       let toTransform;
 
@@ -225,8 +223,6 @@ function Strategy() {
       setRangeMax(maxValue);
       setRangeMin(minValue);
 
-
-
       const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
         const duplicateDateStamp = accumulator.find(item => item.dateStamp === currentValue.dateStamp);
         if (!duplicateDateStamp) {
@@ -236,8 +232,6 @@ function Strategy() {
       }, []);
 
       console.log(filteredResponse);
-
-
 
       const requestedTimespan = new Date(endTime).getTime() - new Date(startTime).getTime();
 
@@ -249,31 +243,24 @@ function Strategy() {
 
       const toExtrapolate = requestedTimespan / givenTimespan;
 
-
-
       const oldRegStartStamp = ((new Date(regStartTime).getTime()) + 3600000) / granularityMs;
+
       const oldRegEndStamp = ((new Date(regEndTime).getTime()) + 3600000) / granularityMs;
 
       const regStartStamp = Math.max(oldRegStartStamp, (startTimestamp + 3600000) / granularityMs);
 
-
       const regEndStamp = Math.min(oldRegEndStamp, (endTimestamp + 3600000) / granularityMs);
-
-
-      console.log("yo");
-      console.log(oldRegEndStamp);
-      console.log((endTimestamp + 3600000) / granularityMs);
-      console.log(regEndStamp);
-
-      //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
 
       const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange || ((dataPoint["dateStamp"] >= regStartStamp - (3600000 / granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000 / granularityMs))));
 
-
       const regXValues = filteredRegResponse.map(dataPoint => dataPoint["dateStamp"]);
+
       const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
+
       const regYValues = filteredRegResponse.map(dataPoint => dataPoint[dataKey]);
+
       let regression = new SimpleLinearRegression(regXValues, regYValues);
+
       const regStats = regression.score(regXValues, regYValues);
 
       console.log(regression);
@@ -286,7 +273,6 @@ function Strategy() {
       const lastTimestamp = filteredResponse[filteredResponse.length - 1]["dateStamp"];
 
       const regOffset = regression.predict(lastTimestamp) - lastValue;
-
 
       let scaledXAxis = Array.from({ length: xValues.length * toExtrapolate }, (_, i) => i);
 
@@ -322,7 +308,6 @@ function Strategy() {
           onChange={handleSelectChange}
           options={buildOptions() as any}
         />
-
       </Col>
     </Row>
     <Row>
@@ -369,8 +354,7 @@ function Strategy() {
           right: 30,
           left: 20,
           bottom: 5,
-        }}
-      >
+        }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="createdAt"
@@ -391,7 +375,6 @@ function Strategy() {
         <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
         {showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
         {useRegressionRange && <Line type="monotone" dataKey="regRange" stroke="#000000" dot={true} />}
-
       </LineChart>
     </ResponsiveContainer>
     <Row />
