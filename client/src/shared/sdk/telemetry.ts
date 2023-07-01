@@ -103,6 +103,19 @@ type mitsubaModels = keyof addPrefixToObject<DataResponse['mitsuba'], 'mitsuba.'
 
 type telemetryModels = bmsModels | mitsubaModels
 
+export async function getMostRecent<T extends keyof CanData, P extends keyof CanData[T]>(module: T, message: P) {
+    return telemetryApi.get(`/api/${module}/${String(message)}`, {
+        params: {
+            limit: 1,
+            order: JSON.stringify([[
+                'createdAt',
+                'DESC'
+            ]])
+        }
+    }).then((r) => r.data[0])
+}
+
+
 export async function createModuleItem<T extends keyof CanData, P extends keyof CanData[T]>(module: T, message: P, data: CanData[T][P]) {
     await telemetryApi.post(`/api/${module}/${String(message)}`, data)
 }
@@ -116,4 +129,8 @@ export function countOne(telemetry: telemetryModels, where?: Record<string, any>
         }
     })
     .then((response) => parseInt(response.data))
+}
+
+export function countLaps() {
+    return telemetryApi.post("/api/count-lap")
 }
