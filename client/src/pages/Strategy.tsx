@@ -77,6 +77,7 @@ function Strategy() {
   }
   
   const stateOfCharge = (packVoltage: any) => {
+  export const stateOfCharge = (packVoltage: any) => {
     let voltage = packVoltage / 26;
 
     if (voltage >= 4.05) return 100;

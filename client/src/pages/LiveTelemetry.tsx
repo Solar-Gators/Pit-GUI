@@ -11,6 +11,7 @@ import TelemetryCAN from '../component/TelemetryCan';
 import Nav from 'react-bootstrap/Nav'
 import { NavLink, Route, Routes, useLocation } from "react-router-dom"
 import Label from '../component/Label';
+import { stateOfCharge } from './Strategy';
 
 function LiveTelemetry() {
     const [data, setData] = React.useState<telemetry.DataResponse>()
@@ -48,7 +49,6 @@ function LiveTelemetry() {
     if (!data) {
         return <p>Loading..</p>
     }
-
 
     return (
         <>
@@ -154,13 +154,22 @@ function LiveTelemetry() {
                     unit="%"
                 />
                 <Label
+                    label="Custom SOC"
+                    value={
+                        stateOfCharge(
+                            data?.bms?.rx0?.pack_sum_volt_
+                        )
+                    }
+                    unit="%"
+                />
+            </Row>
+            <Row>
+                <Label
                     label="Lap Count"
                     value={
                         (data?.laps?.rx0?.lap ?? 0)
                     }
                 />
-            </Row>
-            <Row>
                 <Label
                     label="Distance Traveled"
                     value={
