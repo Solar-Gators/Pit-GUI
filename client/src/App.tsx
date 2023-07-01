@@ -14,7 +14,6 @@ export default function App() {
                 <div className='page-content'>
                     <Routes>
                         <Route path="/history" element={<ArchivedTelemetry />} />
-                        <Route path="/charts" element={<Charts />} />
                         <Route path="/strategy" element={<Strategy />} />
                         <Route path="*" element={<LiveTelemetry />} />
                     </Routes>
