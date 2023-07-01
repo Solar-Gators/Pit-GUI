@@ -61,6 +61,7 @@ function Strategy() {
     setMessageNumber(num);
     setDataKey(key);
     setSelectedOption(selectedOption);
+    setUseTrim(false);
   }
 
   const buildOptions = () => {
@@ -75,7 +76,6 @@ function Strategy() {
     });
     return options;
   }
-  
   
   const stateOfCharge = (packVoltage: any) => {
     let voltage = packVoltage / 26;
@@ -92,6 +92,25 @@ function Strategy() {
     setRegEndTime(endTime);
     setRegStartTime(startTime);
   }
+
+  const handleTrimRadio = (selectedOption) => {
+    setUseTrim(selectedOption);
+    
+    if (dataKey == "pack_sum_volt_") {
+      setMaxTrimVal(110);
+      setMinTrimVal(80);
+    } else if (dataKey == "pack_soc_") {
+      setMaxTrimVal(100);
+      setMinTrimVal(1);
+    } else if (dataKey == "high_temp_") {
+      setMaxTrimVal(45);
+      setMinTrimVal(20);
+    } else {
+      setMaxTrimVal(999999);
+      setMinTrimVal(0);
+    }
+  }
+  
   
   
   useEffect(() => {
@@ -425,11 +444,7 @@ function Strategy() {
               <input 
                 type="checkbox" 
                 checked={useTrim} 
-                onChange={(event) => {
-                  setUseTrim(event.target.checked);
-                  setMaxTrimVal(999999);
-                  setMinTrimVal(0);
-                }}
+                onChange={(event) => handleTrimRadio(event.target.checked)}
               />
               <span className="lever"></span>
             </label>
