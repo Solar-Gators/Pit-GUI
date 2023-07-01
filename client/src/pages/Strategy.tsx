@@ -44,8 +44,8 @@ function Strategy() {
   const [showRegression, setShowRegression] = useState(false)
   const [fancySOCEstimate, setFancySOCEstimate] = useState(false)
   const [useRegressionRange, setUseRegressionRange] = useState(false)
-  const [toExtrapolate, setToExtrapolate] = useState(1)
-  const [granularityMs, setGranularityMs] = useState(searchParams.get("granularity") ?? localGraph["granularity"] ?? 1000)
+  const [useTrim, setUseTrim] = useState(false)
+  const [granularityMs, setGranularityMs] = useState(searchParams.get("granularity") ?? localGraph["granularity"] ?? 10000)
   const [maxTrimVal, setMaxTrimVal] = useState(searchParams.get("maxtrim") ?? localGraph["maxtrim"] ?? 999999)
   const [minTrimVal, setMinTrimVal] = useState(searchParams.get("mintrim") ?? localGraph["mintrim"] ?? 0)
   const [rangeAverage, setRangeAverage] = useState(0)
@@ -76,6 +76,22 @@ function Strategy() {
     return options;
   }
   
+  const stateOfCharge = (packVoltage: any) => {
+    let voltage = packVoltage / 26;
+
+    if (voltage >= 4.05) return 100;
+    else if (voltage >= 3.2) return ((voltage - 3.2) * (100 - 10.714) / (4.05 - 3.2)) + 10.714;
+    else if (voltage >= 3.1) return ((voltage - 3.1) * (10.714 - 5.36) / (3.2 - 3.1)) + 5.36;
+    else if (voltage >= 2.7) return (voltage - 2.7) * (5.36 - 0) / (3.1 - 2.7);
+    else return 0;
+  };
+  
+  const handleRegRangeRadio = (selectedOption) => {
+    setUseRegressionRange(selectedOption);
+    setRegEndTime(endTime);
+    setRegStartTime(startTime);
+  }
+  
   
   useEffect(() => {
     const data = {
@@ -94,7 +110,7 @@ function Strategy() {
   setSearchParams(data)
   localStorage.setItem("graph", JSON.stringify(data))
     
-  let getAllModuleItemPromise = Promise.resolve();
+  let getAllModuleItemPromise: Promise<any> = Promise.resolve();
 
   let currentForWatts;
   
@@ -120,7 +136,7 @@ function Strategy() {
               $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           }
       });
-  }  else if (dataKey == "car_speed_mph_") {
+      }  else if (dataKey == "car_speed_mph_") {
       getAllModuleItemPromise = getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
           createdAt: {
               $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
@@ -172,12 +188,12 @@ function Strategy() {
   } else {
     toTransform = response;
   }
-  
+    
   const filteredResponseTemp = toTransform.map((dataPoint) => ({
       ...dataPoint,
       dateStamp: Math.floor((new Date(dataPoint["createdAt"]).getTime()) / granularityMs),
     }))
-    .filter((dataPoint) => dataPoint[dataKey] >= minTrimVal && dataPoint[dataKey] <= maxTrimVal);
+    .filter((dataPoint) => !useTrim || (dataPoint[dataKey] >= minTrimVal && dataPoint[dataKey] <= maxTrimVal));
     
   let sum = 0;
   let maxValue = -Infinity;
@@ -210,6 +226,8 @@ function Strategy() {
     }
     return accumulator;
   }, []);
+  
+  console.log(filteredResponse);
 
 
   const regStartStamp = ((new Date(regStartTime).getTime())+ 3600000) / granularityMs;
@@ -227,7 +245,7 @@ function Strategy() {
   const regStats = regression.score(regXValues, regYValues);
 
   console.log(regression);
-  //console.log(regStats);
+  console.log(regStats);
   
   const intercept = regression["intercept"];
   
@@ -236,6 +254,16 @@ function Strategy() {
   const lastTimestamp = filteredResponse[filteredResponse.length - 1]["dateStamp"];
   
   const regOffset = regression.predict(lastTimestamp) - lastValue;  
+  
+  
+  
+  const requestedTimespan = new Date(endTime).getTime() - new Date(startTime).getTime();
+  
+  const givenTimespan = new Date((filteredResponse[filteredResponse.length - 1]["dateStamp"]) * granularityMs) - new Date((filteredResponse[0]["dateStamp"]) * granularityMs);
+  
+  const toExtrapolate = requestedTimespan / givenTimespan;
+
+  
     
   let scaledXAxis = Array.from({length: xValues.length * toExtrapolate}, (_, i) => i);
   
@@ -245,8 +273,7 @@ function Strategy() {
   let extendedRegression = scaledXAxis.map((xValue) => {
     let obj = {
       dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : lastTimestamp + (xValue - filteredResponse.length),
-      regression: regression.predict(xValue + xValGap),
-      estimate: regression.predict(xValue + xValGap) - regOffset,
+      regression: regression.predict(xValue + xValGap) - (fancySOCEstimate ? regOffset : 0),
     };
     obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
     return obj;
@@ -261,7 +288,7 @@ function Strategy() {
       
   setData(extendedRegressionDates as any);
   
-	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, granularityMs, maxTrimVal, minTrimVal])
+	  })}, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, granularityMs, maxTrimVal, minTrimVal, fancySOCEstimate, useTrim])
   return <>
       <Row>
         <Col>
@@ -337,9 +364,8 @@ function Strategy() {
           />
           <Legend />
           <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
-          {(dataKey != "pack_soc_" || !fancySOCEstimate) && showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
+          {showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
           {useRegressionRange && <Line type="monotone" dataKey="regRange" stroke="#000000" dot={true} />}
-          {dataKey == "pack_soc_" && fancySOCEstimate && <Line type="monotone" dataKey="estimate" stroke="#ff0000" dot={false} />}
           
         </LineChart>
       </ResponsiveContainer>
@@ -352,29 +378,32 @@ function Strategy() {
               <input 
                 type="checkbox" 
                 checked={showRegression} 
-                onChange={(event) => setShowRegression(event.target.checked)}
+                onChange={(event) => {
+                  setShowRegression(event.target.checked);
+                  setUseRegressionRange(false);
+                }}
               />
               <span class="lever"></span>
             </label>
           </div>
         </Col>
-        <Col>
+        {showRegression && <Col>
           <div class="switch">
             <label>
               Regression Range
               <input 
                 type="checkbox" 
                 checked={useRegressionRange} 
-                onChange={(event) => setUseRegressionRange(event.target.checked)}
+                onChange={(event) => handleRegRangeRadio(event.target.checked)}
               />
               <span class="lever"></span>
             </label>
           </div>
-        </Col>
-        <Col>
+        </Col>}
+        {showRegression && <Col>
           <div class="switch">
             <label>
-              Fancy SOC
+              Offset Regression
               <input 
                 type="checkbox" 
                 checked={fancySOCEstimate} 
@@ -383,86 +412,94 @@ function Strategy() {
               <span class="lever"></span>
             </label>
           </div>
+        </Col>}
+        <Col>
+          <div class="switch">
+            <label>
+              Use Trim
+              <input 
+                type="checkbox" 
+                checked={useTrim} 
+                onChange={(event) => {
+                  setUseTrim(event.target.checked);
+                  setMaxTrimVal(999999);
+                  setMinTrimVal(0);
+                }}
+              />
+              <span class="lever"></span>
+            </label>
+          </div>
         </Col>
         <Col>
-          <div class="form-outline" style={{width: '3rem'}}>
-            <label class="form-label" for="typeNumber">X Scale</label>
-            <input
-              step="0.1"
-              min="1"
-              type="number"
-              id="typeNumber" 
-              class="form-control"
-              value={toExtrapolate} 
-              onChange={(event) => setToExtrapolate(event.target.value)}
-            />
-          </div>
-        </Col>
-        <Col>
-          <div class="form-outline" style={{width: '6rem'}}>
-            <label class="form-label" for="typeNumber">Resolution (ms)</label>
-            <input
-              min="1"
-              type="text"
-              id="typeNumber" 
-              class="form-control"
-              value={granularityMs} 
-              onChange={(event) => setGranularityMs(event.target.value)}
-            />
-          </div>
+            <div class="form-outline" style={{width: '6rem'}}>
+                <label class="form-label" for="typeNumber">Resolution (ms)</label>
+                <input
+                    min="0"
+                    type="text"
+                    id="typeNumber" 
+                    class="form-control"
+                    defaultValue={granularityMs} 
+                    onBlur={(event) => setGranularityMs(event.target.value)}
+                    onKeyPress={(event) => {
+                      if (event.key === "Enter") {
+                          event.preventDefault();
+                          event.target.blur();
+                      }
+                    }}
+                />
+            </div>
           </Col>
-          <Col>
-          <div class="form-outline" style={{width: '6rem'}}>
-            <label class="form-label" for="typeNumber">Max Trim</label>
-            <input
-              min="0"
-              type="text"
-              id="typeNumber" 
-              class="form-control"
-              value={maxTrimVal} 
-              onChange={(event) => setMaxTrimVal(event.target.value)}
-            />
-          </div>
-          </Col>
-          <Col>
-          <div class="form-outline" style={{width: '6rem'}}>
-            <label class="form-label" for="typeNumber">Min Trim</label>
-            <input
-              min="0"
-              type="text"
-              id="typeNumber" 
-              class="form-control"
-              value={minTrimVal} 
-              onChange={(event) => setMinTrimVal(event.target.value)}
-            />
-          </div>
-          </Col>
+          {useTrim && <Col>
+            <div class="form-outline" style={{width: '6rem'}}>
+                <label class="form-label" for="typeNumber">Max Trim</label>
+                <input
+                    min="0"
+                    type="text"
+                    id="typeNumber" 
+                    class="form-control"
+                    defaultValue={maxTrimVal} 
+                    onBlur={(event) => setMaxTrimVal(event.target.value)}
+                    onKeyPress={(event) => {
+                      if (event.key === "Enter") {
+                          event.preventDefault();
+                          event.target.blur();
+                      }
+                    }}
+                />
+            </div>
+          </Col>}
+          {useTrim && <Col>
+            <div class="form-outline" style={{width: '6rem'}}>
+              <label class="form-label" for="typeNumber">Min Trim</label>
+              <input
+                  min="0"
+                  type="text"
+                  id="typeNumber" 
+                  class="form-control"
+                  defaultValue={minTrimVal} 
+                  onBlur={(event) => setMinTrimVal(event.target.value)}
+                  onKeyPress={(event) => {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        event.target.blur();
+                    }
+                  }}
+              />
+            </div>
+          </Col>}
           <Col>
           <div>
-            <h6 class="form-label" for="typeNumber">Range Average: {rangeAverage}</h6>
+            <h6 class="form-label" for="typeNumber">Average: {rangeAverage}</h6>
           </div>
           <div>
-            <h6 class="form-label" for="typeNumber">Range Maximum: {rangeMax}</h6>
+            <h6 class="form-label" for="typeNumber">Maximum: {rangeMax}</h6>
           </div>
           <div>
-            <h6 class="form-label" for="typeNumber">Range Minimum: {rangeMin}</h6>
+            <h6 class="form-label" for="typeNumber">Minimum: {rangeMin}</h6>
           </div>
         </Col>
       </Row>
   </>
 }
 
-const stateOfCharge = (packVoltage: any) => {
-  let voltage = packVoltage / 26;
-
-  if (voltage >= 4.05) return 100;
-  else if (voltage >= 3.2) return ((voltage - 3.2) * (100 - 10.714) / (4.05 - 3.2)) + 10.714;
-  else if (voltage >= 3.1) return ((voltage - 3.1) * (10.714 - 5.36) / (3.2 - 3.1)) + 5.36;
-  else if (voltage >= 2.5) return (voltage - 2.5) * (5.36 - 0) / (3.1 - 2.5);
-  else return 0;
-};
-
-
 export default Strategy
-
-
