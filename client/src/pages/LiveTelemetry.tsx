@@ -127,11 +127,11 @@ function LiveTelemetry() {
                     unit="V"
                 />
                 <Label
-                    label="Motor Consumption"
+                    label="Consumption"
                     value={
-                        (data?.mitsuba?.rx0?.battCurrent ?? 0)
+                        (data?.bms?.rx0?.pack_sum_volt_ ?? 0)
                         *
-                        (data?.mitsuba?.rx0?.battVoltage ?? 0)
+                        (data?.bms?.rx2?.pack_current_ ?? 0)
                     }
                     unit="W"
                 />
@@ -153,6 +153,14 @@ function LiveTelemetry() {
                     }
                     unit="%"
                 />
+                <Label
+                    label="Lap Count"
+                    value={
+                        (data?.laps?.rx0.lap ?? 0)
+                    }
+                />
+            </Row>
+            <Row>
                 <Label
                     label="Distance Traveled"
                     value={

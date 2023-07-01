@@ -18,6 +18,7 @@ import MPPT_RX4 from "../shared/models/MPPT/RX4";
 import MPPT_RX5 from "../shared/models/MPPT/RX5";
 import GPS from "../shared/models/GPS/GPS";
 import DistanceTraveled from "../shared/models/Stats/DistanceTraveled";
+import LapCount from "../shared/models/Stats/LapCount";
 
 
 /**
@@ -56,6 +57,9 @@ exports.data = async (req, res: Response<DataResponse>) => {
             "1": await getMppt(1),
             "2": await getMppt(2),
             "3": await getMppt(3),
+        },
+        laps: {
+            rx0: await getMostRecent(LapCount)
         }
     })
 };

@@ -16,6 +16,7 @@ import { MPPT_RX3_Type } from "../models/MPPT/RX3"
 import { MPPT_RX4_Type } from "../models/MPPT/RX4"
 import { MPPT_RX5_Type } from "../models/MPPT/RX5"
 import { DistanceTraveled_Type } from "../models/Stats/DistanceTraveled";
+import { LapCount_Type } from "../models/Stats/LapCount";
 
 
 export const INCHES_PER_MILE = 63360
@@ -64,7 +65,10 @@ export interface CanData {
 }
 
 export interface DataResponse extends CanData {
-    gps: GPS_Type
+    gps: GPS_Type,
+    laps: {
+        rx0: LapCount_Type
+    }
 }
 
 export const telemetryApi = axios.create({
