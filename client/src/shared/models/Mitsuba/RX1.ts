@@ -1,6 +1,6 @@
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type Mitsuba_RX1_Type = InferAttributes<Mitsuba_RX1>
 
@@ -53,4 +53,8 @@ export default class Mitsuba_RX1 extends Model<Mitsuba_RX1_Type> {
         defaultValue: null
     })
     regenStat: boolean
+
+    @Index
+    @CreatedAt
+    createdAt?: Date
 }

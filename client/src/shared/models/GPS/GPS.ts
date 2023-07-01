@@ -1,6 +1,6 @@
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type GPS_Type = InferAttributes<GPS>
 
@@ -25,4 +25,8 @@ export default class GPS extends Model {
     type: DataType.INTEGER
   })
   speed: number
+
+  @Index
+  @CreatedAt
+  createdAt?: Date
 }

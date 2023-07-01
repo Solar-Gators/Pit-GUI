@@ -1,6 +1,6 @@
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type MPPT_RX2_Type = InferAttributes<MPPT_RX2>
 
@@ -23,4 +23,8 @@ export default class MPPT_RX2 extends Model<MPPT_RX2_Type> {
     defaultValue: null
   })
   controllerTemp: number
+
+  @Index
+  @CreatedAt
+  createdAt?: Date
 }

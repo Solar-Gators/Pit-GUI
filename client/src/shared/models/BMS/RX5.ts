@@ -1,7 +1,7 @@
 'use strict';
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type BMS_RX5_Type = InferAttributes<BMS_RX5>
 
@@ -30,4 +30,8 @@ export default class BMS_RX5 extends Model<BMS_RX5_Type> {
         defaultValue: null
     })
     min_pack_volt_: number
+
+    @Index
+    @CreatedAt
+    createdAt?: Date
 }
