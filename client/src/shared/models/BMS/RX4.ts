@@ -1,6 +1,6 @@
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type BMS_RX4_Type = InferAttributes<BMS_RX4>
 
@@ -155,4 +155,8 @@ export default class BMS_RX4 extends Model<BMS_RX4_Type> {
         defaultValue: null
     })
     pack_soc_: number
+
+    @Index
+    @CreatedAt
+    createdAt?: Date
 }

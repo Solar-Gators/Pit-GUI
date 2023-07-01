@@ -1,6 +1,6 @@
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type LapCount_Type = InferAttributes<LapCount>
 
@@ -10,4 +10,7 @@ export default class LapCount extends Model {
     type: DataType.INTEGER
   })
   lap: number
+  @Index
+@CreatedAt
+createdAt?: Date
 }

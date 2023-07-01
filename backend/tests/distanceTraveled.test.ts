@@ -43,12 +43,12 @@ describe("Test Distance Traveled Calculation When New Data Comes In", () => {
         // create first rx0 with rpm value
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:00"
+            createdAt: new Date("07/01/2022 10:00:00")
         })
         // create second message 1 second later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:01"
+            createdAt: new Date("07/01/2022 10:00:01")
         })
 
         // Assertion:
@@ -72,17 +72,17 @@ describe("Test Distance Traveled Calculation When New Data Comes In", () => {
         // create first rx0 with rpm value
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:00"
+            createdAt:new Date("07/01/2022 10:00:00")
         })
         // create second message 1 second later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:01"
+            createdAt: new Date("07/01/2022 10:00:01")
         })
         // create third message 1 second later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:02"
+            createdAt: new Date("07/01/2022 10:00:02")
         })
 
         // Assertion:
@@ -106,12 +106,12 @@ describe("Test Distance Traveled Calculation When New Data Comes In", () => {
         // create first rx0 with rpm value
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:00"
+            createdAt: new Date("07/01/2022 10:00:00")
         })
         // create second message 10 minutes later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:10:00"
+            createdAt: new Date("07/01/2022 10:10:00")
         })
 
 
@@ -142,29 +142,29 @@ describe("Test Distance Traveled Calculation On Historical Data", () => {
         // create first rx0 with rpm value
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:00"
+            createdAt: new Date("07/01/2022 10:00:00")
         })
         // create second message 1 second later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:01"
+            createdAt: new Date("07/01/2022 10:00:01")
         })
         // create third message 1 second later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 10:00:02"
+            createdAt: new Date("07/01/2022 10:00:02")
         })
 
         /* (12/60) rotations */
         // create forth message 1 hour later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 11:00:00"
+            createdAt: new Date("07/01/2022 11:00:00")
         })
         // create forth message 1 second later
         await createModuleItem("mitsuba", "rx0", {
             motorRPM: 12,
-            createdAt: "07/01/2022 11:00:01"
+            createdAt: new Date("07/01/2022 11:00:01")
         })
 
         // run historical method

@@ -1,6 +1,6 @@
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type Mitsuba_RX2_Type = InferAttributes<Mitsuba_RX2>
 
@@ -120,4 +120,8 @@ export default class Mitsuba_RX2 extends Model<Mitsuba_RX2_Type> {
         defaultValue: null
     })
     overHeatLevel: number
+
+    @Index
+    @CreatedAt
+    createdAt?: Date
 }

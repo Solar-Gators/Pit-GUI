@@ -13,7 +13,7 @@
         "experimentalDecorators": true,
         "allowJs": true,
         "lib": ["es6"],
-        "types": ["node", "jest", "mocha"],
+        "types": ["node", "mocha"],
         "skipLibCheck": true
     },
     "include": [

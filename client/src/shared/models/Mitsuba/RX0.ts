@@ -1,6 +1,6 @@
 'use strict';
 import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
 
 export type Mitsuba_RX0_Type = InferAttributes<Mitsuba_RX0>
 
@@ -47,4 +47,8 @@ export default class Mitsuba_RX0 extends Model<Mitsuba_RX0_Type> {
     defaultValue: null
   })
   LeadAngle?: number
+
+  @Index
+  @CreatedAt
+  createdAt?: Date
 }
