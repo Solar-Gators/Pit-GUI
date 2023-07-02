@@ -16,4 +16,5 @@ export const calculatedShape: TelemetryTabbed<telemetry.DataResponse["calculated
                 unit: "%"
             }
       }
+    }
 }
