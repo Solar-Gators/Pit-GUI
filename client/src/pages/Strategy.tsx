@@ -521,9 +521,8 @@ export default Strategy
 export const stateOfCharge = (packVoltage: any) => {
     let voltage = packVoltage / 26;
 
-    if (voltage >= 4.05) return 100;
-    else if (voltage >= 3.2) return ((voltage - 3.2) * (100 - 10.714) / (4.05 - 3.2)) + 10.714;
-    else if (voltage >= 3.1) return ((voltage - 3.1) * (10.714 - 5.36) / (3.2 - 3.1)) + 5.36;
-    else if (voltage >= 2.7) return (voltage - 2.7) * (5.36 - 0) / (3.1 - 2.7);
-    else return 0;
+    return voltage > 4.05 ? 100 
+        : voltage > 3.2 ? ((voltage - 3.2) * (100 - 9.091) / (4.05 - 3.2) + 9.091) 
+        : voltage > 3.1 ? ((voltage - 3.1) * (9.091 - 1.818) / (3.2 - 3.1) + 1.818) 
+        : ((voltage - 2.7) * (1.818 - 0) / (3.1 - 2.7));
   };
