@@ -36,15 +36,15 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_")
   const [startTime, setStartTime] = useState(searchParams.get("start") ?? localGraph["start"] ?? '2023-04-16 12:00')
   const [endTime, setEndTime] = useState(searchParams.get("end") ?? localGraph["end"] ?? '2023-04-16 12:10')
-  const [regStartTime, setRegStartTime] = useState(searchParams.get("regstart") ?? localGraph["regstart"] ?? '2023-04-16 12:00')
-  const [regEndTime, setRegEndTime] = useState(searchParams.get("regend") ?? localGraph["regend"] ?? '2023-04-16 12:10')
+  const [regStartTime, setRegStartTime] = useState('2023-04-16 12:00')
+  const [regEndTime, setRegEndTime] = useState('2023-04-16 12:10')
   const [showRegression, setShowRegression] = useState(false)
   const [fancySOCEstimate, setFancySOCEstimate] = useState(false)
   const [useRegressionRange, setUseRegressionRange] = useState(false)
   const [useTrim, setUseTrim] = useState(false)
-  const [granularityMs, setGranularityMs] = useState(searchParams.get("granularity") ?? localGraph["granularity"] ?? 10000)
-  const [maxTrimVal, setMaxTrimVal] = useState(searchParams.get("maxtrim") ?? localGraph["maxtrim"] ?? 999999)
-  const [minTrimVal, setMinTrimVal] = useState(searchParams.get("mintrim") ?? localGraph["mintrim"] ?? 0)
+  const [granularityMs, setGranularityMs] = useState(10000)
+  const [maxTrimVal, setMaxTrimVal] = useState(999999)
+  const [minTrimVal, setMinTrimVal] = useState(0)
   const [rangeAverage, setRangeAverage] = useState(0)
   const [rangeMax, setRangeMax] = useState(0)
   const [rangeMin, setRangeMin] = useState(0)
@@ -115,11 +115,6 @@ function Strategy() {
       number: messageNumber,
       start: startTime,
       end: endTime,
-      regstart: regStartTime,
-      regend: regEndTime,
-      granularity: granularityMs,
-      maxtrim: maxTrimVal,
-      mintrim: minTrimVal,
     }
 
     setSearchParams(data)
@@ -128,24 +123,7 @@ function Strategy() {
 
     let getAllModuleItemPromise: Promise<any> = Promise.resolve();
 
-    let currentForWatts;
-
-    if (dataKey == "power_consumption_watts_") {
-      currentForWatts = getAllModuleItem("bms" as any, "rx2", "pack_current_", {
-        createdAt: {
-          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-        }
-      });
-
-      getAllModuleItemPromise = getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
-        createdAt: {
-          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-        }
-      });
-
-    } else if (dataKey == "better_soc_") {
+    if (dataKey == "better_soc_") {
       getAllModuleItemPromise = getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
         createdAt: {
           $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
@@ -184,15 +162,6 @@ function Strategy() {
         toTransform = response.map((dataPoint) => ({
           ...dataPoint,
           [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
-        }));
-
-      }  else if (dataKey == "power_consumption_watts_") {
-
-        console.log(currentForWatts);
-
-        toTransform = response.map((dataPoint) => ({
-          ...dataPoint,
-          [dataKey]: dataPoint["pack_sum_volt_"] * currentForWatts[dataPoint["id"]]["pack_current_"],
         }));
 
       } else {
@@ -536,10 +505,14 @@ function formatNumber(num) {
 export default Strategy
 	
 export const stateOfCharge = (packVoltage: any) => {
-    let voltage = packVoltage / 26;
+    const voltage = packVoltage / 26;
 
-    return voltage > 4.05 ? 100 
+    const datasheetSoc = voltage > 4.05 ? 100 
         : voltage > 3.2 ? ((voltage - 3.2) * (100 - 9.091) / (4.05 - 3.2) + 9.091) 
         : voltage > 3.1 ? ((voltage - 3.1) * (9.091 - 1.818) / (3.2 - 3.1) + 1.818) 
         : ((voltage - 2.7) * (1.818 - 0) / (3.1 - 2.7));
+
+    // left to allow for easy offsetting
+    return (datasheetSoc);
+
   };
