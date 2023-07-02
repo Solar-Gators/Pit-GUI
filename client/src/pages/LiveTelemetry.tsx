@@ -12,6 +12,7 @@ import Nav from 'react-bootstrap/Nav'
 import { NavLink, Route, Routes, useLocation } from "react-router-dom"
 import Label from '../component/Label';
 import { stateOfCharge } from './Strategy';
+import { powerBoardShape } from '../component/PowerBoard';
 
 function LiveTelemetry() {
     const [data, setData] = React.useState<telemetry.DataResponse>()
@@ -172,6 +173,13 @@ function LiveTelemetry() {
                     unit="W"
                 />
                 <Label
+                    label="Sup Bat Volt"
+                    value={
+                        (data?.powerBoard?.rx1?.SupBatVoltage_ ?? "N/A")
+                    }
+                    unit="V"
+                />
+                <Label
                     label="Array Power #1"
                     value={
                         calcArrayPower(data?.mppt?.[1])
@@ -192,6 +200,8 @@ function LiveTelemetry() {
                     }
                     unit="W"
                 />
+            </Row>
+            <Row>
                 <Label
                     label="Lap Count"
                     value={
@@ -219,6 +229,9 @@ function LiveTelemetry() {
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link as={NavLink} to="/stats">Stats</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={NavLink} to="/powerBoard">Power Board</Nav.Link>
                 </Nav.Item>
             </Nav>
 
@@ -281,6 +294,15 @@ function LiveTelemetry() {
                                 unit="Mi"
                             />
                         </>
+                    }
+                />
+                <Route
+                    path="/powerBoard"
+                    element={
+                        <TelemetryCAN
+                            config={powerBoardShape}
+                            data={data?.powerBoard}
+                        />
                     }
                 />
             </Routes>
