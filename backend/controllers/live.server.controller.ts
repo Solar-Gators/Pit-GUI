@@ -19,6 +19,8 @@ import MPPT_RX5 from "../shared/models/MPPT/RX5";
 import GPS from "../shared/models/GPS/GPS";
 import DistanceTraveled from "../shared/models/Stats/DistanceTraveled";
 import LapCount from "../shared/models/Stats/LapCount";
+import PowerBoard_RX0 from "../shared/models/PowerBoard/RX0";
+import PowerBoard_RX1 from "../shared/models/PowerBoard/RX1";
 
 
 /**
@@ -60,6 +62,10 @@ exports.data = async (req, res: Response<DataResponse>) => {
         },
         laps: {
             rx0: await getMostRecent(LapCount)
+        },
+        powerBoard: {
+            rx0: await getMostRecent(PowerBoard_RX0),
+            rx1: await getMostRecent(PowerBoard_RX1),
         }
     })
 };
