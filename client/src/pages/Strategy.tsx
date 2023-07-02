@@ -48,6 +48,7 @@ function Strategy() {
   const [rangeAverage, setRangeAverage] = useState(0)
   const [rangeMax, setRangeMax] = useState(0)
   const [rangeMin, setRangeMin] = useState(0)
+  const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0)
 
   const [selectedOption, setSelectedOption] = useState(`${telemetryType}.${messageNumber}.${dataKey}`);
 
@@ -60,9 +61,9 @@ function Strategy() {
     setSelectedOption(selectedOption);
 
     if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_") {
-      setUseTrim(true);
+      handleTrimRadio(true);
     } else {
-      setUseTrim(false);
+      handleTrimRadio(false);
     }
   }
 
@@ -191,6 +192,15 @@ function Strategy() {
           [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
         }));
 
+      }  else if (dataKey == "power_consumption_watts_") {
+
+        console.log(currentForWatts);
+
+        toTransform = response.map((dataPoint) => ({
+          ...dataPoint,
+          [dataKey]: dataPoint["pack_sum_volt_"] * currentForWatts[dataPoint["id"]]["pack_current_"],
+        }));
+
       } else {
         toTransform = response;
       }
@@ -263,8 +273,7 @@ function Strategy() {
 
       const regStats = regression.score(regXValues, regYValues);
 
-      console.log(regression);
-      console.log(regStats);
+      console.log([regression, regStats]);
 
       const intercept = regression["intercept"];
 
@@ -287,6 +296,12 @@ function Strategy() {
         obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
         return obj;
       });
+
+      if(toExtrapolate > 1) {
+        setDerivedRegressionEnd(extendedRegression[extendedRegression.length - 1]["regression"]);
+      } else {
+        setDerivedRegressionEnd(0);
+      }
 
       const extendedRegressionDates = extendedRegression
         .map((dataPoint) => ({
@@ -504,6 +519,10 @@ function Strategy() {
         <div>
           <h6 className="form-label">Minimum: {rangeMin}</h6>
         </div>
+        {(showRegression && derivedRegressionEnd != 0) && <div>
+          <h6 className="form-label">Regression End: {derivedRegressionEnd}</h6>
+        </div>
+        }
       </Col>
     </Row>
   </>
