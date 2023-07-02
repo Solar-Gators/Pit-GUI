@@ -48,6 +48,7 @@ function Strategy() {
   const [rangeAverage, setRangeAverage] = useState(0)
   const [rangeMax, setRangeMax] = useState(0)
   const [rangeMin, setRangeMin] = useState(0)
+  const [regressionRSquared, setRegressionRSquared] = useState(0)
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0)
 
   const [selectedOption, setSelectedOption] = useState(`${telemetryType}.${messageNumber}.${dataKey}`);
@@ -60,7 +61,7 @@ function Strategy() {
     setDataKey(key);
     setSelectedOption(selectedOption);
 
-    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_") {
+    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_" || key == "better_soc_") {
       handleTrimRadio(true);
     } else {
       handleTrimRadio(false);
@@ -103,7 +104,10 @@ function Strategy() {
       setMaxTrimVal(110);
       setMinTrimVal(80);
     } else if (dataKey == "pack_soc_") {
-      setMaxTrimVal(100);
+      setMaxTrimVal(99);
+      setMinTrimVal(1);
+    }  else if (dataKey == "better_soc_") {
+      setMaxTrimVal(99);
       setMinTrimVal(1);
     } else if (dataKey == "high_temp_") {
       setMaxTrimVal(48);
@@ -274,6 +278,8 @@ function Strategy() {
       const regStats = regression.score(regXValues, regYValues);
 
       console.log([regression, regStats]);
+
+      setRegressionRSquared(regStats["r2"]);
 
       const intercept = regression["intercept"];
 
@@ -511,21 +517,30 @@ function Strategy() {
       </Col>}
       <Col>
         <div>
-          <h6 className="form-label">Average: {rangeAverage}</h6>
+          <h6 className="form-label">Average: {formatNumber(Number(rangeAverage))}</h6>
         </div>
         <div>
-          <h6 className="form-label">Maximum: {rangeMax}</h6>
+          <h6 className="form-label">Maximum: {formatNumber(Number(rangeMax))}</h6>
         </div>
         <div>
-          <h6 className="form-label">Minimum: {rangeMin}</h6>
+          <h6 className="form-label">Minimum: {formatNumber(Number(rangeMin))}</h6>
         </div>
         {(showRegression && derivedRegressionEnd != 0) && <div>
-          <h6 className="form-label">Regression End: {derivedRegressionEnd}</h6>
+          <h6 className="form-label">Reg. End: {formatNumber(Number(derivedRegressionEnd))}</h6>
+        </div>
+        }
+        {showRegression && <div>
+          <h6 className="form-label">R²: {formatNumber(Number(regressionRSquared))}</h6>
         </div>
         }
       </Col>
     </Row>
   </>
 }
+
+function formatNumber(num) {
+  return num % 1 > 0 ? num.toFixed(2) : num;
+}
+
 
 export default Strategy

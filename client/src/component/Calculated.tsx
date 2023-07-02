@@ -12,7 +12,7 @@ export const calculatedShape: TelemetryTabbed<telemetry.DataResponse["calculated
                 unit: "mph"
             },
             better_soc_: {
-                label: "Estimated State of Charge",
+                label: "State of Charge (Voltage Derived)",
                 unit: "%"
             }
       }
