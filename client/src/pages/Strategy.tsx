@@ -61,8 +61,12 @@ function Strategy() {
     setDataKey(key);
     setSelectedOption(selectedOption);
 
-    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_" || key == "better_soc_") {
+    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_") {
       handleTrimRadio(true);
+    } else if (key == "better_soc_") {
+      setUseTrim(true);
+      setMaxTrimVal(99);
+      setMinTrimVal(1);
     } else {
       handleTrimRadio(false);
     }
@@ -168,17 +172,34 @@ function Strategy() {
         toTransform = response;
       }
 
-      const filteredResponseTemp = toTransform.map((dataPoint) => ({
-        ...dataPoint,
-        dateStamp: Math.floor((new Date(dataPoint["createdAt"]).getTime()) / granularityMs),
-      }))
-        .filter((dataPoint) => !useTrim || (dataPoint[dataKey] >= minTrimVal && dataPoint[dataKey] <= maxTrimVal));
+      let filteredResponseTemp;
+
+      if(useTrim) {
+        filteredResponseTemp = toTransform.map((dataPoint) => ({
+          ...dataPoint,
+          dateStamp: Math.floor((new Date(dataPoint["createdAt"]).getTime()) / granularityMs),
+        }))
+          .filter((dataPoint) => (dataPoint[dataKey] >= minTrimVal && dataPoint[dataKey] <= maxTrimVal));
+      } else {
+        filteredResponseTemp = toTransform.map((dataPoint) => ({
+          ...dataPoint,
+          dateStamp: Math.floor((new Date(dataPoint["createdAt"]).getTime()) / granularityMs),
+        }))
+      }
+
+      const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
+        const duplicateDateStamp = accumulator.find(item => item.dateStamp === currentValue.dateStamp);
+        if (!duplicateDateStamp) {
+          accumulator.push(currentValue);
+        }
+        return accumulator;
+      }, []);
 
       let sum = 0;
       let maxValue = -Infinity;
       let minValue = Infinity;
 
-      filteredResponseTemp.forEach(dataPoint => {
+      filteredResponse.forEach(dataPoint => {
         sum += dataPoint[dataKey];
 
         if (dataPoint[dataKey] > maxValue) {
@@ -190,19 +211,11 @@ function Strategy() {
         }
       });
 
-      let average = sum / filteredResponseTemp.length;
+      let average = sum / filteredResponse.length;
 
       setRangeAverage(average);
       setRangeMax(maxValue);
       setRangeMin(minValue);
-
-      const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
-        const duplicateDateStamp = accumulator.find(item => item.dateStamp === currentValue.dateStamp);
-        if (!duplicateDateStamp) {
-          accumulator.push(currentValue);
-        }
-        return accumulator;
-      }, []);
 
       console.log(filteredResponse);
 
@@ -224,43 +237,64 @@ function Strategy() {
 
       const regEndStamp = Math.min(oldRegEndStamp, (endTimestamp + 3600000) / granularityMs);
 
-      const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange || ((dataPoint["dateStamp"] >= regStartStamp - (3600000 / granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000 / granularityMs))));
+      let filteredRegResponse;
+
+      if(useRegressionRange) {
+        filteredRegResponse = filteredResponse.filter((dataPoint) => ((dataPoint["dateStamp"] >= regStartStamp - (3600000 / granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000 / granularityMs))));
+      } else {
+        filteredRegResponse = filteredResponse;
+      }
 
       const regXValues = filteredRegResponse.map(dataPoint => dataPoint["dateStamp"]);
 
-      const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
-
       const regYValues = filteredRegResponse.map(dataPoint => dataPoint[dataKey]);
-
-      let regression = new SimpleLinearRegression(regXValues, regYValues);
-
-      const regStats = regression.score(regXValues, regYValues);
-
-      console.log([regression, regStats]);
-
-      setRegressionRSquared(regStats["r2"]);
-
-      const intercept = regression["intercept"];
 
       const lastValue = filteredResponse[filteredResponse.length - 1][dataKey];
 
       const lastTimestamp = filteredResponse[filteredResponse.length - 1]["dateStamp"];
 
-      const regOffset = regression.predict(lastTimestamp) - lastValue;
+      let regression;
+      let regStats;
+      let regOffset;
+
+      if(showRegression) {
+        regression = new SimpleLinearRegression(regXValues, regYValues);
+
+        regStats = regression.score(regXValues, regYValues);
+
+        console.log([regression, regStats]);
+
+        setRegressionRSquared(regStats["r2"]);
+  
+        regOffset = regression.predict(lastTimestamp) - lastValue;
+      }
+
+      const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
 
       let scaledXAxis = Array.from({ length: xValues.length * toExtrapolate }, (_, i) => i);
 
       const xValGap = filteredResponse[filteredResponse.length - 1]["dateStamp"] - xValues.length;
 
-      // Map new x values to regression prediction
-      let extendedRegression = scaledXAxis.map((xValue) => {
-        let obj = {
-          dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : lastTimestamp + (xValue - filteredResponse.length),
-          regression: regression.predict(xValue + xValGap) - (fancySOCEstimate ? regOffset : 0),
-        };
-        obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
-        return obj;
-      });
+      let extendedRegression;
+
+      if(showRegression) {
+          extendedRegression = scaledXAxis.map((xValue) => {
+          let obj = {
+            dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : lastTimestamp + (xValue - filteredResponse.length),
+            regression: regression.predict(xValue + xValGap) - (fancySOCEstimate ? regOffset : 0),
+          };
+          obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
+          return obj;
+        });
+      } else {
+        extendedRegression = scaledXAxis.map((xValue) => {
+          let obj = {
+            dateStamp: filteredResponse[xValue] ? filteredResponse[xValue]["dateStamp"] : lastTimestamp + (xValue - filteredResponse.length),
+          };
+          obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
+          return obj;
+        });
+      }
 
       if(toExtrapolate > 1) {
         setDerivedRegressionEnd(extendedRegression[extendedRegression.length - 1]["regression"]);
@@ -268,17 +302,27 @@ function Strategy() {
         setDerivedRegressionEnd(0);
       }
 
-      const extendedRegressionDates = extendedRegression
+      let finalToGraph;
+      
+      if(useRegressionRange) {
+        finalToGraph = extendedRegression
+          .map((dataPoint) => ({
+            ...dataPoint,
+            createdAt: new Date((dataPoint["dateStamp"]) * granularityMs).toISOString(),
+            regRange: ((dataPoint["dateStamp"] >= regStartStamp - (3600000 / granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000 / granularityMs))) ? 0 : null,
+          }));
+      } else {
+        finalToGraph = extendedRegression
         .map((dataPoint) => ({
           ...dataPoint,
           createdAt: new Date((dataPoint["dateStamp"]) * granularityMs).toISOString(),
-          regRange: ((dataPoint["dateStamp"] >= regStartStamp - (3600000 / granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000 / granularityMs))) ? 0 : null,
         }));
+      }
 
-      setData(extendedRegressionDates as any);
+      setData(finalToGraph as any);
 
     })
-  }, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, granularityMs, maxTrimVal, minTrimVal, fancySOCEstimate, useTrim])
+  }, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, granularityMs, maxTrimVal, minTrimVal, fancySOCEstimate, useTrim, showRegression])
   return <>
     <Row>
       <Col>
@@ -423,7 +467,7 @@ function Strategy() {
             id="typeNumber"
             className="form-control"
             defaultValue={granularityMs}
-            onBlur={(event) => setGranularityMs((event.target as HTMLInputElement).value)}
+            onBlur={(event) => setGranularityMs(parseInt((event.target as HTMLInputElement).value))}
             onFocus={(event) => event.target.select()}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
@@ -444,7 +488,7 @@ function Strategy() {
             className="form-control"
             defaultValue={maxTrimVal}
             onFocus={(event) => event.target.select()}
-            onBlur={(event) => setMaxTrimVal(event.target.value)}
+            onBlur={(event) => setMaxTrimVal(parseInt((event.target as HTMLInputElement).value))}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 event.preventDefault();
@@ -463,7 +507,7 @@ function Strategy() {
             id="typeNumber"
             className="form-control"
             defaultValue={minTrimVal}
-            onBlur={(event) => setMinTrimVal(event.target.value)}
+            onBlur={(event) => setMinTrimVal(parseInt((event.target as HTMLInputElement).value))}
             onFocus={(event) => event.target.select()}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
