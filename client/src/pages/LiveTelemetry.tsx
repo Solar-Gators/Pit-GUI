@@ -136,18 +136,7 @@ function LiveTelemetry() {
                     unit="W"
                 />
                 <Label
-                    label="Array Power"
-                    value={
-                        calcArrayPower(data?.mppt?.[1])
-                        +
-                        calcArrayPower(data?.mppt?.[2])
-                        +
-                        calcArrayPower(data?.mppt?.[3])
-                    }
-                    unit="W"
-                />
-                <Label
-                    label="State of Charge"
+                    label="Orion SOC"
                     value={
                         data?.bms?.rx4?.pack_soc_
                     }
@@ -162,20 +151,52 @@ function LiveTelemetry() {
                     }
                     unit="%"
                 />
+                <Label
+                    label="High Cell Temp"
+                    value={
+                        data?.bms?.rx1?.high_temp_
+                    }
+                    unit="C"
+                />
             </Row>
             <Row>
+                <Label
+                    label="Total Array Power"
+                    value={
+                        calcArrayPower(data?.mppt?.[1])
+                        +
+                        calcArrayPower(data?.mppt?.[2])
+                        +
+                        calcArrayPower(data?.mppt?.[3])
+                    }
+                    unit="W"
+                />
+                <Label
+                    label="Array Power #1"
+                    value={
+                        calcArrayPower(data?.mppt?.[1])
+                    }
+                    unit="W"
+                />
+                <Label
+                    label="Array Power #2"
+                    value={
+                        calcArrayPower(data?.mppt?.[2])
+                    }
+                    unit="W"
+                />
+                <Label
+                    label="Array Power #3"
+                    value={
+                        calcArrayPower(data?.mppt?.[3])
+                    }
+                    unit="W"
+                />
                 <Label
                     label="Lap Count"
                     value={
                         (data?.laps?.rx0?.lap ?? 0)
                     }
-                />
-                <Label
-                    label="Distance Traveled"
-                    value={
-                        data?.mitsuba?.distance_traveled?.distance?.toFixed(1)
-                    }
-                    unit="Mi"
                 />
             </Row>
 
@@ -195,6 +216,9 @@ function LiveTelemetry() {
                 </Nav.Item>
                 <Nav.Item>
                     <Nav.Link as={NavLink} to="/mppt_3">MPPT #3</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={NavLink} to="/stats">Stats</Nav.Link>
                 </Nav.Item>
             </Nav>
 
@@ -242,6 +266,21 @@ function LiveTelemetry() {
                             config={mpptShape}
                             data={data?.mppt?.['3']}
                         />
+                    }
+                />
+                <Route
+                    path="/stats"
+                    element={
+                        <>
+                            <h3>Stats</h3>
+                            <Label
+                                label="Distance Traveled"
+                                value={
+                                    data?.mitsuba?.distance_traveled?.distance?.toFixed(1)
+                                }
+                                unit="Mi"
+                            />
+                        </>
                     }
                 />
             </Routes>
