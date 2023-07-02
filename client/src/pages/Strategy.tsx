@@ -48,6 +48,7 @@ function Strategy() {
   const [rangeAverage, setRangeAverage] = useState(0)
   const [rangeMax, setRangeMax] = useState(0)
   const [rangeMin, setRangeMin] = useState(0)
+  const [shouldExtrapolate, setShouldExtrapolate] = useState(false)
   const [regressionRSquared, setRegressionRSquared] = useState(0)
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0)
 
@@ -227,7 +228,7 @@ function Strategy() {
 
       const givenTimespan = endTimestamp - startTimestamp;
 
-      const toExtrapolate = requestedTimespan / givenTimespan;
+      const toExtrapolate = (shouldExtrapolate && showRegression) ? (requestedTimespan / givenTimespan) : 1;
 
       const oldRegStartStamp = ((new Date(regStartTime).getTime()) + 3600000) / granularityMs;
 
@@ -322,7 +323,7 @@ function Strategy() {
       setData(finalToGraph as any);
 
     })
-  }, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, granularityMs, maxTrimVal, minTrimVal, fancySOCEstimate, useTrim, showRegression])
+  }, [dataKey, telemetryType, messageNumber, startTime, endTime, regEndTime, regStartTime, granularityMs, maxTrimVal, minTrimVal, fancySOCEstimate, useTrim, showRegression, shouldExtrapolate])
   return <>
     <Row>
       <Col>
@@ -433,6 +434,19 @@ function Strategy() {
         </div>
       </Col>}
       {showRegression && <Col>
+        <div className="switch">
+          <label>
+            Full Timescale
+            <input
+              type="checkbox"
+              checked={shouldExtrapolate}
+              onChange={(event) => setShouldExtrapolate(event.target.checked)}
+            />
+            <span className="lever"></span>
+          </label>
+        </div>
+      </Col>}
+      {(showRegression && shouldExtrapolate) && <Col>
         <div className="switch">
           <label>
             Offset Regression
