@@ -17,6 +17,8 @@ import { MPPT_RX4_Type } from "../models/MPPT/RX4"
 import { MPPT_RX5_Type } from "../models/MPPT/RX5"
 import { DistanceTraveled_Type } from "../models/Stats/DistanceTraveled";
 import { LapCount_Type } from "../models/Stats/LapCount";
+import PowerBoard_RX0 from "../models/PowerBoard/RX0";
+import PowerBoard_RX1 from "../models/PowerBoard/RX1";
 
 
 export const INCHES_PER_MILE = 63360
@@ -61,6 +63,10 @@ export interface CanData {
         "1": MPPT_Group,
         "2": MPPT_Group,
         "3": MPPT_Group
+    },
+    powerBoard: {
+        rx0: PowerBoard_RX0,
+        rx1: PowerBoard_RX1,
     }
 }
 
@@ -68,6 +74,10 @@ export interface DataResponse extends CanData {
     gps: GPS_Type,
     laps: {
         rx0: LapCount_Type
+    },
+    powerBoard: {
+        rx0: PowerBoard_RX0,
+        rx1: PowerBoard_RX1,
     }
 }
 
