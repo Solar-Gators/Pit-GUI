@@ -11,7 +11,6 @@ import { SimpleLinearRegression } from 'ml-regression';
 import { useSearchParams } from "react-router-dom";
 import Select from 'react-select';
 
-
 const allShape = {
   "bms": bmsShape,
   "mitsuba": mitsubaShape,
@@ -19,12 +18,10 @@ const allShape = {
   "calculated": calculatedShape,
 }
 
-
 function Strategy() {
 
   // constants to change
   const overnightSocPerHour = 10;
-
 
   let localGraph = localStorage.getItem("graph") ?? "{}"
   // ensure that if JSON parse fails the app doesn't crash
@@ -51,6 +48,8 @@ function Strategy() {
   const [rangeAverage, setRangeAverage] = useState(0)
   const [rangeMax, setRangeMax] = useState(0)
   const [rangeMin, setRangeMin] = useState(0)
+  const [regressionRSquared, setRegressionRSquared] = useState(0)
+  const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0)
 
   const [selectedOption, setSelectedOption] = useState(`${telemetryType}.${messageNumber}.${dataKey}`);
 
@@ -61,7 +60,12 @@ function Strategy() {
     setMessageNumber(num);
     setDataKey(key);
     setSelectedOption(selectedOption);
-    setUseTrim(false);
+
+    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_" || key == "better_soc_") {
+      handleTrimRadio(true);
+    } else {
+      handleTrimRadio(false);
+    }
   }
 
   const buildOptions = () => {
@@ -90,18 +94,19 @@ function Strategy() {
       setMaxTrimVal(110);
       setMinTrimVal(80);
     } else if (dataKey == "pack_soc_") {
-      setMaxTrimVal(100);
+      setMaxTrimVal(99);
+      setMinTrimVal(1);
+    }  else if (dataKey == "better_soc_") {
+      setMaxTrimVal(99);
       setMinTrimVal(1);
     } else if (dataKey == "high_temp_") {
-      setMaxTrimVal(45);
+      setMaxTrimVal(48);
       setMinTrimVal(20);
     } else {
       setMaxTrimVal(999999);
       setMinTrimVal(0);
     }
   }
-
-
 
   useEffect(() => {
     const data = {
@@ -118,6 +123,7 @@ function Strategy() {
     }
 
     setSearchParams(data)
+    
     localStorage.setItem("graph", JSON.stringify(data))
 
     let getAllModuleItemPromise: Promise<any> = Promise.resolve();
@@ -162,10 +168,7 @@ function Strategy() {
       });
     }
 
-
-    // Now apply .then on the result
     getAllModuleItemPromise.then(response => {
-
 
       let toTransform;
 
@@ -181,6 +184,15 @@ function Strategy() {
         toTransform = response.map((dataPoint) => ({
           ...dataPoint,
           [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
+        }));
+
+      }  else if (dataKey == "power_consumption_watts_") {
+
+        console.log(currentForWatts);
+
+        toTransform = response.map((dataPoint) => ({
+          ...dataPoint,
+          [dataKey]: dataPoint["pack_sum_volt_"] * currentForWatts[dataPoint["id"]]["pack_current_"],
         }));
 
       } else {
@@ -215,8 +227,6 @@ function Strategy() {
       setRangeMax(maxValue);
       setRangeMin(minValue);
 
-
-
       const filteredResponse = filteredResponseTemp.reduce((accumulator, currentValue) => {
         const duplicateDateStamp = accumulator.find(item => item.dateStamp === currentValue.dateStamp);
         if (!duplicateDateStamp) {
@@ -226,8 +236,6 @@ function Strategy() {
       }, []);
 
       console.log(filteredResponse);
-
-
 
       const requestedTimespan = new Date(endTime).getTime() - new Date(startTime).getTime();
 
@@ -239,35 +247,29 @@ function Strategy() {
 
       const toExtrapolate = requestedTimespan / givenTimespan;
 
-
-
       const oldRegStartStamp = ((new Date(regStartTime).getTime()) + 3600000) / granularityMs;
+
       const oldRegEndStamp = ((new Date(regEndTime).getTime()) + 3600000) / granularityMs;
 
       const regStartStamp = Math.max(oldRegStartStamp, (startTimestamp + 3600000) / granularityMs);
 
-
       const regEndStamp = Math.min(oldRegEndStamp, (endTimestamp + 3600000) / granularityMs);
-
-
-      console.log("yo");
-      console.log(oldRegEndStamp);
-      console.log((endTimestamp + 3600000) / granularityMs);
-      console.log(regEndStamp);
-
-      //const filteredRegResponse = filteredResponse.filter((dataPoint) => dataPoint["dateStamp"] >= regStartStamp);
 
       const filteredRegResponse = filteredResponse.filter((dataPoint) => !useRegressionRange || ((dataPoint["dateStamp"] >= regStartStamp - (3600000 / granularityMs)) && (dataPoint["dateStamp"] <= regEndStamp - (3600000 / granularityMs))));
 
-
       const regXValues = filteredRegResponse.map(dataPoint => dataPoint["dateStamp"]);
+
       const xValues = filteredResponse.map(dataPoint => dataPoint["dateStamp"]);
+
       const regYValues = filteredRegResponse.map(dataPoint => dataPoint[dataKey]);
+
       let regression = new SimpleLinearRegression(regXValues, regYValues);
+
       const regStats = regression.score(regXValues, regYValues);
 
-      console.log(regression);
-      console.log(regStats);
+      console.log([regression, regStats]);
+
+      setRegressionRSquared(regStats["r2"]);
 
       const intercept = regression["intercept"];
 
@@ -276,7 +278,6 @@ function Strategy() {
       const lastTimestamp = filteredResponse[filteredResponse.length - 1]["dateStamp"];
 
       const regOffset = regression.predict(lastTimestamp) - lastValue;
-
 
       let scaledXAxis = Array.from({ length: xValues.length * toExtrapolate }, (_, i) => i);
 
@@ -291,6 +292,12 @@ function Strategy() {
         obj[dataKey] = filteredResponse[xValue] ? filteredResponse[xValue][dataKey] : null;
         return obj;
       });
+
+      if(toExtrapolate > 1) {
+        setDerivedRegressionEnd(extendedRegression[extendedRegression.length - 1]["regression"]);
+      } else {
+        setDerivedRegressionEnd(0);
+      }
 
       const extendedRegressionDates = extendedRegression
         .map((dataPoint) => ({
@@ -312,7 +319,6 @@ function Strategy() {
           onChange={handleSelectChange}
           options={buildOptions() as any}
         />
-
       </Col>
     </Row>
     <Row>
@@ -359,8 +365,7 @@ function Strategy() {
           right: 30,
           left: 20,
           bottom: 5,
-        }}
-      >
+        }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="createdAt"
@@ -381,7 +386,6 @@ function Strategy() {
         <Line type="monotone" dataKey={dataKey} stroke="#8884d8" dot={false} />
         {showRegression && <Line type="monotone" dataKey="regression" stroke="#ff0000" dot={false} />}
         {useRegressionRange && <Line type="monotone" dataKey="regRange" stroke="#000000" dot={true} />}
-
       </LineChart>
     </ResponsiveContainer>
     <Row />
@@ -503,18 +507,31 @@ function Strategy() {
       </Col>}
       <Col>
         <div>
-          <h6 className="form-label">Average: {rangeAverage}</h6>
+          <h6 className="form-label">Average: {formatNumber(Number(rangeAverage))}</h6>
         </div>
         <div>
-          <h6 className="form-label">Maximum: {rangeMax}</h6>
+          <h6 className="form-label">Maximum: {formatNumber(Number(rangeMax))}</h6>
         </div>
         <div>
-          <h6 className="form-label">Minimum: {rangeMin}</h6>
+          <h6 className="form-label">Minimum: {formatNumber(Number(rangeMin))}</h6>
         </div>
+        {(showRegression && derivedRegressionEnd != 0) && <div>
+          <h6 className="form-label">Reg. End: {formatNumber(Number(derivedRegressionEnd))}</h6>
+        </div>
+        }
+        {showRegression && <div>
+          <h6 className="form-label">R²: {formatNumber(Number(regressionRSquared))}</h6>
+        </div>
+        }
       </Col>
     </Row>
   </>
 }
+
+function formatNumber(num) {
+  return num % 1 > 0 ? num.toFixed(2) : num;
+}
+
 
 export default Strategy
 	
