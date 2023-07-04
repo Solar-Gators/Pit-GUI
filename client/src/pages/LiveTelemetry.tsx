@@ -42,14 +42,21 @@ function LiveTelemetry() {
                 //Calculate speed
                 const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0
                 setSpeed(rpm * 60 * telemetry.WHEEL_RADIUS_MI)
+
+                // The password may needed to reset but it's actually empty so it didn't
+                if (localStorage.getItem("passwordNeedsSet") == "true") {
+                    localStorage.setItem("passwordNeedsSet", "false")
+                    window.location.reload()
+                }
             })
             .catch((reason) => {
 
                 // clear username/password if it changed for some reason
                 if (
-                    reason.request.status == 403 &&
-                    localStorage.getItem("username") &&
-                    localStorage.getItem("password")
+                    reason.request.status == 403 && (
+                        !localStorage.getItem("passwordNeedsSet") ||
+                        localStorage.getItem("passwordNeedsSet") == "false"
+                    )
                 ) {
                     localStorage.setItem("passwordNeedsSet", "true")
                     localStorage.setItem("username", "")
