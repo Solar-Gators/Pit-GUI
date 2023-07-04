@@ -1,3 +1,4 @@
+require('dotenv').config()
 var morgan = require('morgan'),
     bodyParser = require('body-parser'),
     liveRouter = require('../routes/live.server.routes.js')
@@ -11,7 +12,6 @@ import laps from '../routes/laps.server.routes'
 import powerBoard from '../routes/powerboard.routes'
 import { checkPassword } from "./password"
 const cors = require('cors')
-require('dotenv').config()
 
 module.exports.init = async () => {
   //initialize app
