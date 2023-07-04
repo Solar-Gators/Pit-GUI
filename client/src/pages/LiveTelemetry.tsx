@@ -43,6 +43,19 @@ function LiveTelemetry() {
                 const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0
                 setSpeed(rpm * 60 * telemetry.WHEEL_RADIUS_MI)
             })
+            .catch((reason) => {
+
+                // clear username/password if it changed for some reason
+                if (
+                    reason.request.status == 403 &&
+                    localStorage.getItem("username") &&
+                    localStorage.getItem("password")
+                ) {
+                    localStorage.setItem("username", "")
+                    localStorage.setItem("password", "")
+                    window.location.reload()
+                }
+            })
         }, 1000)
     }, [])
 

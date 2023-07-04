@@ -81,8 +81,14 @@ export interface DataResponse extends CanData {
     }
 }
 
+const localCache = typeof global.localStorage !== "undefined" ? global.localStorage : ""
+
 export const telemetryApi = axios.create({
-    baseURL: process.env.REACT_APP_TELEMETRY_API
+    baseURL: process.env.REACT_APP_TELEMETRY_API,
+    headers: {
+        "password":  localCache ? localCache.getItem("password") : "",
+        "username": localCache ? localCache.getItem("username") : "",
+    }
 });
 
 export function getAll(): Promise<DataResponse> {
@@ -90,7 +96,7 @@ export function getAll(): Promise<DataResponse> {
     .then((response) => response.data)
 }
 
-export function getAllModule<T extends keyof CanData, P extends keyof CanData[T]>(module: T, message: P, where: Record<string, any> = null): Promise<CanData[T][P][]> {
+export function getAllModule<T extends keyof CanData, P extends keyof CanData[T]>(module: T, message: P, where: Record<string, any> | null = null): Promise<CanData[T][P][]> {
     return telemetryApi.get(`/api/${module}/${String(message)}`, {
         params: {
             ...(where && { where: JSON.stringify(where) })
@@ -99,7 +105,7 @@ export function getAllModule<T extends keyof CanData, P extends keyof CanData[T]
     .then((response) => response.data) as any
 }
 
-export function getAllModuleItem<T extends keyof CanData, P extends keyof CanData[T], Q extends keyof CanData[T][P]>(module: T, message: P, item: Q, where: Record<string, any> = null): Promise<CanData[T][P][]> {
+export function getAllModuleItem<T extends keyof CanData, P extends keyof CanData[T], Q extends keyof CanData[T][P]>(module: T, message: P, item: Q, where: Record<string, any> | null = null): Promise<CanData[T][P][]> {
     return telemetryApi.get(`/api/${module}/${String(message)}/item/${String(item)}`, {
         params: {
             ...(where && { where: JSON.stringify(where) })

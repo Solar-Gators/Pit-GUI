@@ -9,7 +9,9 @@ import mppt from '../routes/mppt.server.routes'
 import gps from '../routes/gps.server.routes'
 import laps from '../routes/laps.server.routes'
 import powerBoard from '../routes/powerboard.routes'
+import { checkPassword } from "./password"
 const cors = require('cors')
+require('dotenv').config()
 
 module.exports.init = async () => {
   //initialize app
@@ -24,6 +26,9 @@ module.exports.init = async () => {
 
   //enable request logging for development debugging
   //app.use(morgan('dev'));
+
+  //check for auth
+  app.use(checkPassword);
 
   //body parsing middleware
   app.use(bodyParser.json());

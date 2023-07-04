@@ -4,3 +4,4 @@ backend/node_modules/*
 backend/dist
 
 backend/data-collector/node_modules/*
+.env
