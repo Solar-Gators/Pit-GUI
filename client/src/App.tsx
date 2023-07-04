@@ -27,7 +27,7 @@ export default function App() {
                     </Routes>
                 </div>
             </BrowserRouter>
-            {(!username || !password) &&
+            {localStorage.getItem("passwordNeedsSet") == "true" &&
                 <Modal show={true}>
                     <Modal.Header>Enter Username/Password</Modal.Header>
                     <Modal.Body>
@@ -35,6 +35,7 @@ export default function App() {
                         onSubmit={() => {
                             localStorage.setItem("username", String(usernameInput?.current?.value))
                             localStorage.setItem("password", String(passwordInput?.current?.value))
+                            localStorage.setItem("passwordNeedsSet", "false")
                         }}
                     >
                         <Form.Group className="mb-3">

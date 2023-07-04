@@ -51,6 +51,7 @@ function LiveTelemetry() {
                     localStorage.getItem("username") &&
                     localStorage.getItem("password")
                 ) {
+                    localStorage.setItem("passwordNeedsSet", "true")
                     localStorage.setItem("username", "")
                     localStorage.setItem("password", "")
                     window.location.reload()
