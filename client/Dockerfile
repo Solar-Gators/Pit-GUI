@@ -5,7 +5,7 @@ WORKDIR /app/client
 COPY ./client/package.json ./package.json
 COPY ./client/package-lock.json ./package-lock.json
 
-RUN npm ci --force
+RUN npm ci
 
 ARG REACT_APP_TELEMETRY_API
 ENV REACT_APP_TELEMETRY_API=$REACT_APP_TELEMETRY_API
