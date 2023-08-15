@@ -6,7 +6,7 @@
   "scripts": {
     "start": "concurrently \"cd backend && npm start\" \"cd client && npm start\"",
     "test": "cd backend && npm test",
-    "install-all": "npm i && cd backend && npm i && cd ../client && npm i",
+    "install-all": "npm ci && cd backend && npm ci && cd ../client && npm ci",
     "cypress": "cypress open"
   },
   "keywords": [],
