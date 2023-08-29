@@ -1,16 +1,23 @@
-'use strict';
-import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
+"use strict";
+import { InferAttributes } from "sequelize";
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  Index,
+  CreatedAt,
+} from "sequelize-typescript";
 
-export type LapCount_Type = InferAttributes<LapCount>
+export type LapCount_Type = InferAttributes<LapCount>;
 
 @Table
 export default class LapCount extends Model {
   @Column({
-    type: DataType.INTEGER
+    type: DataType.INTEGER,
   })
-  lap: number
+  lap: number;
   @Index
-@CreatedAt
-createdAt?: Date
+  @CreatedAt
+  createdAt?: Date;
 }

@@ -1,54 +1,61 @@
-'use strict';
-import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
+"use strict";
+import { InferAttributes } from "sequelize";
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  Index,
+  CreatedAt,
+} from "sequelize-typescript";
 
-export type Mitsuba_RX0_Type = InferAttributes<Mitsuba_RX0>
+export type Mitsuba_RX0_Type = InferAttributes<Mitsuba_RX0>;
 
 @Table
 export default class Mitsuba_RX0 extends Model<Mitsuba_RX0_Type> {
   @Column({
     type: DataType.INTEGER,
-    defaultValue: null
+    defaultValue: null,
   })
-  battVoltage?: number
+  battVoltage?: number;
 
   @Column({
     type: DataType.INTEGER,
-    defaultValue: null
+    defaultValue: null,
   })
-  battCurrent?: number
+  battCurrent?: number;
 
   @Column({
     type: DataType.INTEGER,
-    defaultValue: null
+    defaultValue: null,
   })
-  motorCurrentPkAvg?: number
+  motorCurrentPkAvg?: number;
 
   @Column({
     type: DataType.INTEGER,
-    defaultValue: null
+    defaultValue: null,
   })
-  FETtemp?: number
+  FETtemp?: number;
 
   @Column({
     type: DataType.INTEGER,
-    defaultValue: null
+    defaultValue: null,
   })
-  motorRPM?: number
+  motorRPM?: number;
 
   @Column({
     type: DataType.INTEGER,
-    defaultValue: null
+    defaultValue: null,
   })
-  PWMDuty?: number
+  PWMDuty?: number;
 
   @Column({
     type: DataType.INTEGER,
-    defaultValue: null
+    defaultValue: null,
   })
-  LeadAngle?: number
+  LeadAngle?: number;
 
   @Index
   @CreatedAt
-  createdAt?: Date
+  createdAt?: Date;
 }
