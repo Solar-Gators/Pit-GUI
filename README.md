@@ -3,22 +3,29 @@
 <h4 align="center"><b>Live Telemetry Data and Statistic Analysis for Sunrider</b></h4>
 
 <p align="center">
-  <a href="https://github.com/Solar-Gators/Pit-GUI/blob/main/LICENSE" target="_blank">
+<a href="https://github.com/Solar-Gators/Pit-GUI/blob/main/LICENSE" target="_blank">
 <img src="https://img.shields.io/github/license/Solar-Gators/Pit-GUI?style=flat-square" alt="licence" />
 </a>
+
 <a href="https://github.com/Solar-Gators/Pit-GUI/issues" target="_blank">
 <img src="https://img.shields.io/github/issues/Solar-Gators/Pit-GUI?style=flat-square" alt="issues"/>
 </a>
+
 <a href="https://github.com/Solar-Gators/Pit-GUI/pulls" target="_blank">
 <img src="https://img.shields.io/github/issues-pr/Solar-Gators/Pit-GUI?style=flat-square" alt="pull-requests"/>
 </a>
-  
-  <p align="center">
-Please refer to the  <a href="https://docs.ufsolargators.org/en/latest/Electrical/Telemetry/gui.html">Pit-GUI documentation on readthedocs </a>
-  </p>
 
+<a href="https://github.com/prettier/prettier" target="_blank">
+<img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square" alt="prettier"/>
+</a>
+</p>
+  
+<p align="center">
+Please refer to the  <a href="https://docs.ufsolargators.org/en/latest/Electrical/Telemetry/gui.html">Pit-GUI documentation on readthedocs </a>
+</p>
 
 ## 🌐 Live Status Updates
+
 <p>
   Easily view live telemetry from Sunrider as it is transmitted, making live debugging and analysis more user-friendly.
 </p>
@@ -29,6 +36,7 @@ Please refer to the  <a href="https://docs.ufsolargators.org/en/latest/Electrica
 <br/>
 
 ## 📈 Intuitive Strategy Calculations
+
 <p>
   The strategy section allows users to easily graph data from various statistics over time, trim out bad datapoints, perform regression analysis over a given timespan, and extrapolate the regression estimate; all in real time.
 </p>
