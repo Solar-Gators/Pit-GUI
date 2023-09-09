@@ -1,32 +1,39 @@
-'use strict';
-import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
+"use strict";
+import { InferAttributes } from "sequelize";
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  Index,
+  CreatedAt,
+} from "sequelize-typescript";
 
-export type GPS_Type = InferAttributes<GPS>
+export type GPS_Type = InferAttributes<GPS>;
 
 @Table
 export default class GPS extends Model {
   @Column({
-    type: DataType.INTEGER
+    type: DataType.INTEGER,
   })
-  heading: number
+  heading: number;
 
   @Column({
-    type: DataType.STRING(255)
+    type: DataType.STRING(255),
   })
-  latitude: string
+  latitude: string;
 
   @Column({
-    type: DataType.STRING(255)
+    type: DataType.STRING(255),
   })
-  longitude: string
+  longitude: string;
 
   @Column({
-    type: DataType.INTEGER
+    type: DataType.INTEGER,
   })
-  speed: number
+  speed: number;
 
   @Index
   @CreatedAt
-  createdAt?: Date
+  createdAt?: Date;
 }

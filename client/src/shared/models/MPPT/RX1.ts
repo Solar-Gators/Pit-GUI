@@ -1,30 +1,37 @@
-'use strict';
-import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
+"use strict";
+import { InferAttributes } from "sequelize";
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  Index,
+  CreatedAt,
+} from "sequelize-typescript";
 
-export type MPPT_RX1_Type = InferAttributes<MPPT_RX1>
+export type MPPT_RX1_Type = InferAttributes<MPPT_RX1>;
 
 @Table
 export default class MPPT_RX1 extends Model<MPPT_RX1_Type> {
   @Column({
     type: DataType.SMALLINT,
-    defaultValue: null
+    defaultValue: null,
   })
-  mpptNumber: number
+  mpptNumber: number;
 
   @Column({
     type: DataType.FLOAT,
-    defaultValue: null
+    defaultValue: null,
   })
-  outputVoltage: number
+  outputVoltage: number;
 
   @Column({
     type: DataType.FLOAT,
-    defaultValue: null
+    defaultValue: null,
   })
-  outputCurrent: number
+  outputCurrent: number;
 
   @Index
   @CreatedAt
-  createdAt?: Date
+  createdAt?: Date;
 }

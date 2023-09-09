@@ -1,30 +1,37 @@
-'use strict';
-import { InferAttributes } from "sequelize"
-import { Table, Column, Model, DataType, Index, CreatedAt } from 'sequelize-typescript'
+"use strict";
+import { InferAttributes } from "sequelize";
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  Index,
+  CreatedAt,
+} from "sequelize-typescript";
 
-export type PowerBoard_RX0_Type = InferAttributes<PowerBoard_RX1>
+export type PowerBoard_RX0_Type = InferAttributes<PowerBoard_RX1>;
 
 @Table
 export default class PowerBoard_RX1 extends Model<PowerBoard_RX0_Type> {
   @Column({
     type: DataType.FLOAT,
-    defaultValue: null
+    defaultValue: null,
   })
-  SupBatVoltage_: number
+  SupBatVoltage_: number;
 
   @Column({
     type: DataType.FLOAT,
-    defaultValue: null
+    defaultValue: null,
   })
-  SupBatPower_: number
+  SupBatPower_: number;
 
   @Column({
     type: DataType.FLOAT,
-    defaultValue: null
+    defaultValue: null,
   })
-  MainBatPower_: number
+  MainBatPower_: number;
 
   @Index
   @CreatedAt
-  createdAt?: Date
+  createdAt?: Date;
 }
