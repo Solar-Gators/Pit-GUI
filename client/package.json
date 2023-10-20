@@ -50,6 +50,8 @@
     ]
   },
   "devDependencies": {
-    "@types/node": "^18.0.0"
+    "@types/node": "^18.0.0",
+    "@types/sequelize": "^4.28.17",
+    "axios": "^1.5.1"
   }
 }
