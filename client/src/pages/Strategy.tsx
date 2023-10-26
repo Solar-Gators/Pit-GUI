@@ -58,6 +58,7 @@ function Strategy() {
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
   const [showRegression, setShowRegression] = useState(false);
+  const [dateErrorFlag, setDateErrorFlag] = useState(false);
   const [fancySOCEstimate, setFancySOCEstimate] = useState(false);
   const [useRegressionRange, setUseRegressionRange] = useState(false);
   const [useTrim, setUseTrim] = useState(false);
@@ -268,9 +269,17 @@ function Strategy() {
       const requestedTimespan =
         new Date(endTime).getTime() - new Date(startTime).getTime();
 
-      const startTimestamp = new Date(
-        filteredResponse[0]["dateStamp"] * granularityMs,
-      ).getTime();
+      let startTimestamp;
+
+      try {
+        startTimestamp = new Date(
+          filteredResponse[0]["dateStamp"] * granularityMs,
+        ).getTime();
+        setDateErrorFlag(false);
+      } catch {
+        setDateErrorFlag(true);
+        return;
+      }
 
       const endTimestamp = new Date(
         filteredResponse[filteredResponse.length - 1]["dateStamp"] *
@@ -437,6 +446,7 @@ function Strategy() {
   return (
     <>
       <Row>
+        {dateErrorFlag && <p>test</p>}
         <Col>
           <Form.Label>Select Statistics</Form.Label>
           <Select

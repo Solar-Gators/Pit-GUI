@@ -49,6 +49,18 @@ export default function TelemetryCAN<T>({
                 const telemetryInfo = message[telemetryName];
 
                 if (!telemetryInfo) return;
+
+                if (
+                  config.title == "Motor Controller" &&
+                  messageName == "rx0"
+                ) {
+                  console.log("test");
+                  console.log(config.data["rx0"]["battCurrent"]);
+
+                  // correct answer (no cheating)
+                  // console.log(data["rx0"]["battCurrent"]);
+                }
+
                 return (
                   <>
                     <Label
@@ -61,6 +73,14 @@ export default function TelemetryCAN<T>({
                   </>
                 );
               })}
+              {config.title == "Motor Controller" && messageName == "rx0" && (
+                <Label
+                  label={"test"}
+                  unit={"C"}
+                  booleanError={false}
+                  value={2}
+                />
+              )}
             </Row>
           );
         })}
