@@ -30,6 +30,8 @@ export default function TelemetryCAN<T>({
     <>
       <h3>{config.title}</h3>
       <div className="center-align">
+        
+
         {Object.keys(config.data).map((messageName: string) => {
           const message = config.data?.[messageName];
 
@@ -50,17 +52,6 @@ export default function TelemetryCAN<T>({
 
                 if (!telemetryInfo) return;
 
-                if (
-                  config.title == "Motor Controller" &&
-                  messageName == "rx0"
-                ) {
-                  console.log("test");
-                  console.log(config.data["rx0"]["battCurrent"]);
-
-                  // correct answer (no cheating)
-                  // console.log(data["rx0"]["battCurrent"]);
-                }
-
                 return (
                   <>
                     <Label
@@ -73,12 +64,12 @@ export default function TelemetryCAN<T>({
                   </>
                 );
               })}
-              {config.title == "Motor Controller" && messageName == "rx0" && (
+              {config.title == "Motor Controller" && messageName == "rx1" && (
                 <Label
-                  label={"test"}
-                  unit={"C"}
+                  label={"Power Draw"}
+                  unit={"W"}
                   booleanError={false}
-                  value={2}
+                  value={data["rx0"]["battCurrent"]*data["rx0"]["battVoltage"]}
                 />
               )}
             </Row>
