@@ -263,14 +263,18 @@ function Strategy() {
       setRangeMax(maxValue);
       setRangeMin(minValue);
 
-      console.log(filteredResponse);
-
       const requestedTimespan =
         new Date(endTime).getTime() - new Date(startTime).getTime();
 
-      const startTimestamp = new Date(
-        filteredResponse[0]["dateStamp"] * granularityMs,
-      ).getTime();
+      let startTimestamp;
+
+      try {
+        startTimestamp = new Date(
+          filteredResponse[0]["dateStamp"] * granularityMs,
+        ).getTime();
+      } catch (e) {
+        return;
+      }
 
       const endTimestamp = new Date(
         filteredResponse[filteredResponse.length - 1]["dateStamp"] *
@@ -333,8 +337,6 @@ function Strategy() {
         regression = new SimpleLinearRegression(regXValues, regYValues);
 
         regStats = regression.score(regXValues, regYValues);
-
-        console.log([regression, regStats]);
 
         setRegressionRSquared(regStats["r2"]);
 
