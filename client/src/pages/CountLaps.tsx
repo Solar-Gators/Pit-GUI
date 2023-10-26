@@ -6,12 +6,9 @@ function CountLaps() {
 
   const getLap = () => {
     getMostRecent("laps" as any, "rx0").then((response: any) => {
-      console.log(response);
       setLap(response["lap"]);
     });
   };
-
-  console.log(lap);
 
   useEffect(() => {
     getLap();

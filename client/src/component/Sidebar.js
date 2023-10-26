@@ -35,13 +35,13 @@ function Sidebar() {
         <li style={{ textAlign: "center" }}>
           <img width="160px" height="100px" src="./logo.png" />
         </li>
-        <li className={location.pathname == "/" && "bold active"}>
+        <li className={location.pathname == "/" ? "bold active" : ""}>
           <Link to="/">Live</Link>
         </li>
-        <li className={location.pathname == "/strategy" && "bold active"}>
+        <li className={location.pathname == "/strategy" ? "bold active" : ""}>
           <Link to="/strategy">Strategy</Link>
         </li>
-        <li className={location.pathname == "/history" && "bold active"}>
+        <li className={location.pathname == "/history" ? "bold active" : ""}>
           <Link to="/history">Data Export</Link>
         </li>
       </ul>

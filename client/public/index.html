@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta
-      name="description"
-      content="Solar Gators' telemetry website"
-    />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <script src="https://kit.fontawesome.com/98364a6ba7.js" crossorigin="anonymous"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Solar Gators' telemetry website" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <script
+      src="https://kit.fontawesome.com/98364a6ba7.js"
+      crossorigin="anonymous"
+    ></script>
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
@@ -22,27 +22,32 @@
       // When the single page app is loaded further down in this file,
       // the correct url will be waiting in the browser's history for
       // the single page app to route accordingly.
-      (function(l) {
+      (function (l) {
         if (l.search) {
           var q = {};
-          l.search.slice(1).split('&').forEach(function(v) {
-            var a = v.split('=');
-            q[a[0]] = a.slice(1).join('=').replace(/~and~/g, '&');
-          });
+          l.search
+            .slice(1)
+            .split("&")
+            .forEach(function (v) {
+              var a = v.split("=");
+              q[a[0]] = a.slice(1).join("=").replace(/~and~/g, "&");
+            });
           if (q.p !== undefined) {
-            window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + (q.p || '') +
-              (q.q ? ('?' + q.q) : '') +
-              l.hash
+            window.history.replaceState(
+              null,
+              null,
+              l.pathname.slice(0, -1) +
+                (q.p || "") +
+                (q.q ? "?" + q.q : "") +
+                l.hash,
             );
           }
         }
-      }(window.location))
+      })(window.location);
     </script>
     <!-- End Single Page Apps for GitHub Pages -->
 
     <title>Solar Gators Telemetry</title>
-
   </head>
   <body>
     <div id="root"></div>

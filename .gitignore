@@ -5,3 +5,4 @@ backend/dist
 
 backend/data-collector/node_modules/*
 .env
+rework/node_modules
