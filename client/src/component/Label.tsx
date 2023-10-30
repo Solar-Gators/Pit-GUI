@@ -13,7 +13,6 @@ function Label({ svgSrc, label, value, unit, booleanError }: Props) {
   let finalValue = value;
   let rowColor = "";
   let fontColor = "black";
-  console.log(value, isNaN(Number(finalValue)));
   if (typeof value === "boolean") {
     finalValue = value ? "Yes" : "No";
 
