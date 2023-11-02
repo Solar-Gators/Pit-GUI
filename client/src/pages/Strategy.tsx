@@ -58,7 +58,6 @@ function Strategy() {
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
   const [showRegression, setShowRegression] = useState(false);
-  const [dateErrorFlag, setDateErrorFlag] = useState(false);
   const [fancySOCEstimate, setFancySOCEstimate] = useState(false);
   const [useRegressionRange, setUseRegressionRange] = useState(false);
   const [useTrim, setUseTrim] = useState(false);
@@ -264,8 +263,6 @@ function Strategy() {
       setRangeMax(maxValue);
       setRangeMin(minValue);
 
-      console.log(filteredResponse);
-
       const requestedTimespan =
         new Date(endTime).getTime() - new Date(startTime).getTime();
 
@@ -275,9 +272,7 @@ function Strategy() {
         startTimestamp = new Date(
           filteredResponse[0]["dateStamp"] * granularityMs,
         ).getTime();
-        setDateErrorFlag(false);
       } catch {
-        setDateErrorFlag(true);
         return;
       }
 
@@ -342,8 +337,6 @@ function Strategy() {
         regression = new SimpleLinearRegression(regXValues, regYValues);
 
         regStats = regression.score(regXValues, regYValues);
-
-        console.log([regression, regStats]);
 
         setRegressionRSquared(regStats["r2"]);
 
@@ -446,7 +439,6 @@ function Strategy() {
   return (
     <>
       <Row>
-        {dateErrorFlag && <p>test</p>}
         <Col>
           <Form.Label>Select Statistics</Form.Label>
           <Select
