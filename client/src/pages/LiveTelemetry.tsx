@@ -203,6 +203,9 @@ function LiveTelemetry() {
       </Row>
       <Row>
         <Label label="Lap Count" value={data?.laps?.rx0?.lap ?? 0} />
+        <Label label="Power Draw" value={(data?.mitsuba?.rx0?.battVoltage ?? 0) * (data?.mitsuba?.rx0?.battCurrent ?? 0)}
+        unit = 'W'
+        />
       </Row>
 
       <h3>Raw Messages</h3>

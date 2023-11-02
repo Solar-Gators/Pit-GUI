@@ -30,7 +30,6 @@ export default function TelemetryCAN<T>({
     <>
       <h3>{config.title}</h3>
       <div className="center-align">
-        
 
         {Object.keys(config.data).map((messageName: string) => {
           const message = config.data?.[messageName];
@@ -51,7 +50,6 @@ export default function TelemetryCAN<T>({
                 const telemetryInfo = message[telemetryName];
 
                 if (!telemetryInfo) return;
-
                 return (
                   <>
                     <Label
@@ -64,14 +62,6 @@ export default function TelemetryCAN<T>({
                   </>
                 );
               })}
-              {config.title == "Motor Controller" && messageName == "rx1" && (
-                <Label
-                  label={"Power Draw"}
-                  unit={"W"}
-                  booleanError={false}
-                  value={data["rx0"]["battCurrent"]*data["rx0"]["battVoltage"]}
-                />
-              )}
             </Row>
           );
         })}
