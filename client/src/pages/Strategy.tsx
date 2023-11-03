@@ -272,7 +272,7 @@ function Strategy() {
         startTimestamp = new Date(
           filteredResponse[0]["dateStamp"] * granularityMs,
         ).getTime();
-      } catch (e) {
+      } catch {
         return;
       }
 
