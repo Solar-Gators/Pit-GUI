@@ -30,7 +30,6 @@ export default function TelemetryCAN<T>({
     <>
       <h3>{config.title}</h3>
       <div className="center-align">
-
         {Object.keys(config.data).map((messageName: string) => {
           const message = config.data?.[messageName];
 
