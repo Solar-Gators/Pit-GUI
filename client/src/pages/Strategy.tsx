@@ -20,6 +20,7 @@ import * as moment from "moment";
 import { SimpleLinearRegression } from "ml-regression";
 import { useSearchParams } from "react-router-dom";
 import Select from "react-select";
+import * as telemetry from "../shared/sdk/telemetry";
 
 const allShape = {
   bms: bmsShape,
@@ -49,9 +50,12 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(
     searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_",
   );
+  // replace localGraph["start"] with dayBefore
   const [startTime, setStartTime] = useState(
     searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00",
   );
+
+  // replace localGraph["end"] with latest date
   const [endTime, setEndTime] = useState(
     searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
   );
@@ -74,6 +78,46 @@ function Strategy() {
   const [selectedOption, setSelectedOption] = useState(
     `${telemetryType}.${messageNumber}.${dataKey}`,
   );
+
+  telemetry
+    .getAll()
+    .then((response) => {
+      //console.log(response["bms"]["rx0"]["createdAt"]);
+
+      const responseStartTime = response.bms.rx0.createdAt;
+      const formattedEndTime = responseStartTime
+        .replace(/\.\d+/, "")
+        .replace("Z", "");
+
+      //console.log(formattedStartTime);
+      const formattedStartTime =
+        formattedEndTime.substring(0, 9) +
+        (+formattedEndTime[9] - 1).toString() +
+        formattedEndTime.substring(10);
+      //console.log(formattedEndTime);
+      setEndTime(formattedEndTime);
+
+      setStartTime(formattedStartTime);
+
+      // The password may needed to reset but it's actually empty so it didn't
+      if (localStorage.getItem("passwordNeedsSet") == "true") {
+        localStorage.setItem("passwordNeedsSet", "false");
+        window.location.reload();
+      }
+    })
+    .catch((reason) => {
+      // clear username/password if it changed for some reason
+      if (
+        reason.request.status == 402 &&
+        (!localStorage.getItem("passwordNeedsSet") ||
+          localStorage.getItem("passwordNeedsSet") == "false")
+      ) {
+        localStorage.setItem("passwordNeedsSet", "true");
+        localStorage.setItem("username", "");
+        localStorage.setItem("password", "");
+        window.location.reload();
+      }
+    });
 
   const handleSelectChange = (selectedOption) => {
     const { value } = selectedOption;
