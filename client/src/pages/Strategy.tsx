@@ -30,10 +30,8 @@ const allShape = {
 };
 
 function Strategy() {
-  // constants to change
-  const overnightSocPerHour = 10;
-
   let localGraph = localStorage.getItem("graph") ?? "{}";
+
   // ensure that if JSON parse fails the app doesn't crash
   try {
     localGraph = JSON.parse(localGraph);
@@ -50,12 +48,9 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(
     searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_",
   );
-  // replace localGraph["start"] with dayBefore
   const [startTime, setStartTime] = useState(
     searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00",
   );
-
-  // replace localGraph["end"] with latest date
   const [endTime, setEndTime] = useState(
     searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
   );
@@ -74,31 +69,31 @@ function Strategy() {
   const [shouldExtrapolate, setShouldExtrapolate] = useState(false);
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
-
   const [selectedOption, setSelectedOption] = useState(
     `${telemetryType}.${messageNumber}.${dataKey}`,
   );
 
+  // if no searchParams, autpopulate with latest data
   if (!searchParams.get("start") && !searchParams.get("end")) {
     telemetry
       .getAll()
       .then((response) => {
-        //console.log(response["bms"]["rx0"]["createdAt"]);
+        const latestResponse = new Date(response.bms.rx0.createdAt);
 
-        const responseStartTime = response.bms.rx0.createdAt;
-        const formattedEndTime = responseStartTime
+        const endAtTime = latestResponse
+          .toISOString()
           .replace(/\.\d+/, "")
           .replace("Z", "");
 
-        //console.log(formattedStartTime);
-        const formattedStartTime =
-          formattedEndTime.substring(0, 9) +
-          (+formattedEndTime[9] - 1).toString() +
-          formattedEndTime.substring(10);
-        //console.log(formattedEndTime);
-        setEndTime(formattedEndTime);
+        latestResponse.setUTCDate(latestResponse.getUTCDate() - 2);
 
-        setStartTime(formattedStartTime);
+        const startAtTime = latestResponse
+          .toISOString()
+          .replace(/\.\d+/, "")
+          .replace("Z", "");
+
+        setEndTime(endAtTime);
+        setStartTime(startAtTime);
 
         // The password may needed to reset but it's actually empty so it didn't
         if (localStorage.getItem("passwordNeedsSet") == "true") {
