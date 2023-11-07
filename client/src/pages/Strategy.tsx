@@ -139,8 +139,8 @@ function Strategy() {
     return options;
   };
 
-  const handleRegRangeRadio = (selectedOption) => {
-    setUseRegressionRange(selectedOption);
+  const handleRegRangeRadio = (option) => {
+    setUseRegressionRange(option);
     setRegEndTime(endTime);
     setRegStartTime(startTime);
   };
