@@ -123,16 +123,6 @@ function Strategy() {
     setMessageNumber(num);
     setDataKey(key);
     setSelectedOption(selectedOption);
-
-    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_") {
-      handleTrimRadio(true);
-    } else if (key == "better_soc_") {
-      setUseTrim(true);
-      setMaxTrimVal(99);
-      setMinTrimVal(1);
-    } else {
-      handleTrimRadio(false);
-    }
   };
 
   const buildOptions = () => {
@@ -154,26 +144,21 @@ function Strategy() {
     setRegStartTime(startTime);
   };
 
-  const handleTrimRadio = (selectedOption) => {
-    setUseTrim(selectedOption);
-
-    if (dataKey == "pack_sum_volt_") {
-      setMaxTrimVal(110);
-      setMinTrimVal(80);
-    } else if (dataKey == "pack_soc_") {
-      setMaxTrimVal(99);
-      setMinTrimVal(1);
+  useEffect(() => {
+    if (
+      dataKey == "high_temp_" ||
+      dataKey == "pack_sum_volt_" ||
+      dataKey == "pack_soc_"
+    ) {
+      setUseTrim(true);
     } else if (dataKey == "better_soc_") {
+      setUseTrim(true);
       setMaxTrimVal(99);
       setMinTrimVal(1);
-    } else if (dataKey == "high_temp_") {
-      setMaxTrimVal(48);
-      setMinTrimVal(20);
     } else {
-      setMaxTrimVal(999999);
-      setMinTrimVal(0);
+      setUseTrim(false);
     }
-  };
+  }, [dataKey]);
 
   useEffect(() => {
     const data = {
@@ -657,7 +642,7 @@ function Strategy() {
               <input
                 type="checkbox"
                 checked={useTrim}
-                onChange={(event) => handleTrimRadio(event.target.checked)}
+                onChange={setUseTrim(event)}
               />
               <span className="lever"></span>
             </label>
