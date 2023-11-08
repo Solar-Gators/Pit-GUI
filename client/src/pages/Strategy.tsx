@@ -30,10 +30,8 @@ const allShape = {
 };
 
 function Strategy() {
-  // constants to change
-  const overnightSocPerHour = 10;
-
   let localGraph = localStorage.getItem("graph") ?? "{}";
+
   // ensure that if JSON parse fails the app doesn't crash
   try {
     localGraph = JSON.parse(localGraph);
@@ -50,12 +48,9 @@ function Strategy() {
   const [dataKey, setDataKey] = useState(
     searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_",
   );
-  // replace localGraph["start"] with dayBefore
   const [startTime, setStartTime] = useState(
     searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00",
   );
-
-  // replace localGraph["end"] with latest date
   const [endTime, setEndTime] = useState(
     searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
   );
@@ -74,31 +69,32 @@ function Strategy() {
   const [shouldExtrapolate, setShouldExtrapolate] = useState(false);
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
-
   const [selectedOption, setSelectedOption] = useState(
     `${telemetryType}.${messageNumber}.${dataKey}`,
   );
+  const [rawData, setRawData] = useState<any[]>([]);
 
+  // if no searchParams, autpopulate with latest data
   if (!searchParams.get("start") && !searchParams.get("end")) {
     telemetry
       .getAll()
       .then((response) => {
-        //console.log(response["bms"]["rx0"]["createdAt"]);
+        const latestResponse = new Date(response.bms.rx0.createdAt);
 
-        const responseStartTime = response.bms.rx0.createdAt;
-        const formattedEndTime = responseStartTime
+        const endAtTime = latestResponse
+          .toISOString()
           .replace(/\.\d+/, "")
           .replace("Z", "");
 
-        //console.log(formattedStartTime);
-        const formattedStartTime =
-          formattedEndTime.substring(0, 9) +
-          (+formattedEndTime[9] - 1).toString() +
-          formattedEndTime.substring(10);
-        //console.log(formattedEndTime);
-        setEndTime(formattedEndTime);
+        latestResponse.setUTCDate(latestResponse.getUTCDate() - 2);
 
-        setStartTime(formattedStartTime);
+        const startAtTime = latestResponse
+          .toISOString()
+          .replace(/\.\d+/, "")
+          .replace("Z", "");
+
+        setEndTime(endAtTime);
+        setStartTime(startAtTime);
 
         // The password may needed to reset but it's actually empty so it didn't
         if (localStorage.getItem("passwordNeedsSet") == "true") {
@@ -128,16 +124,6 @@ function Strategy() {
     setMessageNumber(num);
     setDataKey(key);
     setSelectedOption(selectedOption);
-
-    if (key == "high_temp_" || key == "pack_sum_volt_" || key == "pack_soc_") {
-      handleTrimRadio(true);
-    } else if (key == "better_soc_") {
-      setUseTrim(true);
-      setMaxTrimVal(99);
-      setMinTrimVal(1);
-    } else {
-      handleTrimRadio(false);
-    }
   };
 
   const buildOptions = () => {
@@ -153,32 +139,65 @@ function Strategy() {
     return options;
   };
 
-  const handleRegRangeRadio = (selectedOption) => {
-    setUseRegressionRange(selectedOption);
+  const handleRegRangeRadio = (option) => {
+    setUseRegressionRange(option);
     setRegEndTime(endTime);
     setRegStartTime(startTime);
   };
 
-  const handleTrimRadio = (selectedOption) => {
-    setUseTrim(selectedOption);
-
-    if (dataKey == "pack_sum_volt_") {
-      setMaxTrimVal(110);
-      setMinTrimVal(80);
-    } else if (dataKey == "pack_soc_") {
-      setMaxTrimVal(99);
-      setMinTrimVal(1);
+  useEffect(() => {
+    if (
+      dataKey == "high_temp_" ||
+      dataKey == "pack_sum_volt_" ||
+      dataKey == "pack_soc_"
+    ) {
+      setUseTrim(true);
     } else if (dataKey == "better_soc_") {
+      setUseTrim(true);
       setMaxTrimVal(99);
       setMinTrimVal(1);
-    } else if (dataKey == "high_temp_") {
-      setMaxTrimVal(48);
-      setMinTrimVal(20);
     } else {
-      setMaxTrimVal(999999);
-      setMinTrimVal(0);
+      setUseTrim(false);
     }
-  };
+  }, [dataKey]);
+
+  useEffect(() => {
+    const fetchModuleItems = async () => {
+      let result;
+
+      if (dataKey == "better_soc_") {
+        result = await getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
+          createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          },
+        });
+      } else if (dataKey == "car_speed_mph_") {
+        result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
+          createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          },
+        });
+      } else {
+        result = await getAllModuleItem(
+          telemetryType as any,
+          messageNumber,
+          dataKey,
+          {
+            createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+            },
+          },
+        );
+      }
+
+      setRawData(result);
+    };
+
+    fetchModuleItems();
+  }, [telemetryType, messageNumber, dataKey, startTime, endTime]);
 
   useEffect(() => {
     const data = {
@@ -193,285 +212,239 @@ function Strategy() {
 
     localStorage.setItem("graph", JSON.stringify(data));
 
-    let getAllModuleItemPromise: Promise<any> = Promise.resolve();
+    const response = rawData;
 
-    if (dataKey == "better_soc_") {
-      getAllModuleItemPromise = getAllModuleItem(
-        "bms" as any,
-        "rx0",
-        "pack_sum_volt_",
-        {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        },
-      );
-    } else if (dataKey == "car_speed_mph_") {
-      getAllModuleItemPromise = getAllModuleItem(
-        "mitsuba" as any,
-        "rx0",
-        "motorRPM",
-        {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        },
-      );
+    let toTransform;
+
+    if (dataKey == "car_speed_mph_") {
+      toTransform = response.map((dataPoint) => ({
+        ...dataPoint,
+        [dataKey]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
+      }));
+    } else if (dataKey == "better_soc_") {
+      toTransform = response.map((dataPoint) => ({
+        ...dataPoint,
+        [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
+      }));
     } else {
-      getAllModuleItemPromise = getAllModuleItem(
-        telemetryType as any,
-        messageNumber,
-        dataKey,
-        {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        },
-      );
+      toTransform = response;
     }
 
-    getAllModuleItemPromise.then((response) => {
-      let toTransform;
+    let filteredResponseTemp;
 
-      if (dataKey == "car_speed_mph_") {
-        toTransform = response.map((dataPoint) => ({
-          ...dataPoint,
-          [dataKey]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
-        }));
-      } else if (dataKey == "better_soc_") {
-        toTransform = response.map((dataPoint) => ({
-          ...dataPoint,
-          [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
-        }));
-      } else {
-        toTransform = response;
-      }
-
-      let filteredResponseTemp;
-
-      if (useTrim) {
-        filteredResponseTemp = toTransform
-          .map((dataPoint) => ({
-            ...dataPoint,
-            dateStamp: Math.floor(
-              new Date(dataPoint["createdAt"]).getTime() / granularityMs,
-            ),
-          }))
-          .filter(
-            (dataPoint) =>
-              dataPoint[dataKey] >= minTrimVal &&
-              dataPoint[dataKey] <= maxTrimVal,
-          );
-      } else {
-        filteredResponseTemp = toTransform.map((dataPoint) => ({
+    if (useTrim) {
+      filteredResponseTemp = toTransform
+        .map((dataPoint) => ({
           ...dataPoint,
           dateStamp: Math.floor(
             new Date(dataPoint["createdAt"]).getTime() / granularityMs,
           ),
-        }));
-      }
-
-      const filteredResponse = filteredResponseTemp.reduce(
-        (accumulator, currentValue) => {
-          const duplicateDateStamp = accumulator.find(
-            (item) => item.dateStamp === currentValue.dateStamp,
-          );
-          if (!duplicateDateStamp) {
-            accumulator.push(currentValue);
-          }
-          return accumulator;
-        },
-        [],
-      );
-
-      let sum = 0;
-      let maxValue = -Infinity;
-      let minValue = Infinity;
-
-      filteredResponse.forEach((dataPoint) => {
-        sum += dataPoint[dataKey];
-
-        if (dataPoint[dataKey] > maxValue) {
-          maxValue = dataPoint[dataKey];
-        }
-
-        if (dataPoint[dataKey] < minValue) {
-          minValue = dataPoint[dataKey];
-        }
-      });
-
-      let average = sum / filteredResponse.length;
-
-      setRangeAverage(average);
-      setRangeMax(maxValue);
-      setRangeMin(minValue);
-
-      const requestedTimespan =
-        new Date(endTime).getTime() - new Date(startTime).getTime();
-
-      let startTimestamp;
-
-      try {
-        startTimestamp = new Date(
-          filteredResponse[0]["dateStamp"] * granularityMs,
-        ).getTime();
-      } catch {
-        return;
-      }
-
-      const endTimestamp = new Date(
-        filteredResponse[filteredResponse.length - 1]["dateStamp"] *
-          granularityMs,
-      ).getTime();
-
-      const givenTimespan = endTimestamp - startTimestamp;
-
-      const toExtrapolate =
-        shouldExtrapolate && showRegression
-          ? requestedTimespan / givenTimespan
-          : 1;
-
-      const oldRegStartStamp =
-        (new Date(regStartTime).getTime() + 3600000) / granularityMs;
-
-      const oldRegEndStamp =
-        (new Date(regEndTime).getTime() + 3600000) / granularityMs;
-
-      const regStartStamp = Math.max(
-        oldRegStartStamp,
-        (startTimestamp + 3600000) / granularityMs,
-      );
-
-      const regEndStamp = Math.min(
-        oldRegEndStamp,
-        (endTimestamp + 3600000) / granularityMs,
-      );
-
-      let filteredRegResponse;
-
-      if (useRegressionRange) {
-        filteredRegResponse = filteredResponse.filter(
+        }))
+        .filter(
           (dataPoint) =>
-            dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
-            dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs,
+            dataPoint[dataKey] >= minTrimVal &&
+            dataPoint[dataKey] <= maxTrimVal,
         );
-      } else {
-        filteredRegResponse = filteredResponse;
-      }
+    } else {
+      filteredResponseTemp = toTransform.map((dataPoint) => ({
+        ...dataPoint,
+        dateStamp: Math.floor(
+          new Date(dataPoint["createdAt"]).getTime() / granularityMs,
+        ),
+      }));
+    }
 
-      const regXValues = filteredRegResponse.map(
-        (dataPoint) => dataPoint["dateStamp"],
-      );
-
-      const regYValues = filteredRegResponse.map(
-        (dataPoint) => dataPoint[dataKey],
-      );
-
-      const lastValue = filteredResponse[filteredResponse.length - 1][dataKey];
-
-      const lastTimestamp =
-        filteredResponse[filteredResponse.length - 1]["dateStamp"];
-
-      let regression;
-      let regStats;
-      let regOffset;
-
-      if (showRegression) {
-        regression = new SimpleLinearRegression(regXValues, regYValues);
-
-        regStats = regression.score(regXValues, regYValues);
-
-        setRegressionRSquared(regStats["r2"]);
-
-        regOffset = regression.predict(lastTimestamp) - lastValue;
-      }
-
-      const xValues = filteredResponse.map(
-        (dataPoint) => dataPoint["dateStamp"],
-      );
-
-      let scaledXAxis = Array.from(
-        { length: xValues.length * toExtrapolate },
-        (_, i) => i,
-      );
-
-      const xValGap =
-        filteredResponse[filteredResponse.length - 1]["dateStamp"] -
-        xValues.length;
-
-      let extendedRegression;
-
-      if (showRegression) {
-        extendedRegression = scaledXAxis.map((xValue) => {
-          let obj = {
-            dateStamp: filteredResponse[xValue]
-              ? filteredResponse[xValue]["dateStamp"]
-              : lastTimestamp + (xValue - filteredResponse.length),
-            regression:
-              regression.predict(xValue + xValGap) -
-              (fancySOCEstimate ? regOffset : 0),
-          };
-          obj[dataKey] = filteredResponse[xValue]
-            ? filteredResponse[xValue][dataKey]
-            : null;
-          return obj;
-        });
-      } else {
-        extendedRegression = scaledXAxis.map((xValue) => {
-          let obj = {
-            dateStamp: filteredResponse[xValue]
-              ? filteredResponse[xValue]["dateStamp"]
-              : lastTimestamp + (xValue - filteredResponse.length),
-          };
-          obj[dataKey] = filteredResponse[xValue]
-            ? filteredResponse[xValue][dataKey]
-            : null;
-          return obj;
-        });
-      }
-
-      if (toExtrapolate > 1) {
-        setDerivedRegressionEnd(
-          extendedRegression[extendedRegression.length - 1]["regression"],
+    const filteredResponse = filteredResponseTemp.reduce(
+      (accumulator, currentValue) => {
+        const duplicateDateStamp = accumulator.find(
+          (item) => item.dateStamp === currentValue.dateStamp,
         );
-      } else {
-        setDerivedRegressionEnd(0);
+        if (!duplicateDateStamp) {
+          accumulator.push(currentValue);
+        }
+        return accumulator;
+      },
+      [],
+    );
+
+    let sum = 0;
+    let maxValue = -Infinity;
+    let minValue = Infinity;
+
+    filteredResponse.forEach((dataPoint) => {
+      sum += dataPoint[dataKey];
+
+      if (dataPoint[dataKey] > maxValue) {
+        maxValue = dataPoint[dataKey];
       }
 
-      let finalToGraph;
-
-      if (useRegressionRange) {
-        finalToGraph = extendedRegression.map((dataPoint) => ({
-          ...dataPoint,
-          createdAt: new Date(
-            dataPoint["dateStamp"] * granularityMs,
-          ).toISOString(),
-          regRange:
-            dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
-            dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs
-              ? 0
-              : null,
-        }));
-      } else {
-        finalToGraph = extendedRegression.map((dataPoint) => ({
-          ...dataPoint,
-          createdAt: new Date(
-            dataPoint["dateStamp"] * granularityMs,
-          ).toISOString(),
-        }));
+      if (dataPoint[dataKey] < minValue) {
+        minValue = dataPoint[dataKey];
       }
-
-      setData(finalToGraph as any);
     });
+
+    let average = sum / filteredResponse.length;
+
+    setRangeAverage(average);
+    setRangeMax(maxValue);
+    setRangeMin(minValue);
+
+    const requestedTimespan =
+      new Date(endTime).getTime() - new Date(startTime).getTime();
+
+    let startTimestamp;
+
+    try {
+      startTimestamp = new Date(
+        filteredResponse[0]["dateStamp"] * granularityMs,
+      ).getTime();
+    } catch {
+      return;
+    }
+
+    const endTimestamp = new Date(
+      filteredResponse[filteredResponse.length - 1]["dateStamp"] *
+        granularityMs,
+    ).getTime();
+
+    const givenTimespan = endTimestamp - startTimestamp;
+
+    const toExtrapolate =
+      shouldExtrapolate && showRegression
+        ? requestedTimespan / givenTimespan
+        : 1;
+
+    const oldRegStartStamp =
+      (new Date(regStartTime).getTime() + 3600000) / granularityMs;
+
+    const oldRegEndStamp =
+      (new Date(regEndTime).getTime() + 3600000) / granularityMs;
+
+    const regStartStamp = Math.max(
+      oldRegStartStamp,
+      (startTimestamp + 3600000) / granularityMs,
+    );
+
+    const regEndStamp = Math.min(
+      oldRegEndStamp,
+      (endTimestamp + 3600000) / granularityMs,
+    );
+
+    let filteredRegResponse;
+
+    if (useRegressionRange) {
+      filteredRegResponse = filteredResponse.filter(
+        (dataPoint) =>
+          dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
+          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs,
+      );
+    } else {
+      filteredRegResponse = filteredResponse;
+    }
+
+    const regXValues = filteredRegResponse.map(
+      (dataPoint) => dataPoint["dateStamp"],
+    );
+
+    const regYValues = filteredRegResponse.map(
+      (dataPoint) => dataPoint[dataKey],
+    );
+
+    const lastValue = filteredResponse[filteredResponse.length - 1][dataKey];
+
+    const lastTimestamp =
+      filteredResponse[filteredResponse.length - 1]["dateStamp"];
+
+    let regression;
+    let regStats;
+    let regOffset;
+
+    if (showRegression) {
+      regression = new SimpleLinearRegression(regXValues, regYValues);
+
+      regStats = regression.score(regXValues, regYValues);
+
+      setRegressionRSquared(regStats["r2"]);
+
+      regOffset = regression.predict(lastTimestamp) - lastValue;
+    }
+
+    const xValues = filteredResponse.map((dataPoint) => dataPoint["dateStamp"]);
+
+    let scaledXAxis = Array.from(
+      { length: xValues.length * toExtrapolate },
+      (_, i) => i,
+    );
+
+    const xValGap =
+      filteredResponse[filteredResponse.length - 1]["dateStamp"] -
+      xValues.length;
+
+    let extendedRegression;
+
+    if (showRegression) {
+      extendedRegression = scaledXAxis.map((xValue) => {
+        let obj = {
+          dateStamp: filteredResponse[xValue]
+            ? filteredResponse[xValue]["dateStamp"]
+            : lastTimestamp + (xValue - filteredResponse.length),
+          regression:
+            regression.predict(xValue + xValGap) -
+            (fancySOCEstimate ? regOffset : 0),
+        };
+        obj[dataKey] = filteredResponse[xValue]
+          ? filteredResponse[xValue][dataKey]
+          : null;
+        return obj;
+      });
+    } else {
+      extendedRegression = scaledXAxis.map((xValue) => {
+        let obj = {
+          dateStamp: filteredResponse[xValue]
+            ? filteredResponse[xValue]["dateStamp"]
+            : lastTimestamp + (xValue - filteredResponse.length),
+        };
+        obj[dataKey] = filteredResponse[xValue]
+          ? filteredResponse[xValue][dataKey]
+          : null;
+        return obj;
+      });
+    }
+
+    if (toExtrapolate > 1) {
+      setDerivedRegressionEnd(
+        extendedRegression[extendedRegression.length - 1]["regression"],
+      );
+    } else {
+      setDerivedRegressionEnd(0);
+    }
+
+    let finalToGraph;
+
+    if (useRegressionRange) {
+      finalToGraph = extendedRegression.map((dataPoint) => ({
+        ...dataPoint,
+        createdAt: new Date(
+          dataPoint["dateStamp"] * granularityMs,
+        ).toISOString(),
+        regRange:
+          dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
+          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs
+            ? 0
+            : null,
+      }));
+    } else {
+      finalToGraph = extendedRegression.map((dataPoint) => ({
+        ...dataPoint,
+        createdAt: new Date(
+          dataPoint["dateStamp"] * granularityMs,
+        ).toISOString(),
+      }));
+    }
+
+    setData(finalToGraph as any);
   }, [
-    dataKey,
-    telemetryType,
-    messageNumber,
-    startTime,
-    endTime,
+    rawData,
     regEndTime,
     regStartTime,
     granularityMs,
@@ -662,7 +635,7 @@ function Strategy() {
               <input
                 type="checkbox"
                 checked={useTrim}
-                onChange={(event) => handleTrimRadio(event.target.checked)}
+                onChange={() => setUseTrim(!useTrim)}
               />
               <span className="lever"></span>
             </label>
