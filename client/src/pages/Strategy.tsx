@@ -540,6 +540,7 @@ function Strategy() {
             dataKey={dataKey}
             stroke="#8884d8"
             dot={false}
+            animationDuration={500}
           />
           {showRegression && (
             <Line
@@ -547,6 +548,7 @@ function Strategy() {
               dataKey="regression"
               stroke="#ff0000"
               dot={false}
+              animationDuration={500}
             />
           )}
           {useRegressionRange && (
@@ -555,6 +557,7 @@ function Strategy() {
               dataKey="regRange"
               stroke="#000000"
               dot={true}
+              animationDuration={0}
             />
           )}
         </LineChart>
