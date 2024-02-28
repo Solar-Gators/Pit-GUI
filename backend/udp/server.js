@@ -1,3 +1,4 @@
+require('dotenv').config()
 const udp = require('dgram')
 const axios = require('axios')
 
@@ -12,7 +13,18 @@ client.on('message',function(msg,info){
 
     if ("model" in data) {
         const {model, ...rest} = data
-        axios.post("http://localhost:9000/api/" + data['model'], rest)
+        const API_USERNAME = process.env?.["API_USERNAME"] ?? ""
+        const API_PASSWORD = process.env?.["API_PASSWORD"] ?? ""
+        axios.post(
+            "http://localhost:9000/api/" + data['model'],
+            rest,
+            {
+                headers: {
+                    "username": API_USERNAME,
+                    "password": API_PASSWORD,
+                }
+            }
+        )
     }
 });
 
