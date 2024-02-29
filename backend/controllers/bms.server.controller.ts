@@ -13,22 +13,22 @@ import BMS_RX0 from "../shared/models/BMS/RX0"
 export const rx2Middleware = async (req: Request, res: Response, next: NextFunction) => {
     // get the last rpm value
     const recentRx0 = await getMostRecent(BMS_RX0)
-    const recentRx0 = await getMostRecent(BMS_RX2)
+    const recentRx2 = await getMostRecent(BMS_RX2)
 
     // there is no recent value
-    if (!recentRx0 || !recentRx0) {
+    if (!recentRx0 || !recentRx2) {
         return next()
     }
 
-    if (Math.abs(rx1.createdAt.getDate() - rx0.createdAt.getDate()) > 5) {
+    if (Math.abs(recentRx0.createdAt.getDate() - recentRx2.createdAt.getDate()) > 5) {
         return next()
     }
 
     // call common method
 
-    calculatePower(
-        rx0
-    )
+    // calculatePower(
+    //     rx0
+    // )
 
     next()
 }
