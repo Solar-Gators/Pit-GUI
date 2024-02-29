@@ -7,7 +7,7 @@ export type PowerConsumption_Type = InferAttributes<PowerConsumption>
 @Table
 export default class PowerConsumption extends Model {
   @Column({
-    type: DataType.FLOAT
+    type: DataType.DOUBLE
   })
   power: number
 

@@ -14,6 +14,7 @@ export async function calculateIntegration<T extends CustomModel>(
     previousPoint: T,
     currentPoint: T,
     extractMeasurement: (item: T) => number | null | undefined, // Callback function to extract the value
+    baseTime: "mins" | "hours" = "mins"
 ) {
     // Use the callback function to extract values
     const recentValue = extractMeasurement(previousPoint);
@@ -41,21 +42,21 @@ export async function calculateIntegration<T extends CustomModel>(
         return undefined
     }
 
-    const minutesSinceTelemetry = secondsSinceTelemetry / 60;
+    const timeSinceTelemetry = baseTime == "mins" ? secondsSinceTelemetry / 60 : secondsSinceTelemetry / (60*60);
 
     // We don't know what the actual function between the two points is, but
     // approximating it as a line should be good enough
     // y = mx + b <- formula for line
     // m = (y2 - y1)/(x2 - x1) <- calculate slope
     // in this case y is rpm and x is time
-    const m = (value - recentValue) / minutesSinceTelemetry;
+    const m = (value - recentValue) / timeSinceTelemetry;
     // we're starting from x = 0 so the y intercept is y1
     const b = recentValue;
 
     // The area under our line will give us a good estimate
     // We can take a simple integral of our line to get the area under the line
     // ∫ mx + b = 1/2 m x^2 + bx
-    return 0.5 * m * Math.pow(minutesSinceTelemetry, 2) + b * minutesSinceTelemetry;
+    return 0.5 * m * Math.pow(timeSinceTelemetry, 2) + b * timeSinceTelemetry;
 }
 
 
@@ -113,6 +114,7 @@ export async function calculatePower(
         recent_rx2,
         newValue_rx2,
         pickPower,
+        "hours"
     )
 
     if (power == undefined) {
@@ -120,6 +122,7 @@ export async function calculatePower(
     }
 
     return PowerConsumption.create({
-        power
+        power: power,
+        createdAt: newValue_rx2?.createdAt ?? new Date(),
     })
 }

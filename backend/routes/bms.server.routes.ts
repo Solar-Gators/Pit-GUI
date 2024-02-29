@@ -6,6 +6,8 @@ import BMS_RX3 from "../shared/models/BMS/RX3";
 import BMS_RX4 from "../shared/models/BMS/RX4";
 import BMS_RX5 from "../shared/models/BMS/RX5";
 import { configureREST } from "../helper/helper.route";
+import PowerConsumption from "../shared/models/Stats/PowerConsumption";
+import { rx2Middleware } from "../controllers/bms.server.controller";
 const router = express.Router();
 
 configureREST({
@@ -18,7 +20,8 @@ configureREST({
         path: 'rx1'
     },{
         model: BMS_RX2,
-        path: 'rx2'
+        path: 'rx2',
+        postMiddleware: rx2Middleware,
     },{
         model: BMS_RX3,
         path: 'rx3'
@@ -28,7 +31,10 @@ configureREST({
     },{
         model: BMS_RX5,
         path: 'rx5'
-    },]
+    },{
+        model: PowerConsumption,
+        path: 'power_consumption'
+    }]
 })
 
 export default router;

@@ -21,6 +21,7 @@ import DistanceTraveled from "../shared/models/Stats/DistanceTraveled";
 import LapCount from "../shared/models/Stats/LapCount";
 import PowerBoard_RX0 from "../shared/models/PowerBoard/RX0";
 import PowerBoard_RX1 from "../shared/models/PowerBoard/RX1";
+import PowerConsumption from "../shared/models/Stats/PowerConsumption";
 
 
 /**
@@ -48,6 +49,7 @@ exports.data = async (req, res: Response<DataResponse>) => {
             rx3: await getMostRecent(BMS_RX3),
             rx4: await getMostRecent(BMS_RX4),
             rx5: await getMostRecent(BMS_RX5),
+            power_consumption: await getMostRecent(PowerConsumption)
         },
         mitsuba: {
             rx0: await getMostRecent(Mitsuba_RX0),
