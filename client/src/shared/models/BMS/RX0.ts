@@ -10,25 +10,25 @@ export default class BMS_RX0 extends Model<BMS_RX0_Type> {
         type: DataType.INTEGER,
         defaultValue: null
     })
-    low_cell_volt_: number
+    low_cell_volt_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    high_cell_volt_: number
+    high_cell_volt_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    avg_cell_volt_: number
+    avg_cell_volt_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    pack_sum_volt_: number
+    pack_sum_volt_?: number
 
     @Index
     @CreatedAt

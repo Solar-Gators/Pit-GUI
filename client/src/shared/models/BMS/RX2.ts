@@ -10,25 +10,25 @@ export default class BMS_RX2 extends Model<BMS_RX2_Type> {
         type: DataType.INTEGER,
         defaultValue: null
     })
-    pack_dcl_: number
+    pack_dcl_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    pack_ccl_: number
+    pack_ccl_?: number
 
     @Column({
         type: DataType.FLOAT,
         defaultValue: null
     })
-    pack_current_: number
+    pack_current_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    constant_val_: number
+    constant_val_?: number
 
     @Index
     @CreatedAt

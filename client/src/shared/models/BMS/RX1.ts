@@ -10,43 +10,43 @@ export default class BMS_RX1 extends Model<BMS_RX1_Type> {
         type: DataType.INTEGER,
         defaultValue: null
     })
-    high_temp_: number
+    high_temp_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    high_temp_id_: number
+    high_temp_id_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    low_temp_: number
+    low_temp_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    low_temp_id_: number
+    low_temp_id_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    avg_temp_: number
+    avg_temp_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    internal_temp_: number
+    internal_temp_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    constant_val_: number
+    constant_val_?: number
 
     @Index
     @CreatedAt

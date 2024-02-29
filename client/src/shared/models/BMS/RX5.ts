@@ -11,25 +11,25 @@ export default class BMS_RX5 extends Model<BMS_RX5_Type> {
         type: DataType.INTEGER,
         defaultValue: null
     })
-    max_pack_dcl_: number
+    max_pack_dcl_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    max_pack_ccl_: number
+    max_pack_ccl_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    max_pack_volt_: number
+    max_pack_volt_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    min_pack_volt_: number
+    min_pack_volt_?: number
 
     @Index
     @CreatedAt

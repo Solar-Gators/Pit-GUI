@@ -10,19 +10,19 @@ export default class BMS_RX3 extends Model<BMS_RX3_Type> {
         type: DataType.INTEGER,
         defaultValue: null
     })
-    low_cell_res_: number
+    low_cell_res_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    high_cell_res_: number
+    high_cell_res_?: number
 
     @Column({
         type: DataType.INTEGER,
         defaultValue: null
     })
-    pack_res_: number
+    pack_res_?: number
 
     @Index
     @CreatedAt

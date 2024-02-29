@@ -19,6 +19,7 @@ import { DistanceTraveled_Type } from "../models/Stats/DistanceTraveled";
 import { LapCount_Type } from "../models/Stats/LapCount";
 import PowerBoard_RX0 from "../models/PowerBoard/RX0";
 import PowerBoard_RX1 from "../models/PowerBoard/RX1";
+import { PowerConsumption_Type } from "../models/Stats/PowerConsumption";
 
 
 export const INCHES_PER_MILE = 63360
@@ -52,6 +53,7 @@ export interface CanData {
         rx3: BMS_RX3_Type
         rx4: BMS_RX4_Type
         rx5: BMS_RX5_Type
+        power_consumption: PowerConsumption_Type
     }
     mitsuba: {
         rx0: Mitsuba_RX0_Type

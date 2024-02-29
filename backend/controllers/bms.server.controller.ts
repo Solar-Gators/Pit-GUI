@@ -8,6 +8,7 @@ import Mitsuba_RX1 from "../shared/models/Mitsuba/RX1"
 import BMS_RX2 from "../shared/models/BMS/RX2"
 import BMS_RX1 from "../shared/models/BMS/RX1"
 import BMS_RX0 from "../shared/models/BMS/RX0"
+import { Op } from "sequelize"
 
 
 export const rx2Middleware = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,16 +20,30 @@ export const rx2Middleware = async (req: Request, res: Response, next: NextFunct
     if (!recentRx0 || !recentRx2) {
         return next()
     }
+    const currentRx0 = await getMostRecent(
+        BMS_RX0,
+        {
+            id: {
+                [Op.not]: recentRx0.id
+            }
+        }
+    )
 
-    if (Math.abs(recentRx0.createdAt.getDate() - recentRx2.createdAt.getDate()) > 5) {
+    if (!currentRx0) {
+        return next()
+    }
+
+    if (Math.abs(recentRx0.createdAt.getDate() - currentRx0.createdAt.getDate()) > 5) {
         return next()
     }
 
     // call common method
-
-    // calculatePower(
-    //     rx0
-    // )
+    await calculatePower(
+        recentRx0,
+        recentRx2,
+        currentRx0,
+        req.body
+    )
 
     next()
 }
