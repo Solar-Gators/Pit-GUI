@@ -19,6 +19,7 @@ import { DistanceTraveled_Type } from "../models/Stats/DistanceTraveled";
 import { LapCount_Type } from "../models/Stats/LapCount";
 import PowerBoard_RX0 from "../models/PowerBoard/RX0";
 import PowerBoard_RX1 from "../models/PowerBoard/RX1";
+import { PowerConsumption_Type } from "../models/Stats/PowerConsumption";
 
 export const INCHES_PER_MILE = 63360;
 /**
