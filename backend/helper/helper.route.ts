@@ -9,7 +9,7 @@ class CustomModel extends Model {}
 /**
  * Gets most recent entry when given a sequelize model
  *
- * @param {SequlizeModel} model
+ * @param {ModelStatic} model
  */
 export function getMostRecent<T extends Model>(
     model: ModelStatic<T>,
