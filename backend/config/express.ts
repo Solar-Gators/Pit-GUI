@@ -10,6 +10,7 @@ import mppt from '../routes/mppt.server.routes'
 import gps from '../routes/gps.server.routes'
 import laps from '../routes/laps.server.routes'
 import powerBoard from '../routes/powerboard.routes'
+import pi from '../routes/pi.server.routes'
 import { checkPassword } from "./password"
 const cors = require('cors')
 
@@ -41,5 +42,6 @@ module.exports.init = async () => {
   app.use('/api/mppt', mppt);
   app.use('/api/laps', laps);
   app.use('/api/powerBoard', powerBoard);
+  app.use('/api/pi', pi);
   return app;
 };
