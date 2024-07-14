@@ -19,6 +19,7 @@ import { DistanceTraveled_Type } from "../models/Stats/DistanceTraveled";
 import { LapCount_Type } from "../models/Stats/LapCount";
 import PowerBoard_RX0 from "../models/PowerBoard/RX0";
 import PowerBoard_RX1 from "../models/PowerBoard/RX1";
+import Alive from "../models/PI/Alive";
 
 export const INCHES_PER_MILE = 63360;
 /**
@@ -67,6 +68,9 @@ export interface CanData {
     rx0: PowerBoard_RX0;
     rx1: PowerBoard_RX1;
   };
+  pi: {
+    alive: Alive;
+  }
 }
 
 export interface DataResponse extends CanData {

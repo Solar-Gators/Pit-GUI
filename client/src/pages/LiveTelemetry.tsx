@@ -250,6 +250,11 @@ function LiveTelemetry() {
             Power Board
           </Nav.Link>
         </Nav.Item>
+        <Nav.Item>
+          <Nav.Link as={NavLink} to="/collector-health">
+            Collector Health
+          </Nav.Link>
+        </Nav.Item>
       </Nav>
 
       <Routes>
@@ -290,6 +295,16 @@ function LiveTelemetry() {
           path="/powerBoard"
           element={
             <TelemetryCAN config={powerBoardShape} data={data?.powerBoard} />
+          }
+        />
+        <Route
+          path="/collector-health"
+          element={
+            <>
+              <br />
+              <p>Last heard from the PI on {String(data?.pi?.alive?.createdAt)}</p>
+              <br />
+            </>
           }
         />
       </Routes>
