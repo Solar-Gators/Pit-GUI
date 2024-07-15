@@ -1,0 +1,43 @@
+"use strict";
+import { InferAttributes } from "sequelize";
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  Index,
+  CreatedAt,
+} from "sequelize-typescript";
+
+export type BMS_RX0_Type = InferAttributes<BMS_RX0>;
+
+@Table
+export default class BMS_RX0 extends Model<BMS_RX0_Type> {
+  @Column({
+    type: DataType.FLOAT,
+    defaultValue: null,
+  })
+  low_cell_volt_: number;
+
+  @Column({
+    type: DataType.FLOAT,
+    defaultValue: null,
+  })
+  high_cell_volt_: number;
+
+  @Column({
+    type: DataType.FLOAT,
+    defaultValue: null,
+  })
+  avg_cell_volt_: number;
+
+  @Column({
+    type: DataType.FLOAT,
+    defaultValue: null,
+  })
+  pack_sum_volt_: number;
+
+  @Index
+  @CreatedAt
+  createdAt?: Date;
+}

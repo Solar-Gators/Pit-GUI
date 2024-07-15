@@ -1,10 +1,8 @@
 import axios from "axios";
-import { BMS_RX0_Type } from "../models/BMS/RX0";
-import { BMS_RX1_Type } from "../models/BMS/RX1";
-import { BMS_RX2_Type } from "../models/BMS/RX2";
-import { BMS_RX3_Type } from "../models/BMS/RX3";
-import { BMS_RX4_Type } from "../models/BMS/RX4";
-import { BMS_RX5_Type } from "../models/BMS/RX5";
+import { BMS_RX0_Type } from "../models/Custom_BMS/RX0";
+import { BMS_RX1_Type } from "../models/Orion_BMS/RX1";
+import { BMS_RX2_Type } from "../models/Orion_BMS/RX2";
+import { BMS_RX3_Type } from "../models/Custom_BMS/RX3";
 import { GPS_Type } from "../models/GPS/GPS";
 import { Mitsuba_RX0_Type } from "../models/Mitsuba/RX0";
 import { Mitsuba_RX1_Type } from "../models/Mitsuba/RX1";
@@ -50,8 +48,6 @@ export interface CanData {
     rx1: BMS_RX1_Type;
     rx2: BMS_RX2_Type;
     rx3: BMS_RX3_Type;
-    rx4: BMS_RX4_Type;
-    rx5: BMS_RX5_Type;
   };
   mitsuba: {
     rx0: Mitsuba_RX0_Type;

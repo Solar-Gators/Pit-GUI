@@ -37,7 +37,6 @@
     "eject": "react-scripts eject",
     "format": "prettier --write ./"
   },
-  "proxy": "https://telemetry-api.ufsolargators.org",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -55,5 +54,9 @@
     "@types/sequelize": "^4.28.17",
     "axios": "^1.5.1",
     "prettier": "3.0.3"
+  },
+  "options": {
+    "allowedHosts": ["localhost", ".localhost"],
+    "proxy": "http://localhost:9000/"
   }
 }

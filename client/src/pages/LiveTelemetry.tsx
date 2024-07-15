@@ -94,11 +94,11 @@ function LiveTelemetry() {
       <Row>
         <CarStatus
           bmsFault={
-            data.bms.rx4
-              ? Object.keys(data.bms.rx4).some((key) => {
+            data.bms.rx3
+              ? Object.keys(data.bms.rx3).some((key) => {
                   return (
-                    data?.bms?.rx4[key] === true &&
-                    bmsShape?.data?.rx4?.[key as any]?.["booleanError"]
+                    data?.bms?.rx3[key] === true &&
+                    bmsShape?.data?.rx3?.[key as any]?.["booleanError"]
                   );
                 })
               : false
@@ -158,7 +158,6 @@ function LiveTelemetry() {
           }
           unit="W"
         />
-        <Label label="Orion SOC" value={data?.bms?.rx4?.pack_soc_} unit="%" />
         <Label
           label="Custom SOC"
           value={stateOfCharge(data?.bms?.rx0?.pack_sum_volt_)}
