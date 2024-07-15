@@ -31,10 +31,6 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
         label: "Cell Low Temp",
         unit: "C",
       },
-      avg_temp_: {
-        label: "Cel Average Temp",
-        unit: "C",
-      },
     },
     rx2: {
       pack_ccl_: {
