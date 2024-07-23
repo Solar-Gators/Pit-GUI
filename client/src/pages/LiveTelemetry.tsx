@@ -70,6 +70,12 @@ function LiveTelemetry() {
     return <p>Loading..</p>;
   }
 
+  // adjusting for tlm we have a 2024 ASC
+
+  // tends to be a voltage drop before BMS
+  const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3
+  const totalArrayPower = calcArrayPower(data?.mppt?.[2]) * 2.6
+
   return (
     <>
       <h2>Live Telemetry</h2>
@@ -147,20 +153,19 @@ function LiveTelemetry() {
       <Row>
         <Label
           label="Pack Voltage"
-          value={data?.bms?.rx0?.pack_sum_volt_ ?? "N/D"}
+          value={packVoltage}
           unit="V"
         />
         <Label
           label="Consumption"
           value={
-            (data?.bms?.rx0?.pack_sum_volt_ ?? 0) *
-            (data?.bms?.rx2?.pack_current_ ?? 0)
+            (data?.mitsuba?.rx0?.battVoltage * data?.mitsuba?.rx0?.battCurrent) - totalArrayPower
           }
           unit="W"
         />
         <Label
           label="Custom SOC"
-          value={stateOfCharge(data?.bms?.rx0?.pack_sum_volt_)}
+          value={stateOfCharge(packVoltage)}
           unit="%"
         />
         <Label
@@ -173,9 +178,7 @@ function LiveTelemetry() {
         <Label
           label="Total Array Power"
           value={
-            calcArrayPower(data?.mppt?.[1]) +
-            calcArrayPower(data?.mppt?.[2]) +
-            calcArrayPower(data?.mppt?.[3])
+            totalArrayPower
           }
           unit="W"
         />
