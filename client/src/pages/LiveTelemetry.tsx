@@ -74,7 +74,7 @@ function LiveTelemetry() {
 
   // tends to be a voltage drop before BMS
   const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3
-  const totalArrayPower = calcArrayPower(data?.mppt?.[2]) * 2.6
+  const totalArrayPower = calcArrayPower(data?.mppt?.[1])+ calcArrayPower(data?.mppt?.[2]) + calcArrayPower(data?.mppt?.[3])
 
   return (
     <>
