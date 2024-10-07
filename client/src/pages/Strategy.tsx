@@ -269,24 +269,36 @@ function Strategy() {
     );
 
     let sum = 0;
-    let numValues = 0;
+    let numGreater = 0;
+    let numLess = 0;
     let maxValue = -Infinity;
     let minValue = Infinity;
     let median = 0;
 
+    let dataList: number[] = [];
 
     filteredResponse.forEach((dataPoint) => {
+      //sums all data points for average calculation
       sum += dataPoint[dataKey];
-      numValues += 1
-
-      if (dataPoint[dataKey] > maxValue) {
-        maxValue = dataPoint[dataKey];
-      }
-
-      if (dataPoint[dataKey] < minValue) {
-        minValue = dataPoint[dataKey];
-      }
+      dataList.push(dataPoint[dataKey] as number);
     });
+
+    console.log(dataList);
+
+    dataList = dataList.sort();
+
+    console.log(dataList);
+    console.log(dataList.length);
+    let middle = (Math.floor(dataList.length / 2))
+
+    if (dataList.length % 2 == 1) {
+      median = dataList[middle];
+    }
+
+    else {
+      median = ((dataList[middle] + dataList[middle + 1]) / 2);
+    }
+    console.log("median: " + median)
 
     let average = sum / filteredResponse.length;
 
