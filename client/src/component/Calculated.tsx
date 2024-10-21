@@ -11,10 +11,18 @@ export const calculatedShape: TelemetryTabbed<
         label: "Car Speed",
         unit: "mph",
       },
+      car_speed_kph_: {
+        label: "Car Speed (kph)",
+        unit: "kph",
+      },
       better_soc_: {
         label: "State of Charge (Voltage Derived)",
         unit: "%",
       },
+      motor_power_consumption_: {
+        label: "Motor Power Consumption",
+        unit: "watt",
+      }
     },
   },
 };

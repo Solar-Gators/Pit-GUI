@@ -39,20 +39,21 @@ function Strategy() {
 
   let [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState([]);
+  const [data2, setData2] = useState([]);
   const [telemetryType, setTelemetryType] = useState(
-    searchParams.get("type") ?? localGraph["type"] ?? "bms",
+    searchParams.get("type") ?? localGraph["type"] ?? "bms"
   );
   const [messageNumber, setMessageNumber] = useState(
-    searchParams.get("number") ?? localGraph["number"] ?? "rx0",
+    searchParams.get("number") ?? localGraph["number"] ?? "rx0"
   );
   const [dataKey, setDataKey] = useState(
-    searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_",
+    searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_"
   );
   const [startTime, setStartTime] = useState(
-    searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00",
+    searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00"
   );
   const [endTime, setEndTime] = useState(
-    searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
+    searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10"
   );
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
@@ -71,9 +72,10 @@ function Strategy() {
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
   const [selectedOption, setSelectedOption] = useState(
-    `${telemetryType}.${messageNumber}.${dataKey}`,
+    `${telemetryType}.${messageNumber}.${dataKey}`
   );
   const [rawData, setRawData] = useState<any[]>([]);
+  const [rawData2, setRawData2] = useState<any[]>([]);
 
   // if no searchParams, autpopulate with latest data
   if (!searchParams.get("start") && !searchParams.get("end")) {
@@ -165,6 +167,7 @@ function Strategy() {
   useEffect(() => {
     const fetchModuleItems = async () => {
       let result;
+      let result2;
 
       if (dataKey == "better_soc_") {
         result = await getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
@@ -180,7 +183,39 @@ function Strategy() {
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           },
         });
-      } else {
+      } else if (dataKey == "car_speed_kph_") {
+        result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
+          createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          },
+        });
+      } else if (dataKey == "motor_power_consumption_") {
+        result = await getAllModuleItem(
+          "mitsuba" as any,
+          "rx0",
+          "battVoltage",
+          {
+            createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+            },
+          }
+        );
+        result2 = await getAllModuleItem(
+          "mitsuba" as any,
+          "rx0",
+          "motorCurrentPkAvg",
+          {
+            createdAt: {
+              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+            },
+          }
+        );
+      }
+
+      else {
         result = await getAllModuleItem(
           telemetryType as any,
           messageNumber,
@@ -190,10 +225,10 @@ function Strategy() {
               $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
               $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
             },
-          },
+          }
         );
       }
-
+      setRawData2(result2);
       setRawData(result);
     };
 
@@ -214,6 +249,7 @@ function Strategy() {
     localStorage.setItem("graph", JSON.stringify(data));
 
     const response = rawData;
+    const response2 = rawData2;
 
     let toTransform;
 
@@ -227,6 +263,24 @@ function Strategy() {
         ...dataPoint,
         [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
       }));
+    } else if (dataKey == "car_speed_kph_") {
+      toTransform = response.map((dataPoint) => ({
+        ...dataPoint,
+        [dataKey]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI * 1.6093446,
+      }));
+    } else if (dataKey == "distance_traveled_") {
+      toTransform = response.map((dataPoint) => ({
+        ...dataPoint,
+        [dataKey]: dataPoint["motorRPM"] * WHEEL_RADIUS_MI,
+      }));
+    } else if (dataKey == "motor_power_consumption_") {
+      toTransform = multiplyDataValues(
+        response,
+        "battVoltage",
+        response2,
+        "motorCurrentPkAvg",
+        dataKey
+      );
     } else {
       toTransform = response;
     }
@@ -238,19 +292,18 @@ function Strategy() {
         .map((dataPoint) => ({
           ...dataPoint,
           dateStamp: Math.floor(
-            new Date(dataPoint["createdAt"]).getTime() / granularityMs,
+            new Date(dataPoint["createdAt"]).getTime() / granularityMs
           ),
         }))
         .filter(
           (dataPoint) =>
-            dataPoint[dataKey] >= minTrimVal &&
-            dataPoint[dataKey] <= maxTrimVal,
+            dataPoint[dataKey] >= minTrimVal && dataPoint[dataKey] <= maxTrimVal
         );
     } else {
       filteredResponseTemp = toTransform.map((dataPoint) => ({
         ...dataPoint,
         dateStamp: Math.floor(
-          new Date(dataPoint["createdAt"]).getTime() / granularityMs,
+          new Date(dataPoint["createdAt"]).getTime() / granularityMs
         ),
       }));
     }
@@ -258,14 +311,14 @@ function Strategy() {
     const filteredResponse = filteredResponseTemp.reduce(
       (accumulator, currentValue) => {
         const duplicateDateStamp = accumulator.find(
-          (item) => item.dateStamp === currentValue.dateStamp,
+          (item) => item.dateStamp === currentValue.dateStamp
         );
         if (!duplicateDateStamp) {
           accumulator.push(currentValue);
         }
         return accumulator;
       },
-      [],
+      []
     );
 
     let sum = 0;
@@ -283,30 +336,23 @@ function Strategy() {
       dataList.push(dataPoint[dataKey] as number);
     });
 
-    console.log(dataList);
-
+    //sorts array for median calculation
     dataList = dataList.sort();
 
-    console.log(dataList);
-    console.log(dataList.length);
-    let middle = (Math.floor(dataList.length / 2))
+    let middle = Math.floor(dataList.length / 2);
 
     if (dataList.length % 2 == 1) {
       median = dataList[middle];
+    } else {
+      median = (dataList[middle] + dataList[middle + 1]) / 2;
     }
-
-    else {
-      median = ((dataList[middle] + dataList[middle + 1]) / 2);
-    }
-    console.log("median: " + median)
 
     let average = sum / filteredResponse.length;
-
 
     setRangeAverage(average);
     setRangeMax(maxValue);
     setRangeMin(minValue);
-    setRangeMedian(median)
+    setRangeMedian(median);
 
     const requestedTimespan =
       new Date(endTime).getTime() - new Date(startTime).getTime();
@@ -315,15 +361,14 @@ function Strategy() {
 
     try {
       startTimestamp = new Date(
-        filteredResponse[0]["dateStamp"] * granularityMs,
+        filteredResponse[0]["dateStamp"] * granularityMs
       ).getTime();
     } catch {
       return;
     }
 
     const endTimestamp = new Date(
-      filteredResponse[filteredResponse.length - 1]["dateStamp"] *
-        granularityMs,
+      filteredResponse[filteredResponse.length - 1]["dateStamp"] * granularityMs
     ).getTime();
 
     const givenTimespan = endTimestamp - startTimestamp;
@@ -341,12 +386,12 @@ function Strategy() {
 
     const regStartStamp = Math.max(
       oldRegStartStamp,
-      (startTimestamp + 3600000) / granularityMs,
+      (startTimestamp + 3600000) / granularityMs
     );
 
     const regEndStamp = Math.min(
       oldRegEndStamp,
-      (endTimestamp + 3600000) / granularityMs,
+      (endTimestamp + 3600000) / granularityMs
     );
 
     let filteredRegResponse;
@@ -355,18 +400,18 @@ function Strategy() {
       filteredRegResponse = filteredResponse.filter(
         (dataPoint) =>
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
-          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs,
+          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs
       );
     } else {
       filteredRegResponse = filteredResponse;
     }
 
     const regXValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint["dateStamp"],
+      (dataPoint) => dataPoint["dateStamp"]
     );
 
     const regYValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint[dataKey],
+      (dataPoint) => dataPoint[dataKey]
     );
 
     const lastValue = filteredResponse[filteredResponse.length - 1][dataKey];
@@ -392,7 +437,7 @@ function Strategy() {
 
     let scaledXAxis = Array.from(
       { length: xValues.length * toExtrapolate },
-      (_, i) => i,
+      (_, i) => i
     );
 
     const xValGap =
@@ -432,7 +477,7 @@ function Strategy() {
 
     if (toExtrapolate > 1) {
       setDerivedRegressionEnd(
-        extendedRegression[extendedRegression.length - 1]["regression"],
+        extendedRegression[extendedRegression.length - 1]["regression"]
       );
     } else {
       setDerivedRegressionEnd(0);
@@ -444,7 +489,7 @@ function Strategy() {
       finalToGraph = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs,
+          dataPoint["dateStamp"] * granularityMs
         ).toISOString(),
         regRange:
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
@@ -456,12 +501,13 @@ function Strategy() {
       finalToGraph = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs,
+          dataPoint["dateStamp"] * granularityMs
         ).toISOString(),
       }));
     }
 
     setData(finalToGraph as any);
+
   }, [
     rawData,
     regEndTime,
@@ -474,6 +520,7 @@ function Strategy() {
     showRegression,
     shouldExtrapolate,
   ]);
+
   return (
     <>
       <Row>
@@ -673,7 +720,7 @@ function Strategy() {
               defaultValue={granularityMs}
               onBlur={(event) =>
                 setGranularityMs(
-                  parseInt((event.target as HTMLInputElement).value),
+                  parseInt((event.target as HTMLInputElement).value)
                 )
               }
               onFocus={(event) => event.target.select()}
@@ -701,7 +748,7 @@ function Strategy() {
                 onFocus={(event) => event.target.select()}
                 onBlur={(event) =>
                   setMaxTrimVal(
-                    parseInt((event.target as HTMLInputElement).value),
+                    parseInt((event.target as HTMLInputElement).value)
                   )
                 }
                 onKeyDown={(event) => {
@@ -728,7 +775,7 @@ function Strategy() {
                 defaultValue={minTrimVal}
                 onBlur={(event) =>
                   setMinTrimVal(
-                    parseInt((event.target as HTMLInputElement).value),
+                    parseInt((event.target as HTMLInputElement).value)
                   )
                 }
                 onFocus={(event) => event.target.select()}
@@ -785,6 +832,36 @@ function Strategy() {
 
 function formatNumber(num) {
   return num % 1 > 0 ? num.toFixed(2) : num;
+}
+
+function multiplyDataValues(data1, dataKey1, data2, dataKey2, combinedKey) {
+  let combinedData: any[] = [];
+
+  let counter1 = 0;
+  let counter2 = 0;
+
+  while (true) {
+    if (counter1 >= data1.length || counter2 >= data2.length) {
+      break;
+    } else if (
+      data1[counter1].createdAt.getTime > data2[counter2].createdAt.getTime
+    ) {
+      counter2++;
+    } else if (
+      data1[counter1].createdAt.getTime < data2[counter2].createdAt.getTime
+    ) {
+      counter1++;
+    } else if (
+      data1[counter1].createdAt.getTime == data2[counter2].createdAt.getTime
+    ) {
+      combinedData.push(data1[counter1]);
+      combinedData[combinedData.length - 1][combinedKey] =
+        data1[counter1][dataKey1] * data2[counter2][dataKey2];
+      counter1++;
+      counter2++;
+    }
+  }
+  return combinedData;
 }
 
 export default Strategy;
