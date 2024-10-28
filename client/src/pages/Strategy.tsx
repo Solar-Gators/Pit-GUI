@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col, Form, Button } from "react-bootstrap";
 import { getAllModuleItem, WHEEL_RADIUS_MI } from "../shared/sdk/telemetry";
 import { bmsShape } from "../component/BMS";
 import { mitsubaShape } from "../component/Mitsuba";
@@ -60,6 +60,7 @@ function Strategy() {
   const [showRegression, setShowRegression] = useState(false);
   const [fancySOCEstimate, setFancySOCEstimate] = useState(false);
   const [useRegressionRange, setUseRegressionRange] = useState(false);
+  const [autoUpdate, setAutoUpdate] = useState(false);
   const [useTrim, setUseTrim] = useState(false);
   const [granularityMs, setGranularityMs] = useState(10000);
   const [maxTrimVal, setMaxTrimVal] = useState(999999);
@@ -77,165 +78,67 @@ function Strategy() {
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
 
-  // if no searchParams, autpopulate with latest data
-  if (!searchParams.get("start") && !searchParams.get("end")) {
-    telemetry
-      .getAll()
-      .then((response) => {
-        const latestResponse = new Date(response.bms.rx0.createdAt);
+  async function fetchData() {
+    let result;
+    let result2;
 
-        const endAtTime = latestResponse
-          .toISOString()
-          .replace(/\.\d+/, "")
-          .replace("Z", "");
-
-        latestResponse.setUTCDate(latestResponse.getUTCDate() - 2);
-
-        const startAtTime = latestResponse
-          .toISOString()
-          .replace(/\.\d+/, "")
-          .replace("Z", "");
-
-        setEndTime(endAtTime);
-        setStartTime(startAtTime);
-
-        // The password may needed to reset but it's actually empty so it didn't
-        if (localStorage.getItem("passwordNeedsSet") == "true") {
-          localStorage.setItem("passwordNeedsSet", "false");
-          window.location.reload();
-        }
-      })
-      .catch((reason) => {
-        // clear username/password if it changed for some reason
-        if (
-          reason.request.status == 402 &&
-          (!localStorage.getItem("passwordNeedsSet") ||
-            localStorage.getItem("passwordNeedsSet") == "false")
-        ) {
-          localStorage.setItem("passwordNeedsSet", "true");
-          localStorage.setItem("username", "");
-          localStorage.setItem("password", "");
-          window.location.reload();
-        }
+    if (dataKey == "better_soc_") {
+      result = await getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
+        createdAt: {
+          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        },
       });
+    } else if (dataKey == "car_speed_mph_") {
+      result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
+        createdAt: {
+          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        },
+      });
+    } else if (dataKey == "car_speed_kph_") {
+      result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
+        createdAt: {
+          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        },
+      });
+    } else if (dataKey == "motor_power_consumption_") {
+      result = await getAllModuleItem("mitsuba" as any, "rx0", "battVoltage", {
+        createdAt: {
+          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        },
+      });
+      result2 = await getAllModuleItem(
+        "mitsuba" as any,
+        "rx0",
+        "motorCurrentPkAvg",
+        {
+          createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          },
+        }
+      );
+    } else {
+      result = await getAllModuleItem(
+        telemetryType as any,
+        messageNumber,
+        dataKey,
+        {
+          createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          },
+        }
+      );
+    }
+    setRawData2(result2);
+    setRawData(result);
   }
 
-  const handleSelectChange = (selectedOption) => {
-    const { value } = selectedOption;
-    const [type, num, key] = value.split(".");
-    setTelemetryType(type);
-    setMessageNumber(num);
-    setDataKey(key);
-    setSelectedOption(selectedOption);
-  };
-
-  const buildOptions = () => {
-    let options: { value: string; label: string }[] = [];
-    Object.keys(allShape).forEach((type) => {
-      Object.keys(allShape[type].data).forEach((num) => {
-        Object.keys(allShape[type].data[num]).forEach((key) => {
-          const value = `${type}.${num}.${key}`;
-          options.push({ value, label: value });
-        });
-      });
-    });
-    return options;
-  };
-
-  const handleRegRangeRadio = (option) => {
-    setUseRegressionRange(option);
-    setRegEndTime(endTime);
-    setRegStartTime(startTime);
-  };
-
-  useEffect(() => {
-    if (
-      dataKey == "high_temp_" ||
-      dataKey == "pack_sum_volt_" ||
-      dataKey == "pack_soc_"
-    ) {
-      setUseTrim(true);
-    } else if (dataKey == "better_soc_") {
-      setUseTrim(true);
-      setMaxTrimVal(99);
-      setMinTrimVal(1);
-    } else {
-      setUseTrim(false);
-    }
-  }, [dataKey]);
-
-  useEffect(() => {
-    const fetchModuleItems = async () => {
-      let result;
-      let result2;
-
-      if (dataKey == "better_soc_") {
-        result = await getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        });
-      } else if (dataKey == "car_speed_mph_") {
-        result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        });
-      } else if (dataKey == "car_speed_kph_") {
-        result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        });
-      } else if (dataKey == "motor_power_consumption_") {
-        result = await getAllModuleItem(
-          "mitsuba" as any,
-          "rx0",
-          "battVoltage",
-          {
-            createdAt: {
-              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-            },
-          }
-        );
-        result2 = await getAllModuleItem(
-          "mitsuba" as any,
-          "rx0",
-          "motorCurrentPkAvg",
-          {
-            createdAt: {
-              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-            },
-          }
-        );
-      }
-
-      else {
-        result = await getAllModuleItem(
-          telemetryType as any,
-          messageNumber,
-          dataKey,
-          {
-            createdAt: {
-              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-            },
-          }
-        );
-      }
-      setRawData2(result2);
-      setRawData(result);
-    };
-
-    fetchModuleItems();
-  }, [telemetryType, messageNumber, dataKey, startTime, endTime]);
-
-  useEffect(() => {
+  async function modifyData() {
     const data = {
       key: dataKey,
       type: telemetryType,
@@ -253,6 +156,7 @@ function Strategy() {
 
     let toTransform;
 
+    //custom values whose variables are manually defined to display
     if (dataKey == "car_speed_mph_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
@@ -336,7 +240,6 @@ function Strategy() {
       dataList.push(dataPoint[dataKey] as number);
     });
 
-    //sorts array for median calculation
     dataList = dataList.sort();
 
     let middle = Math.floor(dataList.length / 2);
@@ -507,7 +410,105 @@ function Strategy() {
     }
 
     setData(finalToGraph as any);
+  }
 
+  // if no searchParams, autpopulate with latest data
+  if (!searchParams.get("start") && !searchParams.get("end")) {
+    telemetry
+      .getAll()
+      .then((response) => {
+        const latestResponse = new Date(response.bms.rx0.createdAt);
+
+        const endAtTime = latestResponse
+          .toISOString()
+          .replace(/\.\d+/, "")
+          .replace("Z", "");
+
+        latestResponse.setUTCDate(latestResponse.getUTCDate() - 2);
+
+        const startAtTime = latestResponse
+          .toISOString()
+          .replace(/\.\d+/, "")
+          .replace("Z", "");
+
+        setEndTime(endAtTime);
+        setStartTime(startAtTime);
+
+        // The password may needed to reset but it's actually empty so it didn't
+        if (localStorage.getItem("passwordNeedsSet") == "true") {
+          localStorage.setItem("passwordNeedsSet", "false");
+          window.location.reload();
+        }
+      })
+      .catch((reason) => {
+        // clear username/password if it changed for some reason
+        if (
+          reason.request.status == 402 &&
+          (!localStorage.getItem("passwordNeedsSet") ||
+            localStorage.getItem("passwordNeedsSet") == "false")
+        ) {
+          localStorage.setItem("passwordNeedsSet", "true");
+          localStorage.setItem("username", "");
+          localStorage.setItem("password", "");
+          window.location.reload();
+        }
+      });
+  }
+
+  const handleSelectChange = (selectedOption) => {
+    const { value } = selectedOption;
+    const [type, num, key] = value.split(".");
+    setTelemetryType(type);
+    setMessageNumber(num);
+    setDataKey(key);
+    setSelectedOption(selectedOption);
+  };
+
+  const buildOptions = () => {
+    let options: { value: string; label: string }[] = [];
+    Object.keys(allShape).forEach((type) => {
+      Object.keys(allShape[type].data).forEach((num) => {
+        Object.keys(allShape[type].data[num]).forEach((key) => {
+          const value = `${type}.${num}.${key}`;
+          options.push({ value, label: value });
+        });
+      });
+    });
+    return options;
+  };
+
+  const handleRegRangeRadio = (option) => {
+    setUseRegressionRange(option);
+    setRegEndTime(endTime);
+    setRegStartTime(startTime);
+  };
+
+  useEffect(() => {
+    if (
+      dataKey == "high_temp_" ||
+      dataKey == "pack_sum_volt_" ||
+      dataKey == "pack_soc_"
+    ) {
+      setUseTrim(true);
+    } else if (dataKey == "better_soc_") {
+      setUseTrim(true);
+      setMaxTrimVal(99);
+      setMinTrimVal(1);
+    } else {
+      setUseTrim(false);
+    }
+  }, [dataKey]);
+
+  useEffect(() => {
+    if (autoUpdate) {
+      fetchData();
+    }
+  }, [telemetryType, messageNumber, dataKey, startTime, endTime]);
+
+  useEffect(() => {
+    if (autoUpdate) {
+      modifyData();
+    }
   }, [
     rawData,
     regEndTime,
@@ -521,6 +522,7 @@ function Strategy() {
     shouldExtrapolate,
   ]);
 
+  //HTML response to website
   return (
     <>
       <Row>
@@ -531,6 +533,18 @@ function Strategy() {
             onChange={handleSelectChange}
             options={buildOptions() as any}
           />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Button
+            onClick={async () => {
+              await fetchData();
+              await modifyData();
+            }}
+          >
+            Go
+          </Button>
         </Col>
       </Row>
       <Row>
@@ -830,6 +844,7 @@ function Strategy() {
   );
 }
 
+//make number even function?
 function formatNumber(num) {
   return num % 1 > 0 ? num.toFixed(2) : num;
 }
@@ -866,6 +881,7 @@ function multiplyDataValues(data1, dataKey1, data2, dataKey2, combinedKey) {
 
 export default Strategy;
 
+//custom soc definition
 export const stateOfCharge = (packVoltage: any) => {
   const voltage = packVoltage / 26;
 
