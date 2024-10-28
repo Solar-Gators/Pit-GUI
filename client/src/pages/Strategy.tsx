@@ -510,7 +510,6 @@ function Strategy() {
       modifyData();
     }
   }, [
-    rawData,
     regEndTime,
     regStartTime,
     granularityMs,
@@ -521,6 +520,10 @@ function Strategy() {
     showRegression,
     shouldExtrapolate,
   ]);
+
+  useEffect(() => {
+    modifyData();
+  }, [rawData]);
 
   //HTML response to website
   return (
@@ -538,9 +541,8 @@ function Strategy() {
       <Row>
         <Col>
           <Button
-            onClick={async () => {
-              await fetchData();
-              await modifyData();
+            onClick={() => {
+              fetchData();
             }}
           >
             Go
