@@ -71,7 +71,6 @@ function Strategy() {
   const [rangeAverage, setRangeAverage] = useState(0);
   const [rangeMax, setRangeMax] = useState(0);
   const [rangeMin, setRangeMin] = useState(0);
-  const [rangeMedian, setRangeMedian] = useState(0);
   const [shouldExtrapolate, setShouldExtrapolate] = useState(false);
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
@@ -234,7 +233,6 @@ function Strategy() {
     let numLess = 0;
     let maxValue = -Infinity;
     let minValue = Infinity;
-    let median = 0;
 
     let dataList: number[] = [];
 
@@ -244,22 +242,11 @@ function Strategy() {
       dataList.push(dataPoint[dataKey] as number);
     });
 
-    dataList = dataList.sort();
-
-    let middle = Math.floor(dataList.length / 2);
-
-    if (dataList.length % 2 == 1) {
-      median = dataList[middle];
-    } else {
-      median = (dataList[middle] + dataList[middle + 1]) / 2;
-    }
-
     let average = sum / filteredResponse.length;
 
     setRangeAverage(average);
     setRangeMax(maxValue);
     setRangeMin(minValue);
-    setRangeMedian(median);
 
     const requestedTimespan =
       new Date(endTime).getTime() - new Date(startTime).getTime();
@@ -828,11 +815,6 @@ function Strategy() {
           <div>
             <h6 className="form-label">
               Minimum: {formatNumber(Number(rangeMin))}
-            </h6>
-          </div>
-          <div>
-            <h6 className="form-label">
-              Median: {formatNumber(Number(rangeMedian))}
             </h6>
           </div>
           {showRegression && derivedRegressionEnd != 0 && (
