@@ -77,6 +77,7 @@ function Strategy() {
   );
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
+  const [isPressed, setIsPressed] = useState(false);
 
   async function fetchData() {
     let result;
@@ -410,6 +411,7 @@ function Strategy() {
     }
 
     setData(finalToGraph as any);
+    setIsPressed(false);
   }
 
   // if no searchParams, autpopulate with latest data
@@ -541,7 +543,9 @@ function Strategy() {
       <Row>
         <Col>
           <Button
+            disabled={isPressed}
             onClick={() => {
+              setIsPressed(true);
               fetchData();
             }}
           >
