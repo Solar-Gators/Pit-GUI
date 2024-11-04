@@ -44,6 +44,9 @@ function Sidebar() {
         <li className={location.pathname == "/history" ? "bold active" : ""}>
           <Link to="/history">Data Export</Link>
         </li>
+        <li className={location.pathname == "/settings" ? "bold active" : ""}>
+          <Link to="/settings">Settings</Link>
+        </li>
       </ul>
     </div>
   );

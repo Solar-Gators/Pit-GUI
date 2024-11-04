@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ArchivedTelemetry from "./pages/ArchivedTelemetry";
 import Strategy from "./pages/Strategy";
 import CountLaps from "./pages/CountLaps";
+import Settings from "./pages/Settings";
 import { Modal, Form, Button } from "react-bootstrap";
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/history" element={<ArchivedTelemetry />} />
             <Route path="/strategy" element={<Strategy />} />
             <Route path="/count" element={<CountLaps />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<LiveTelemetry />} />
           </Routes>
         </div>
@@ -36,11 +38,11 @@ export default function App() {
               onSubmit={() => {
                 localStorage.setItem(
                   "username",
-                  String(usernameInput?.current?.value),
+                  String(usernameInput?.current?.value)
                 );
                 localStorage.setItem(
                   "password",
-                  String(passwordInput?.current?.value),
+                  String(passwordInput?.current?.value)
                 );
                 localStorage.setItem("passwordNeedsSet", "false");
               }}

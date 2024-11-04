@@ -55,12 +55,15 @@ function Strategy() {
   const [endTime, setEndTime] = useState(
     searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10"
   );
+  const [autoUpdate, setAutoUpdate] = useState(() => {
+    const savedToggleAuto = localStorage.getItem("toggleAutoUpdate");
+    return savedToggleAuto ? JSON.parse(savedToggleAuto) : null;
+  });
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
   const [showRegression, setShowRegression] = useState(false);
   const [fancySOCEstimate, setFancySOCEstimate] = useState(false);
   const [useRegressionRange, setUseRegressionRange] = useState(false);
-  const [autoUpdate, setAutoUpdate] = useState(false);
   const [useTrim, setUseTrim] = useState(false);
   const [granularityMs, setGranularityMs] = useState(10000);
   const [maxTrimVal, setMaxTrimVal] = useState(999999);
@@ -542,15 +545,17 @@ function Strategy() {
       </Row>
       <Row>
         <Col>
-          <Button
-            disabled={isPressed}
-            onClick={() => {
-              setIsPressed(true);
-              fetchData();
-            }}
-          >
-            Go
-          </Button>
+          {!autoUpdate && (
+            <Button
+              disabled={isPressed}
+              onClick={() => {
+                setIsPressed(true);
+                fetchData();
+              }}
+            >
+              Go
+            </Button>
+          )}
         </Col>
       </Row>
       <Row>
