@@ -79,7 +79,6 @@ export interface DataResponse extends CanData {
     rx1: PowerBoard_RX1;
   };
   calculated: {
-    //does nothing... wanted to stop squiggly error line in Calculated.tsx DataResponse call
   }
 }
 
