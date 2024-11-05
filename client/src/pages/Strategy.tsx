@@ -99,13 +99,6 @@ function Strategy() {
           $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
         },
       });
-    } else if (dataKey == "car_speed_kph_") {
-      result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
-        createdAt: {
-          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-        },
-      });
     } else if (dataKey == "motor_power_consumption_") {
       result = await getAllModuleItem("mitsuba" as any, "rx0", "battVoltage", {
         createdAt: {
@@ -169,11 +162,6 @@ function Strategy() {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
         [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
-      }));
-    } else if (dataKey == "car_speed_kph_") {
-      toTransform = response.map((dataPoint) => ({
-        ...dataPoint,
-        [dataKey]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI * 1.6093446,
       }));
     } else if (dataKey == "distance_traveled_") {
       toTransform = response.map((dataPoint) => ({
