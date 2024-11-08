@@ -73,8 +73,8 @@ function LiveTelemetry() {
   // adjusting for tlm we have a 2024 ASC
 
   // tends to be a voltage drop before BMS
-  const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3
-  const totalArrayPower = calcArrayPower(data?.mppt?.[2]) * 2.6
+  const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3;
+  const totalArrayPower = calcArrayPower(data?.mppt?.[2]) * 2.6;
 
   return (
     <>
@@ -151,23 +151,16 @@ function LiveTelemetry() {
 
       <h3>Quick Facts</h3>
       <Row>
-        <Label
-          label="Pack Voltage"
-          value={packVoltage}
-          unit="V"
-        />
+        <Label label="Pack Voltage" value={packVoltage} unit="V" />
         <Label
           label="Consumption"
           value={
-            (data?.mitsuba?.rx0?.battVoltage * data?.mitsuba?.rx0?.battCurrent) - totalArrayPower
+            data?.mitsuba?.rx0?.battVoltage * data?.mitsuba?.rx0?.battCurrent -
+            totalArrayPower
           }
           unit="W"
         />
-        <Label
-          label="Custom SOC"
-          value={stateOfCharge(packVoltage)}
-          unit="%"
-        />
+        <Label label="Custom SOC" value={stateOfCharge(packVoltage)} unit="%" />
         <Label
           label="High Cell Temp"
           value={data?.bms?.rx1?.high_temp_}
@@ -175,13 +168,7 @@ function LiveTelemetry() {
         />
       </Row>
       <Row>
-        <Label
-          label="Total Array Power"
-          value={
-            totalArrayPower
-          }
-          unit="W"
-        />
+        <Label label="Total Array Power" value={totalArrayPower} unit="W" />
         <Label
           label="Sup Bat Volt"
           value={data?.powerBoard?.rx1?.SupBatVoltage_ ?? "N/A"}
@@ -304,7 +291,9 @@ function LiveTelemetry() {
           element={
             <>
               <br />
-              <p>Last heard from the PI on {String(data?.pi?.alive?.createdAt)}</p>
+              <p>
+                Last heard from the PI on {String(data?.pi?.alive?.createdAt)}
+              </p>
               <br />
             </>
           }

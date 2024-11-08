@@ -38,11 +38,11 @@ export default function App() {
               onSubmit={() => {
                 localStorage.setItem(
                   "username",
-                  String(usernameInput?.current?.value)
+                  String(usernameInput?.current?.value),
                 );
                 localStorage.setItem(
                   "password",
-                  String(passwordInput?.current?.value)
+                  String(passwordInput?.current?.value),
                 );
                 localStorage.setItem("passwordNeedsSet", "false");
               }}

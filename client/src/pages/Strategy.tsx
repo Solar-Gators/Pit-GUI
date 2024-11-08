@@ -41,23 +41,23 @@ function Strategy() {
   const [data, setData] = useState([]);
   const [data2, setData2] = useState([]);
   const [telemetryType, setTelemetryType] = useState(
-    searchParams.get("type") ?? localGraph["type"] ?? "bms"
+    searchParams.get("type") ?? localGraph["type"] ?? "bms",
   );
   const [messageNumber, setMessageNumber] = useState(
-    searchParams.get("number") ?? localGraph["number"] ?? "rx0"
+    searchParams.get("number") ?? localGraph["number"] ?? "rx0",
   );
   const [dataKey, setDataKey] = useState(
-    searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_"
+    searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_",
   );
   const [startTime, setStartTime] = useState(
-    searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00"
+    searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00",
   );
   const [endTime, setEndTime] = useState(
-    searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10"
+    searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
   );
-  const [autoUpdate, setAutoUpdate] = useState(() => {
+  const [autoUpdate, setAutoUpdate] = useState<boolean>(() => {
     const savedToggleAuto = localStorage.getItem("toggleAutoUpdate");
-    return savedToggleAuto ? JSON.parse(savedToggleAuto) : null;
+    return savedToggleAuto ? JSON.parse(savedToggleAuto) : true;
   });
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
@@ -75,7 +75,7 @@ function Strategy() {
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
   const [selectedOption, setSelectedOption] = useState(
-    `${telemetryType}.${messageNumber}.${dataKey}`
+    `${telemetryType}.${messageNumber}.${dataKey}`,
   );
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
@@ -115,7 +115,7 @@ function Strategy() {
             $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           },
-        }
+        },
       );
     } else {
       result = await getAllModuleItem(
@@ -127,7 +127,7 @@ function Strategy() {
             $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           },
-        }
+        },
       );
     }
     setRawData2(result2);
@@ -174,7 +174,7 @@ function Strategy() {
         "battVoltage",
         response2,
         "motorCurrentPkAvg",
-        dataKey
+        dataKey,
       );
     } else {
       toTransform = response;
@@ -187,18 +187,19 @@ function Strategy() {
         .map((dataPoint) => ({
           ...dataPoint,
           dateStamp: Math.floor(
-            new Date(dataPoint["createdAt"]).getTime() / granularityMs
+            new Date(dataPoint["createdAt"]).getTime() / granularityMs,
           ),
         }))
         .filter(
           (dataPoint) =>
-            dataPoint[dataKey] >= minTrimVal && dataPoint[dataKey] <= maxTrimVal
+            dataPoint[dataKey] >= minTrimVal &&
+            dataPoint[dataKey] <= maxTrimVal,
         );
     } else {
       filteredResponseTemp = toTransform.map((dataPoint) => ({
         ...dataPoint,
         dateStamp: Math.floor(
-          new Date(dataPoint["createdAt"]).getTime() / granularityMs
+          new Date(dataPoint["createdAt"]).getTime() / granularityMs,
         ),
       }));
     }
@@ -206,14 +207,14 @@ function Strategy() {
     const filteredResponse = filteredResponseTemp.reduce(
       (accumulator, currentValue) => {
         const duplicateDateStamp = accumulator.find(
-          (item) => item.dateStamp === currentValue.dateStamp
+          (item) => item.dateStamp === currentValue.dateStamp,
         );
         if (!duplicateDateStamp) {
           accumulator.push(currentValue);
         }
         return accumulator;
       },
-      []
+      [],
     );
 
     let sum = 0;
@@ -243,14 +244,15 @@ function Strategy() {
 
     try {
       startTimestamp = new Date(
-        filteredResponse[0]["dateStamp"] * granularityMs
+        filteredResponse[0]["dateStamp"] * granularityMs,
       ).getTime();
     } catch {
       return;
     }
 
     const endTimestamp = new Date(
-      filteredResponse[filteredResponse.length - 1]["dateStamp"] * granularityMs
+      filteredResponse[filteredResponse.length - 1]["dateStamp"] *
+        granularityMs,
     ).getTime();
 
     const givenTimespan = endTimestamp - startTimestamp;
@@ -268,12 +270,12 @@ function Strategy() {
 
     const regStartStamp = Math.max(
       oldRegStartStamp,
-      (startTimestamp + 3600000) / granularityMs
+      (startTimestamp + 3600000) / granularityMs,
     );
 
     const regEndStamp = Math.min(
       oldRegEndStamp,
-      (endTimestamp + 3600000) / granularityMs
+      (endTimestamp + 3600000) / granularityMs,
     );
 
     let filteredRegResponse;
@@ -282,18 +284,18 @@ function Strategy() {
       filteredRegResponse = filteredResponse.filter(
         (dataPoint) =>
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
-          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs
+          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs,
       );
     } else {
       filteredRegResponse = filteredResponse;
     }
 
     const regXValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint["dateStamp"]
+      (dataPoint) => dataPoint["dateStamp"],
     );
 
     const regYValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint[dataKey]
+      (dataPoint) => dataPoint[dataKey],
     );
 
     const lastValue = filteredResponse[filteredResponse.length - 1][dataKey];
@@ -319,7 +321,7 @@ function Strategy() {
 
     let scaledXAxis = Array.from(
       { length: xValues.length * toExtrapolate },
-      (_, i) => i
+      (_, i) => i,
     );
 
     const xValGap =
@@ -359,7 +361,7 @@ function Strategy() {
 
     if (toExtrapolate > 1) {
       setDerivedRegressionEnd(
-        extendedRegression[extendedRegression.length - 1]["regression"]
+        extendedRegression[extendedRegression.length - 1]["regression"],
       );
     } else {
       setDerivedRegressionEnd(0);
@@ -371,7 +373,7 @@ function Strategy() {
       finalToGraph = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs
+          dataPoint["dateStamp"] * granularityMs,
         ).toISOString(),
         regRange:
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
@@ -383,7 +385,7 @@ function Strategy() {
       finalToGraph = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs
+          dataPoint["dateStamp"] * granularityMs,
         ).toISOString(),
       }));
     }
@@ -720,7 +722,7 @@ function Strategy() {
               defaultValue={granularityMs}
               onBlur={(event) =>
                 setGranularityMs(
-                  parseInt((event.target as HTMLInputElement).value)
+                  parseInt((event.target as HTMLInputElement).value),
                 )
               }
               onFocus={(event) => event.target.select()}
@@ -748,7 +750,7 @@ function Strategy() {
                 onFocus={(event) => event.target.select()}
                 onBlur={(event) =>
                   setMaxTrimVal(
-                    parseInt((event.target as HTMLInputElement).value)
+                    parseInt((event.target as HTMLInputElement).value),
                   )
                 }
                 onKeyDown={(event) => {
@@ -775,7 +777,7 @@ function Strategy() {
                 defaultValue={minTrimVal}
                 onBlur={(event) =>
                   setMinTrimVal(
-                    parseInt((event.target as HTMLInputElement).value)
+                    parseInt((event.target as HTMLInputElement).value),
                   )
                 }
                 onFocus={(event) => event.target.select()}

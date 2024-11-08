@@ -66,7 +66,7 @@ export interface CanData {
   };
   pi: {
     alive: Alive;
-  }
+  };
 }
 
 export interface DataResponse extends CanData {
@@ -78,8 +78,7 @@ export interface DataResponse extends CanData {
     rx0: PowerBoard_RX0;
     rx1: PowerBoard_RX1;
   };
-  calculated: {
-  }
+  calculated: {};
 }
 
 const localCache =
