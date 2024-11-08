@@ -55,10 +55,9 @@ function Strategy() {
   const [endTime, setEndTime] = useState(
     searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
   );
-  const [autoUpdate, setAutoUpdate] = useState<boolean>(() => {
-    const savedToggleAuto = localStorage.getItem("toggleAutoUpdate");
-    return savedToggleAuto ? JSON.parse(savedToggleAuto) : true;
-  });
+  const autoUpdate = JSON.parse(
+    localStorage.getItem("toggleAutoUpdate") ?? "true",
+  );
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
   const [showRegression, setShowRegression] = useState(false);
