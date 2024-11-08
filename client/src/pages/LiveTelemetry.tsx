@@ -65,8 +65,9 @@ function LiveTelemetry() {
   // adjusting for tlm we have a 2024 ASC
 
   // tends to be a voltage drop before BMS
-  const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3;
-  const totalArrayPower = calcArrayPower(data?.mppt?.[2]) * 2.6;
+
+  const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3
+  const totalArrayPower = calcArrayPower(data?.mppt?.[1])+ calcArrayPower(data?.mppt?.[2]) + calcArrayPower(data?.mppt?.[3])
 
   return (
     <>
