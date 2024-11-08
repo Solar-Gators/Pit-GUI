@@ -35,6 +35,12 @@ function LiveTelemetry() {
 
   React.useEffect(() => {
     setInterval(() => {
+      if (
+        !localStorage.getItem("username")?.trim() ||
+        !localStorage.getItem("password")?.trim()
+      )
+        return;
+
       telemetry
         .getAll()
         .then((response) => {
@@ -43,23 +49,9 @@ function LiveTelemetry() {
           //Calculate speed
           const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0;
           setSpeed(rpm * 60 * telemetry.WHEEL_RADIUS_MI);
-
-          // The password may needed to reset but it's actually empty so it didn't
-          if (localStorage.getItem("passwordNeedsSet") == "true") {
-            localStorage.setItem("passwordNeedsSet", "false");
-            window.location.reload();
-          }
         })
         .catch((reason) => {
-          // clear username/password if it changed for some reason
-          if (
-            reason.request.status == 403 &&
-            (!localStorage.getItem("passwordNeedsSet") ||
-              localStorage.getItem("passwordNeedsSet") == "false")
-          ) {
-            localStorage.setItem("passwordNeedsSet", "true");
-            localStorage.setItem("username", "");
-            localStorage.setItem("password", "");
+          if (reason.request.status == 403) {
             window.location.reload();
           }
         });
@@ -67,7 +59,7 @@ function LiveTelemetry() {
   }, []);
 
   if (!data) {
-    return <p>Loading..</p>;
+    return <p>Loading...</p>;
   }
 
   // adjusting for tlm we have a 2024 ASC

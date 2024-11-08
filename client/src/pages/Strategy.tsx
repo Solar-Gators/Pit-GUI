@@ -81,6 +81,12 @@ function Strategy() {
   const [isPressed, setIsPressed] = useState(false);
 
   async function fetchData() {
+    if (
+      !localStorage.getItem("username")?.trim() ||
+      !localStorage.getItem("password")?.trim()
+    )
+      return;
+
     let result;
     let result2;
 
@@ -141,6 +147,12 @@ function Strategy() {
       start: startTime,
       end: endTime,
     };
+
+    if (
+      !localStorage.getItem("username")?.trim() ||
+      !localStorage.getItem("password")?.trim()
+    )
+      return;
 
     setSearchParams(data);
 
@@ -414,23 +426,9 @@ function Strategy() {
 
         setEndTime(endAtTime);
         setStartTime(startAtTime);
-
-        // The password may needed to reset but it's actually empty so it didn't
-        if (localStorage.getItem("passwordNeedsSet") == "true") {
-          localStorage.setItem("passwordNeedsSet", "false");
-          window.location.reload();
-        }
       })
       .catch((reason) => {
-        // clear username/password if it changed for some reason
-        if (
-          reason.request.status == 402 &&
-          (!localStorage.getItem("passwordNeedsSet") ||
-            localStorage.getItem("passwordNeedsSet") == "false")
-        ) {
-          localStorage.setItem("passwordNeedsSet", "true");
-          localStorage.setItem("username", "");
-          localStorage.setItem("password", "");
+        if (reason.request.status == 402) {
           window.location.reload();
         }
       });

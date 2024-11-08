@@ -10,9 +10,6 @@ import Settings from "./pages/Settings";
 import { Modal, Form, Button } from "react-bootstrap";
 
 export default function App() {
-  const username = localStorage.getItem("username");
-  const password = localStorage.getItem("password");
-
   const usernameInput = useRef<HTMLInputElement>(null);
   const passwordInput = useRef<HTMLInputElement>(null);
 
@@ -20,18 +17,13 @@ export default function App() {
     <>
       <BrowserRouter>
         <Sidebar />
-        <div className="page-content">
-          <Routes>
-            <Route path="/history" element={<ArchivedTelemetry />} />
-            <Route path="/strategy" element={<Strategy />} />
-            <Route path="/count" element={<CountLaps />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<LiveTelemetry />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-      {localStorage.getItem("passwordNeedsSet") == "true" && (
-        <Modal show={true}>
+        <Modal
+          show={
+            !localStorage.getItem("username")?.trim() ||
+            !localStorage.getItem("password")?.trim()
+          }
+          centered
+        >
           <Modal.Header>Enter Username/Password</Modal.Header>
           <Modal.Body>
             <Form
@@ -44,7 +36,6 @@ export default function App() {
                   "password",
                   String(passwordInput?.current?.value),
                 );
-                localStorage.setItem("passwordNeedsSet", "false");
               }}
             >
               <Form.Group className="mb-3">
@@ -59,7 +50,16 @@ export default function App() {
             </Form>
           </Modal.Body>
         </Modal>
-      )}
+        <div className="page-content">
+          <Routes>
+            <Route path="/history" element={<ArchivedTelemetry />} />
+            <Route path="/strategy" element={<Strategy />} />
+            <Route path="/count" element={<CountLaps />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<LiveTelemetry />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
     </>
   );
 }
