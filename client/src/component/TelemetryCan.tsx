@@ -33,11 +33,11 @@ export default function TelemetryCAN<T>({
         {Object.keys(config.data).map((messageName: string) => {
           const message = config.data?.[messageName];
 
-          if (!message) return;
+          if (!message) return null;
           const telemetryData = data?.[messageName];
 
           return (
-            <Row id={messageName}>
+            <Row key={messageName} id={messageName}>
               <h4 style={{ textAlign: "left" }}>{messageName.toUpperCase()}</h4>
               <p className="text-start">
                 Received:{" "}
@@ -48,17 +48,16 @@ export default function TelemetryCAN<T>({
               {Object.keys(message).map((telemetryName) => {
                 const telemetryInfo = message[telemetryName];
 
-                if (!telemetryInfo) return;
+                if (!telemetryInfo) return null;
                 return (
-                  <>
-                    <Label
-                      svgSrc={telemetryInfo.icon}
-                      label={telemetryInfo.label}
-                      unit={telemetryInfo.unit}
-                      booleanError={telemetryInfo.booleanError}
-                      value={telemetryData?.[telemetryName] ?? "N/D"}
-                    />
-                  </>
+                  <Label
+                    key={`${messageName}-${telemetryName}`}
+                    svgSrc={telemetryInfo.icon}
+                    label={telemetryInfo.label}
+                    unit={telemetryInfo.unit}
+                    booleanError={telemetryInfo.booleanError}
+                    value={telemetryData?.[telemetryName] ?? "N/D"}
+                  />
                 );
               })}
             </Row>
