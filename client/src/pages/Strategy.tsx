@@ -69,6 +69,7 @@ function Strategy() {
   const [maxTrimVal, setMaxTrimVal] = useState(999999);
   const [minTrimVal, setMinTrimVal] = useState(0);
   const [rangeAverage, setRangeAverage] = useState(0);
+  const [integral, setIntegral] = useState(0);
   const [rangeMax, setRangeMax] = useState(0);
   const [rangeMin, setRangeMin] = useState(0);
   const [shouldExtrapolate, setShouldExtrapolate] = useState(false);
@@ -235,6 +236,7 @@ function Strategy() {
     setRangeAverage(average);
     setRangeMax(maxValue);
     setRangeMin(minValue);
+    setIntegral(integrateData(filteredResponse, dataKey));
 
     const requestedTimespan =
       new Date(endTime).getTime() - new Date(startTime).getTime();
@@ -805,6 +807,11 @@ function Strategy() {
               Minimum: {formatNumber(Number(rangeMin))}
             </h6>
           </div>
+          <div>
+            <h6 className="form-label">
+              Integral: {formatNumber(Number(integral))}
+            </h6>
+          </div>
           {showRegression && derivedRegressionEnd != 0 && (
             <div>
               <h6 className="form-label">
@@ -858,6 +865,21 @@ function multiplyDataValues(data1, dataKey1, data2, dataKey2, combinedKey) {
     }
   }
   return combinedData;
+}
+
+function integrateData(data, dataKey) {
+  let integral = 0;
+  console.log(data);
+  for (let i = data.length - 1; i > 0; i--) {
+    let midValue = (data[i][dataKey] + data[i - 1][dataKey]) / 2;
+    let date1 = new Date(data[i - 1].createdAt);
+    let date2 = new Date(data[i].createdAt);
+    let changeX = date2.getTime() - date1.getTime();
+
+    console.log(changeX);
+    integral += (midValue * changeX) / 1000;
+  }
+  return integral;
 }
 
 export default Strategy;
