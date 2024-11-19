@@ -52,6 +52,8 @@ function LiveTelemetry() {
         })
         .catch((reason) => {
           if (reason.request.status == 403) {
+            localStorage.setItem("username", "");
+            localStorage.setItem("password", "");
             window.location.reload();
           }
         });
