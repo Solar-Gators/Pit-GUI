@@ -21,6 +21,9 @@ import { SimpleLinearRegression } from "ml-regression";
 import { useSearchParams } from "react-router-dom";
 import Select from "react-select";
 import * as telemetry from "../shared/sdk/telemetry";
+import Box from '@mui/material/Box';
+import Slider from '@mui/material/Slider';
+
 
 const allShape = {
   bms: bmsShape,
@@ -58,8 +61,8 @@ function Strategy() {
   const autoUpdate = JSON.parse(
     localStorage.getItem("toggleAutoUpdate") ?? "true",
   );
-  const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
-  const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
+  const [regStartTime, setRegStartTime] = useState<number>(0);
+  const [regEndTime, setRegEndTime] = useState<number>(100);  
   const [showRegression, setShowRegression] = useState(false);
   const [fancySOCEstimate, setFancySOCEstimate] = useState(false);
   const [useRegressionRange, setUseRegressionRange] = useState(false);
@@ -80,6 +83,8 @@ function Strategy() {
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
   const [isPressed, setIsPressed] = useState(false);
+  const minTimestamp = new Date(startTime).getTime(); // Convert start time to a timestamp
+  const maxTimestamp = new Date(endTime).getTime();   // Convert end time to a timestamp
 
   async function fetchData() {
     if (
@@ -554,23 +559,23 @@ function Strategy() {
       </Row>
       {useRegressionRange && (
         <Row>
-          <Col>
-            <Form.Label>Regression Start</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              value={regStartTime}
-              onChange={(event) => setRegStartTime(event.target.value)}
+        <Col>
+          <Form.Label>Regression Range</Form.Label>
+          <Box sx={{ width: '100%' }}>
+            <Slider
+              value={regStartTime && regEndTime ? [regStartTime, regEndTime] : [minTimestamp, maxTimestamp]} 
+              onChange={(event, newValue) => {
+                setRegStartTime(newValue[0]);
+                setRegEndTime(newValue[1]);
+              }}
+              valueLabelDisplay="auto"
+              valueLabelFormat={(value) => moment.utc(value).local().format("YYYY-MM-DD HH:mm")}
+              min={minTimestamp}  
+              max={maxTimestamp} 
             />
-          </Col>
-          <Col>
-            <Form.Label>Regression End</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              value={regEndTime}
-              onChange={(event) => setRegEndTime(event.target.value)}
-            />
-          </Col>
-        </Row>
+          </Box>
+        </Col>
+      </Row>
       )}
       <ResponsiveContainer width={"100%"} height={300}>
         <LineChart
