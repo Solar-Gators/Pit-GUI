@@ -65,6 +65,5 @@ exports.data = async (req, res: Response<DataResponse>) => {
     pi: {
       alive: await getMostRecent(Alive),
     },
-    calculated: {},
   });
 };
