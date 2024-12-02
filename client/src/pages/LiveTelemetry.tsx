@@ -35,6 +35,12 @@ function LiveTelemetry() {
 
   React.useEffect(() => {
     setInterval(() => {
+      if (
+        !localStorage.getItem("username")?.trim() ||
+        !localStorage.getItem("password")?.trim()
+      )
+        return;
+
       telemetry
         .getAll()
         .then((response) => {
@@ -43,21 +49,9 @@ function LiveTelemetry() {
           //Calculate speed
           const rpm = response?.mitsuba?.rx0?.motorRPM ?? 0;
           setSpeed(rpm * 60 * telemetry.WHEEL_RADIUS_MI);
-
-          // The password may needed to reset but it's actually empty so it didn't
-          if (localStorage.getItem("passwordNeedsSet") == "true") {
-            localStorage.setItem("passwordNeedsSet", "false");
-            window.location.reload();
-          }
         })
         .catch((reason) => {
-          // clear username/password if it changed for some reason
-          if (
-            reason.request.status == 403 &&
-            (!localStorage.getItem("passwordNeedsSet") ||
-              localStorage.getItem("passwordNeedsSet") == "false")
-          ) {
-            localStorage.setItem("passwordNeedsSet", "true");
+          if (reason.request.status == 403) {
             localStorage.setItem("username", "");
             localStorage.setItem("password", "");
             window.location.reload();
@@ -67,14 +61,14 @@ function LiveTelemetry() {
   }, []);
 
   if (!data) {
-    return <p>Loading..</p>;
+    return <p>Loading...</p>;
   }
 
   // adjusting for tlm we have a 2024 ASC
 
   // tends to be a voltage drop before BMS
-  const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3
-  const totalArrayPower = calcArrayPower(data?.mppt?.[2]) * 2.6
+  const packVoltage = data?.mitsuba?.rx0?.battVoltage + 3;
+  const totalArrayPower = calcArrayPower(data?.mppt?.[2]) * 2.6;
 
   return (
     <>
@@ -151,23 +145,16 @@ function LiveTelemetry() {
 
       <h3>Quick Facts</h3>
       <Row>
-        <Label
-          label="Pack Voltage"
-          value={packVoltage}
-          unit="V"
-        />
+        <Label label="Pack Voltage" value={packVoltage} unit="V" />
         <Label
           label="Consumption"
           value={
-            (data?.mitsuba?.rx0?.battVoltage * data?.mitsuba?.rx0?.battCurrent) - totalArrayPower
+            data?.mitsuba?.rx0?.battVoltage * data?.mitsuba?.rx0?.battCurrent -
+            totalArrayPower
           }
           unit="W"
         />
-        <Label
-          label="Custom SOC"
-          value={stateOfCharge(packVoltage)}
-          unit="%"
-        />
+        <Label label="Custom SOC" value={stateOfCharge(packVoltage)} unit="%" />
         <Label
           label="High Cell Temp"
           value={data?.bms?.rx1?.high_temp_}
@@ -175,13 +162,7 @@ function LiveTelemetry() {
         />
       </Row>
       <Row>
-        <Label
-          label="Total Array Power"
-          value={
-            totalArrayPower
-          }
-          unit="W"
-        />
+        <Label label="Total Array Power" value={totalArrayPower} unit="W" />
         <Label
           label="Sup Bat Volt"
           value={data?.powerBoard?.rx1?.SupBatVoltage_ ?? "N/A"}
@@ -304,7 +285,9 @@ function LiveTelemetry() {
           element={
             <>
               <br />
-              <p>Last heard from the PI on {String(data?.pi?.alive?.createdAt)}</p>
+              <p>
+                Last heard from the PI on {String(data?.pi?.alive?.createdAt)}
+              </p>
               <br />
             </>
           }

@@ -66,7 +66,7 @@ export interface CanData {
   };
   pi: {
     alive: Alive;
-  }
+  };
 }
 
 export interface DataResponse extends CanData {

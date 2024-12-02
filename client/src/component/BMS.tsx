@@ -54,22 +54,22 @@ export const bmsShape: TelemetryTabbed<telemetry.DataResponse["bms"]> = {
         label: "High Cell Voltage Fault",
       },
       high_charge_current_fault: {
-        label: "High Charge Current Fault"
+        label: "High Charge Current Fault",
       },
       high_discharge_current_fault: {
-        label: "High Discharge Current Fault"
+        label: "High Discharge Current Fault",
       },
       high_temp_fault: {
-        label: "High Temp Fault"
+        label: "High Temp Fault",
       },
       thermistor_disconnected_fault: {
-        label: "Thermistor Disconnected Fault"
+        label: "Thermistor Disconnected Fault",
       },
       current_sensor_disconnect_fault: {
-        label: "Current Sensor Disconnect Fault"
+        label: "Current Sensor Disconnect Fault",
       },
       kill_switch_pressed_fault: {
-        label: "Kill Switch Pressed Fault"
+        label: "Kill Switch Pressed Fault",
       },
     },
   },

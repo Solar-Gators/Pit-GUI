@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { getAllModuleItem, WHEEL_RADIUS_MI } from "../shared/sdk/telemetry";
 import { bmsShape } from "../component/BMS";
 import { mitsubaShape } from "../component/Mitsuba";
@@ -39,6 +39,7 @@ function Strategy() {
 
   let [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState([]);
+  const [data2, setData2] = useState([]);
   const [telemetryType, setTelemetryType] = useState(
     searchParams.get("type") ?? localGraph["type"] ?? "bms",
   );
@@ -54,6 +55,9 @@ function Strategy() {
   const [endTime, setEndTime] = useState(
     searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
   );
+  const autoUpdate = JSON.parse(
+    localStorage.getItem("toggleAutoUpdate") ?? "true",
+  );
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
   const [showRegression, setShowRegression] = useState(false);
@@ -64,6 +68,7 @@ function Strategy() {
   const [maxTrimVal, setMaxTrimVal] = useState(999999);
   const [minTrimVal, setMinTrimVal] = useState(0);
   const [rangeAverage, setRangeAverage] = useState(0);
+  const [integral, setIntegral] = useState(0);
   const [rangeMax, setRangeMax] = useState(0);
   const [rangeMin, setRangeMin] = useState(0);
   const [shouldExtrapolate, setShouldExtrapolate] = useState(false);
@@ -73,133 +78,69 @@ function Strategy() {
     `${telemetryType}.${messageNumber}.${dataKey}`,
   );
   const [rawData, setRawData] = useState<any[]>([]);
+  const [rawData2, setRawData2] = useState<any[]>([]);
+  const [isPressed, setIsPressed] = useState(false);
 
-  // if no searchParams, autpopulate with latest data
-  if (!searchParams.get("start") && !searchParams.get("end")) {
-    telemetry
-      .getAll()
-      .then((response) => {
-        const latestResponse = new Date(response.bms.rx0.createdAt);
+  async function fetchData() {
+    if (
+      !localStorage.getItem("username")?.trim() ||
+      !localStorage.getItem("password")?.trim()
+    )
+      return;
 
-        const endAtTime = latestResponse
-          .toISOString()
-          .replace(/\.\d+/, "")
-          .replace("Z", "");
+    let result;
+    let result2;
 
-        latestResponse.setUTCDate(latestResponse.getUTCDate() - 2);
-
-        const startAtTime = latestResponse
-          .toISOString()
-          .replace(/\.\d+/, "")
-          .replace("Z", "");
-
-        setEndTime(endAtTime);
-        setStartTime(startAtTime);
-
-        // The password may needed to reset but it's actually empty so it didn't
-        if (localStorage.getItem("passwordNeedsSet") == "true") {
-          localStorage.setItem("passwordNeedsSet", "false");
-          window.location.reload();
-        }
-      })
-      .catch((reason) => {
-        // clear username/password if it changed for some reason
-        if (
-          reason.request.status == 402 &&
-          (!localStorage.getItem("passwordNeedsSet") ||
-            localStorage.getItem("passwordNeedsSet") == "false")
-        ) {
-          localStorage.setItem("passwordNeedsSet", "true");
-          localStorage.setItem("username", "");
-          localStorage.setItem("password", "");
-          window.location.reload();
-        }
+    if (dataKey == "better_soc_") {
+      result = await getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
+        createdAt: {
+          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        },
       });
+    } else if (dataKey == "car_speed_mph_") {
+      result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
+        createdAt: {
+          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        },
+      });
+    } else if (dataKey == "motor_power_consumption_") {
+      result = await getAllModuleItem("mitsuba" as any, "rx0", "battVoltage", {
+        createdAt: {
+          $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+          $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+        },
+      });
+      result2 = await getAllModuleItem(
+        "mitsuba" as any,
+        "rx0",
+        "motorCurrentPkAvg",
+        {
+          createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          },
+        },
+      );
+    } else {
+      result = await getAllModuleItem(
+        telemetryType as any,
+        messageNumber,
+        dataKey,
+        {
+          createdAt: {
+            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
+            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
+          },
+        },
+      );
+    }
+    setRawData2(result2);
+    setRawData(result);
   }
 
-  const handleSelectChange = (selectedOption) => {
-    const { value } = selectedOption;
-    const [type, num, key] = value.split(".");
-    setTelemetryType(type);
-    setMessageNumber(num);
-    setDataKey(key);
-    setSelectedOption(selectedOption);
-  };
-
-  const buildOptions = () => {
-    let options: { value: string; label: string }[] = [];
-    Object.keys(allShape).forEach((type) => {
-      Object.keys(allShape[type].data).forEach((num) => {
-        Object.keys(allShape[type].data[num]).forEach((key) => {
-          const value = `${type}.${num}.${key}`;
-          options.push({ value, label: value });
-        });
-      });
-    });
-    return options;
-  };
-
-  const handleRegRangeRadio = (option) => {
-    setUseRegressionRange(option);
-    setRegEndTime(endTime);
-    setRegStartTime(startTime);
-  };
-
-  useEffect(() => {
-    if (
-      dataKey == "high_temp_" ||
-      dataKey == "pack_sum_volt_" ||
-      dataKey == "pack_soc_"
-    ) {
-      setUseTrim(true);
-    } else if (dataKey == "better_soc_") {
-      setUseTrim(true);
-      setMaxTrimVal(99);
-      setMinTrimVal(1);
-    } else {
-      setUseTrim(false);
-    }
-  }, [dataKey]);
-
-  useEffect(() => {
-    const fetchModuleItems = async () => {
-      let result;
-
-      if (dataKey == "better_soc_") {
-        result = await getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        });
-      } else if (dataKey == "car_speed_mph_") {
-        result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
-          createdAt: {
-            $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-            $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-          },
-        });
-      } else {
-        result = await getAllModuleItem(
-          telemetryType as any,
-          messageNumber,
-          dataKey,
-          {
-            createdAt: {
-              $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
-              $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
-            },
-          },
-        );
-      }
-
-      setRawData(result);
-    };
-
-    fetchModuleItems();
-  }, [telemetryType, messageNumber, dataKey, startTime, endTime]);
-
-  useEffect(() => {
+  async function modifyData() {
     const data = {
       key: dataKey,
       type: telemetryType,
@@ -208,14 +149,22 @@ function Strategy() {
       end: endTime,
     };
 
+    if (
+      !localStorage.getItem("username")?.trim() ||
+      !localStorage.getItem("password")?.trim()
+    )
+      return;
+
     setSearchParams(data);
 
     localStorage.setItem("graph", JSON.stringify(data));
 
     const response = rawData;
+    const response2 = rawData2;
 
     let toTransform;
 
+    //custom values whose variables are manually defined to display
     if (dataKey == "car_speed_mph_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
@@ -226,6 +175,19 @@ function Strategy() {
         ...dataPoint,
         [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
       }));
+    } else if (dataKey == "distance_traveled_") {
+      toTransform = response.map((dataPoint) => ({
+        ...dataPoint,
+        [dataKey]: dataPoint["motorRPM"] * WHEEL_RADIUS_MI,
+      }));
+    } else if (dataKey == "motor_power_consumption_") {
+      toTransform = multiplyDataValues(
+        response,
+        "battVoltage",
+        response2,
+        "motorCurrentPkAvg",
+        dataKey,
+      );
     } else {
       toTransform = response;
     }
@@ -268,19 +230,17 @@ function Strategy() {
     );
 
     let sum = 0;
+    let numGreater = 0;
+    let numLess = 0;
     let maxValue = -Infinity;
     let minValue = Infinity;
 
+    let dataList: number[] = [];
+
     filteredResponse.forEach((dataPoint) => {
+      //sums all data points for average calculation
       sum += dataPoint[dataKey];
-
-      if (dataPoint[dataKey] > maxValue) {
-        maxValue = dataPoint[dataKey];
-      }
-
-      if (dataPoint[dataKey] < minValue) {
-        minValue = dataPoint[dataKey];
-      }
+      dataList.push(dataPoint[dataKey] as number);
     });
 
     let average = sum / filteredResponse.length;
@@ -288,6 +248,7 @@ function Strategy() {
     setRangeAverage(average);
     setRangeMax(maxValue);
     setRangeMin(minValue);
+    setIntegral(integrateData(filteredResponse, dataKey));
 
     const requestedTimespan =
       new Date(endTime).getTime() - new Date(startTime).getTime();
@@ -443,8 +404,93 @@ function Strategy() {
     }
 
     setData(finalToGraph as any);
+    setIsPressed(false);
+  }
+
+  // if no searchParams, autpopulate with latest data
+  if (!searchParams.get("start") && !searchParams.get("end")) {
+    telemetry
+      .getAll()
+      .then((response) => {
+        const latestResponse = new Date(response.bms.rx0.createdAt);
+
+        const endAtTime = latestResponse
+          .toISOString()
+          .replace(/\.\d+/, "")
+          .replace("Z", "");
+
+        latestResponse.setUTCDate(latestResponse.getUTCDate() - 2);
+
+        const startAtTime = latestResponse
+          .toISOString()
+          .replace(/\.\d+/, "")
+          .replace("Z", "");
+
+        setEndTime(endAtTime);
+        setStartTime(startAtTime);
+      })
+      .catch((reason) => {
+        if (reason.request.status == 402) {
+          window.location.reload();
+        }
+      });
+  }
+
+  const handleSelectChange = (selectedOption) => {
+    const { value } = selectedOption;
+    const [type, num, key] = value.split(".");
+    setTelemetryType(type);
+    setMessageNumber(num);
+    setDataKey(key);
+    setSelectedOption(selectedOption);
+  };
+
+  const buildOptions = () => {
+    let options: { value: string; label: string }[] = [];
+    Object.keys(allShape).forEach((type) => {
+      Object.keys(allShape[type].data).forEach((num) => {
+        Object.keys(allShape[type].data[num]).forEach((key) => {
+          const value = `${type}.${num}.${key}`;
+          options.push({ value, label: value });
+        });
+      });
+    });
+    return options;
+  };
+
+  const handleRegRangeRadio = (option) => {
+    setUseRegressionRange(option);
+    setRegEndTime(endTime);
+    setRegStartTime(startTime);
+  };
+
+  useEffect(() => {
+    if (
+      dataKey == "high_temp_" ||
+      dataKey == "pack_sum_volt_" ||
+      dataKey == "pack_soc_"
+    ) {
+      setUseTrim(true);
+    } else if (dataKey == "better_soc_") {
+      setUseTrim(true);
+      setMaxTrimVal(99);
+      setMinTrimVal(1);
+    } else {
+      setUseTrim(false);
+    }
+  }, [dataKey]);
+
+  useEffect(() => {
+    if (autoUpdate) {
+      fetchData();
+    }
+  }, [telemetryType, messageNumber, dataKey, startTime, endTime]);
+
+  useEffect(() => {
+    if (autoUpdate) {
+      modifyData();
+    }
   }, [
-    rawData,
     regEndTime,
     regStartTime,
     granularityMs,
@@ -455,6 +501,12 @@ function Strategy() {
     showRegression,
     shouldExtrapolate,
   ]);
+
+  useEffect(() => {
+    modifyData();
+  }, [rawData]);
+
+  //HTML response to website
   return (
     <>
       <Row>
@@ -465,6 +517,31 @@ function Strategy() {
             onChange={handleSelectChange}
             options={buildOptions() as any}
           />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          {!autoUpdate && (
+            <Button
+              disabled={isPressed}
+              onClick={() => {
+                setIsPressed(true);
+                fetchData();
+              }}
+            >
+              {isPressed ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                <p>Go</p>
+              )}
+            </Button>
+          )}
         </Col>
       </Row>
       <Row>
@@ -739,6 +816,11 @@ function Strategy() {
               Minimum: {formatNumber(Number(rangeMin))}
             </h6>
           </div>
+          <div>
+            <h6 className="form-label">
+              Integral: {formatNumber(Number(integral))}
+            </h6>
+          </div>
           {showRegression && derivedRegressionEnd != 0 && (
             <div>
               <h6 className="form-label">
@@ -759,12 +841,59 @@ function Strategy() {
   );
 }
 
+//make number even function?
 function formatNumber(num) {
   return num % 1 > 0 ? num.toFixed(2) : num;
 }
 
+function multiplyDataValues(data1, dataKey1, data2, dataKey2, combinedKey) {
+  let combinedData: any[] = [];
+
+  let counter1 = 0;
+  let counter2 = 0;
+
+  while (true) {
+    if (counter1 >= data1.length || counter2 >= data2.length) {
+      break;
+    } else if (
+      data1[counter1].createdAt.getTime > data2[counter2].createdAt.getTime
+    ) {
+      counter2++;
+    } else if (
+      data1[counter1].createdAt.getTime < data2[counter2].createdAt.getTime
+    ) {
+      counter1++;
+    } else if (
+      data1[counter1].createdAt.getTime == data2[counter2].createdAt.getTime
+    ) {
+      combinedData.push(data1[counter1]);
+      combinedData[combinedData.length - 1][combinedKey] =
+        data1[counter1][dataKey1] * data2[counter2][dataKey2];
+      counter1++;
+      counter2++;
+    }
+  }
+  return combinedData;
+}
+
+function integrateData(data, dataKey) {
+  let integral = 0;
+  console.log(data);
+  for (let i = data.length - 1; i > 0; i--) {
+    let midValue = (data[i][dataKey] + data[i - 1][dataKey]) / 2;
+    let date1 = new Date(data[i - 1].createdAt);
+    let date2 = new Date(data[i].createdAt);
+    let changeX = date2.getTime() - date1.getTime();
+
+    console.log(changeX);
+    integral += (midValue * changeX) / 1000;
+  }
+  return integral;
+}
+
 export default Strategy;
 
+//custom soc definition
 export const stateOfCharge = (packVoltage: any) => {
   const voltage = packVoltage / 26;
 
