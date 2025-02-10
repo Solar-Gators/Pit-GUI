@@ -40,23 +40,23 @@ function Strategy() {
   let [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState([]);
   const [data2, setData2] = useState([]);
-  const [telemetryType, setTelemetryType] = useState(
-    searchParams.get("type") ?? localGraph["type"] ?? "bms",
-  );
-  const [messageNumber, setMessageNumber] = useState(
-    searchParams.get("number") ?? localGraph["number"] ?? "rx0",
-  );
-  const [dataKey, setDataKey] = useState(
-    searchParams.get("key") ?? localGraph["key"] ?? "pack_sum_volt_",
-  );
+  const [telemetryType, setTelemetryType] = useState([
+    localGraph["type"] ?? "bms",
+  ]);
+  const [messageNumber, setMessageNumber] = useState([
+    localGraph["number"] ?? "rx0",
+  ]);
+  const [dataKey, setDataKey] = useState([
+    localGraph["key"] ?? "pack_sum_volt_",
+  ]);
   const [startTime, setStartTime] = useState(
-    searchParams.get("start") ?? localGraph["start"] ?? "2023-04-16 12:00",
+    localGraph["start"] ?? "2023-04-16 12:00"
   );
   const [endTime, setEndTime] = useState(
-    searchParams.get("end") ?? localGraph["end"] ?? "2023-04-16 12:10",
+    localGraph["end"] ?? "2023-04-16 12:10"
   );
   const autoUpdate = JSON.parse(
-    localStorage.getItem("toggleAutoUpdate") ?? "true",
+    localStorage.getItem("toggleAutoUpdate") ?? "true"
   );
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
@@ -74,14 +74,17 @@ function Strategy() {
   const [shouldExtrapolate, setShouldExtrapolate] = useState(false);
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(
+  const [selectedOption, setSelectedOption] = useState([
     `${telemetryType}.${messageNumber}.${dataKey}`,
-  );
+  ]);
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
   const [isPressed, setIsPressed] = useState(false);
+  var latestStatChange = 0;
+  var statIsUpdated = [false];
 
-  async function fetchData() {
+  async function fetchData(statIndex: number) {
+    return;
     if (
       !localStorage.getItem("username")?.trim() ||
       !localStorage.getItem("password")?.trim()
@@ -91,21 +94,21 @@ function Strategy() {
     let result;
     let result2;
 
-    if (dataKey == "better_soc_") {
+    if (dataKey[statIndex] == "better_soc_") {
       result = await getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
         createdAt: {
           $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
           $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
         },
       });
-    } else if (dataKey == "car_speed_mph_") {
+    } else if (dataKey[statIndex] == "car_speed_mph_") {
       result = await getAllModuleItem("mitsuba" as any, "rx0", "motorRPM", {
         createdAt: {
           $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
           $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
         },
       });
-    } else if (dataKey == "motor_power_consumption_") {
+    } else if (dataKey[statIndex] == "motor_power_consumption_") {
       result = await getAllModuleItem("mitsuba" as any, "rx0", "battVoltage", {
         createdAt: {
           $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
@@ -121,26 +124,28 @@ function Strategy() {
             $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           },
-        },
+        }
       );
     } else {
       result = await getAllModuleItem(
-        telemetryType as any,
-        messageNumber,
-        dataKey,
+        telemetryType[statIndex] as any,
+        messageNumber[statIndex],
+        dataKey[statIndex],
         {
           createdAt: {
             $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           },
-        },
+        }
       );
     }
     setRawData2(result2);
     setRawData(result);
+
+    statIsUpdated[statIndex] = true;
   }
 
-  async function modifyData() {
+  async function modifyData(statIndex: number) {
     const data = {
       key: dataKey,
       type: telemetryType,
@@ -165,28 +170,28 @@ function Strategy() {
     let toTransform;
 
     //custom values whose variables are manually defined to display
-    if (dataKey == "car_speed_mph_") {
+    if (dataKey[statIndex] == "car_speed_mph_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
-        [dataKey]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
+        [dataKey[statIndex]]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
       }));
-    } else if (dataKey == "better_soc_") {
+    } else if (dataKey[statIndex] == "better_soc_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
-        [dataKey]: stateOfCharge(dataPoint["pack_sum_volt_"]),
+        [dataKey[statIndex]]: stateOfCharge(dataPoint["pack_sum_volt_"]),
       }));
-    } else if (dataKey == "distance_traveled_") {
+    } else if (dataKey[statIndex] == "distance_traveled_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
-        [dataKey]: dataPoint["motorRPM"] * WHEEL_RADIUS_MI,
+        [dataKey[statIndex]]: dataPoint["motorRPM"] * WHEEL_RADIUS_MI,
       }));
-    } else if (dataKey == "motor_power_consumption_") {
+    } else if (dataKey[statIndex] == "motor_power_consumption_") {
       toTransform = multiplyDataValues(
         response,
         "battVoltage",
         response2,
         "motorCurrentPkAvg",
-        dataKey,
+        dataKey
       );
     } else {
       toTransform = response;
@@ -199,19 +204,19 @@ function Strategy() {
         .map((dataPoint) => ({
           ...dataPoint,
           dateStamp: Math.floor(
-            new Date(dataPoint["createdAt"]).getTime() / granularityMs,
+            new Date(dataPoint["createdAt"]).getTime() / granularityMs
           ),
         }))
         .filter(
           (dataPoint) =>
-            dataPoint[dataKey] >= minTrimVal &&
-            dataPoint[dataKey] <= maxTrimVal,
+            dataPoint[dataKey[statIndex]] >= minTrimVal &&
+            dataPoint[dataKey[statIndex]] <= maxTrimVal
         );
     } else {
       filteredResponseTemp = toTransform.map((dataPoint) => ({
         ...dataPoint,
         dateStamp: Math.floor(
-          new Date(dataPoint["createdAt"]).getTime() / granularityMs,
+          new Date(dataPoint["createdAt"]).getTime() / granularityMs
         ),
       }));
     }
@@ -219,14 +224,14 @@ function Strategy() {
     const filteredResponse = filteredResponseTemp.reduce(
       (accumulator, currentValue) => {
         const duplicateDateStamp = accumulator.find(
-          (item) => item.dateStamp === currentValue.dateStamp,
+          (item) => item.dateStamp === currentValue.dateStamp
         );
         if (!duplicateDateStamp) {
           accumulator.push(currentValue);
         }
         return accumulator;
       },
-      [],
+      []
     );
 
     let sum = 0;
@@ -239,8 +244,8 @@ function Strategy() {
 
     filteredResponse.forEach((dataPoint) => {
       //sums all data points for average calculation
-      sum += dataPoint[dataKey];
-      dataList.push(dataPoint[dataKey] as number);
+      sum += dataPoint[dataKey[statIndex]];
+      dataList.push(dataPoint[dataKey[statIndex]] as number);
     });
 
     let average = sum / filteredResponse.length;
@@ -257,15 +262,14 @@ function Strategy() {
 
     try {
       startTimestamp = new Date(
-        filteredResponse[0]["dateStamp"] * granularityMs,
+        filteredResponse[0]["dateStamp"] * granularityMs
       ).getTime();
     } catch {
       return;
     }
 
     const endTimestamp = new Date(
-      filteredResponse[filteredResponse.length - 1]["dateStamp"] *
-        granularityMs,
+      filteredResponse[filteredResponse.length - 1]["dateStamp"] * granularityMs
     ).getTime();
 
     const givenTimespan = endTimestamp - startTimestamp;
@@ -283,12 +287,12 @@ function Strategy() {
 
     const regStartStamp = Math.max(
       oldRegStartStamp,
-      (startTimestamp + 3600000) / granularityMs,
+      (startTimestamp + 3600000) / granularityMs
     );
 
     const regEndStamp = Math.min(
       oldRegEndStamp,
-      (endTimestamp + 3600000) / granularityMs,
+      (endTimestamp + 3600000) / granularityMs
     );
 
     let filteredRegResponse;
@@ -297,21 +301,22 @@ function Strategy() {
       filteredRegResponse = filteredResponse.filter(
         (dataPoint) =>
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
-          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs,
+          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs
       );
     } else {
       filteredRegResponse = filteredResponse;
     }
 
     const regXValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint["dateStamp"],
+      (dataPoint) => dataPoint["dateStamp"]
     );
 
     const regYValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint[dataKey],
+      (dataPoint) => dataPoint[dataKey[statIndex]]
     );
 
-    const lastValue = filteredResponse[filteredResponse.length - 1][dataKey];
+    const lastValue =
+      filteredResponse[filteredResponse.length - 1][dataKey[statIndex]];
 
     const lastTimestamp =
       filteredResponse[filteredResponse.length - 1]["dateStamp"];
@@ -334,7 +339,7 @@ function Strategy() {
 
     let scaledXAxis = Array.from(
       { length: xValues.length * toExtrapolate },
-      (_, i) => i,
+      (_, i) => i
     );
 
     const xValGap =
@@ -353,8 +358,8 @@ function Strategy() {
             regression.predict(xValue + xValGap) -
             (fancySOCEstimate ? regOffset : 0),
         };
-        obj[dataKey] = filteredResponse[xValue]
-          ? filteredResponse[xValue][dataKey]
+        obj[dataKey[statIndex]] = filteredResponse[xValue]
+          ? filteredResponse[xValue][dataKey[statIndex]]
           : null;
         return obj;
       });
@@ -365,8 +370,8 @@ function Strategy() {
             ? filteredResponse[xValue]["dateStamp"]
             : lastTimestamp + (xValue - filteredResponse.length),
         };
-        obj[dataKey] = filteredResponse[xValue]
-          ? filteredResponse[xValue][dataKey]
+        obj[dataKey[statIndex]] = filteredResponse[xValue]
+          ? filteredResponse[xValue][dataKey[statIndex]]
           : null;
         return obj;
       });
@@ -374,7 +379,7 @@ function Strategy() {
 
     if (toExtrapolate > 1) {
       setDerivedRegressionEnd(
-        extendedRegression[extendedRegression.length - 1]["regression"],
+        extendedRegression[extendedRegression.length - 1]["regression"]
       );
     } else {
       setDerivedRegressionEnd(0);
@@ -386,7 +391,7 @@ function Strategy() {
       finalToGraph = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs,
+          dataPoint["dateStamp"] * granularityMs
         ).toISOString(),
         regRange:
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
@@ -398,7 +403,7 @@ function Strategy() {
       finalToGraph = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs,
+          dataPoint["dateStamp"] * granularityMs
         ).toISOString(),
       }));
     }
@@ -436,13 +441,39 @@ function Strategy() {
       });
   }
 
-  const handleSelectChange = (selectedOption) => {
-    const { value } = selectedOption;
-    const [type, num, key] = value.split(".");
-    setTelemetryType(type);
-    setMessageNumber(num);
-    setDataKey(key);
-    setSelectedOption(selectedOption);
+  const handleSelectChange = (selectedOptions) => {
+    console.log("Initial selectedOptions:", selectedOptions);
+
+    const telemetryTypes: string[] = [];
+    const messageNumbers: string[] = [];
+    const dataKeys: string[] = [];
+
+    if (selectedOptions.size > 0) {
+      selectedOptions.forEach((option) => {
+        const [type, num, key] = option.value.split(".");
+        telemetryTypes.push(type);
+        messageNumbers.push(num);
+        dataKeys.push(key);
+      });
+    }
+
+    // Log the parsed values
+    console.log("Parsed telemetryTypes:", telemetryType);
+    console.log("Parsed messageNumbers:", messageNumber);
+    console.log("Parsed dataKeys:", dataKey);
+    console.log("aaah:", selectedOption);
+
+    // Update the states
+    setTelemetryType(telemetryTypes);
+    setMessageNumber(messageNumbers);
+    setDataKey(dataKeys);
+    setSelectedOption(selectedOptions);
+
+    // Log the updated state values (if necessary)
+    console.log("Updated telemetryTypes:", telemetryTypes);
+    console.log("Updated messageNumbers:", messageNumbers);
+    console.log("Updated dataKeys:", dataKeys);
+    console.log("Updated selectedOptions:", selectedOptions);
   };
 
   const buildOptions = () => {
@@ -466,12 +497,12 @@ function Strategy() {
 
   useEffect(() => {
     if (
-      dataKey == "high_temp_" ||
-      dataKey == "pack_sum_volt_" ||
-      dataKey == "pack_soc_"
+      dataKey[latestStatChange] == "high_temp_" ||
+      dataKey[latestStatChange] == "pack_sum_volt_" ||
+      dataKey[latestStatChange] == "pack_soc_"
     ) {
       setUseTrim(true);
-    } else if (dataKey == "better_soc_") {
+    } else if (dataKey[latestStatChange] == "better_soc_") {
       setUseTrim(true);
       setMaxTrimVal(99);
       setMinTrimVal(1);
@@ -482,13 +513,13 @@ function Strategy() {
 
   useEffect(() => {
     if (autoUpdate) {
-      fetchData();
+      fetchData(latestStatChange);
     }
   }, [telemetryType, messageNumber, dataKey, startTime, endTime]);
 
   useEffect(() => {
     if (autoUpdate) {
-      modifyData();
+      modifyData(latestStatChange);
     }
   }, [
     regEndTime,
@@ -503,7 +534,7 @@ function Strategy() {
   ]);
 
   useEffect(() => {
-    modifyData();
+    modifyData(latestStatChange);
   }, [rawData]);
 
   //HTML response to website
@@ -513,6 +544,7 @@ function Strategy() {
         <Col>
           <Form.Label>Select Statistics</Form.Label>
           <Select
+            isMulti={true}
             value={selectedOption}
             onChange={handleSelectChange}
             options={buildOptions() as any}
@@ -520,13 +552,29 @@ function Strategy() {
         </Col>
       </Row>
       <Row>
+        <Button
+          onClick={() => {
+            telemetryType.push("");
+            messageNumber.push("");
+            dataKey.push("");
+            selectedOption.push("");
+            statIsUpdated.push(true);
+          }}
+        >
+          <p>Add</p>
+        </Button>
+        <Row></Row>
         <Col>
           {!autoUpdate && (
             <Button
               disabled={isPressed}
               onClick={() => {
                 setIsPressed(true);
-                fetchData();
+                for (let i = 0; i < statIsUpdated.length; i++) {
+                  if (statIsUpdated[i]) {
+                    fetchData(i);
+                  }
+                }
               }}
             >
               {isPressed ? (
@@ -600,7 +648,7 @@ function Strategy() {
           <YAxis
             label={{
               value:
-                allShape[telemetryType].data[messageNumber][dataKey]?.label,
+                allShape[telemetryType[0]].data[messageNumber][dataKey]?.label,
               angle: -90,
               position: "insideLeft",
               style: { textAnchor: "middle" },
@@ -612,12 +660,15 @@ function Strategy() {
             }
           />
           <Legend />
-          <Line
-            type="monotone"
-            dataKey={dataKey}
-            stroke="#8884d8"
-            dot={false}
-          />
+          {dataKey.map((currDataKey) => (
+            <Line
+              type="monotone"
+              key={currDataKey}
+              dataKey={currDataKey}
+              stroke="#8884d8"
+              dot={false}
+            />
+          ))}
           {showRegression && (
             <Line
               type="monotone"
@@ -731,7 +782,7 @@ function Strategy() {
               defaultValue={granularityMs}
               onBlur={(event) =>
                 setGranularityMs(
-                  parseInt((event.target as HTMLInputElement).value),
+                  parseInt((event.target as HTMLInputElement).value)
                 )
               }
               onFocus={(event) => event.target.select()}
@@ -759,7 +810,7 @@ function Strategy() {
                 onFocus={(event) => event.target.select()}
                 onBlur={(event) =>
                   setMaxTrimVal(
-                    parseInt((event.target as HTMLInputElement).value),
+                    parseInt((event.target as HTMLInputElement).value)
                   )
                 }
                 onKeyDown={(event) => {
@@ -786,7 +837,7 @@ function Strategy() {
                 defaultValue={minTrimVal}
                 onBlur={(event) =>
                   setMinTrimVal(
-                    parseInt((event.target as HTMLInputElement).value),
+                    parseInt((event.target as HTMLInputElement).value)
                   )
                 }
                 onFocus={(event) => event.target.select()}
@@ -878,14 +929,12 @@ function multiplyDataValues(data1, dataKey1, data2, dataKey2, combinedKey) {
 
 function integrateData(data, dataKey) {
   let integral = 0;
-  console.log(data);
   for (let i = data.length - 1; i > 0; i--) {
     let midValue = (data[i][dataKey] + data[i - 1][dataKey]) / 2;
     let date1 = new Date(data[i - 1].createdAt);
     let date2 = new Date(data[i].createdAt);
     let changeX = date2.getTime() - date1.getTime();
 
-    console.log(changeX);
     integral += (midValue * changeX) / 1000;
   }
   return integral;
