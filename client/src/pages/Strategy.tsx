@@ -39,16 +39,11 @@ function Strategy() {
 
   let [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState([]);
-  const [data2, setData2] = useState([]);
-  const [telemetryType, setTelemetryType] = useState([
-    localGraph["type"] ?? "bms",
-  ]);
-  const [messageNumber, setMessageNumber] = useState([
-    localGraph["number"] ?? "rx0",
-  ]);
-  const [dataKey, setDataKey] = useState([
-    localGraph["key"] ?? "pack_sum_volt_",
-  ]);
+  const [telemetryType, setTelemetryType] = useState(localGraph["type"] ?? []);
+  const [messageNumber, setMessageNumber] = useState(
+    localGraph["number"] ?? [],
+  );
+  const [dataKey, setDataKey] = useState(localGraph["key"] ?? []);
   const [startTime, setStartTime] = useState(
     localGraph["start"] ?? "2023-04-16 12:00",
   );
@@ -74,9 +69,11 @@ function Strategy() {
   const [shouldExtrapolate, setShouldExtrapolate] = useState(false);
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
-  const [selectedOption, setSelectedOption] = useState([
-    `${telemetryType}.${messageNumber}.${dataKey}`,
-  ]);
+  const [selectedOption, setSelectedOption] = useState(
+    telemetryType.map(
+      (t, index) => `${t}.${messageNumber[index]}.${dataKey[index]}`,
+    ),
+  );
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
   const [isPressed, setIsPressed] = useState(false);
@@ -84,10 +81,15 @@ function Strategy() {
   var statIsUpdated = [false];
 
   async function fetchData(statIndex: number) {
-    return;
+    console.log(messageNumber);
+    console.log(telemetryType);
+    console.log(dataKey);
     if (
       !localStorage.getItem("username")?.trim() ||
-      !localStorage.getItem("password")?.trim()
+      !localStorage.getItem("password")?.trim() ||
+      !messageNumber?.[0] ||
+      !telemetryType?.[0] ||
+      !dataKey?.[0]
     )
       return;
 
@@ -449,20 +451,20 @@ function Strategy() {
     const messageNumbers: string[] = [];
     const dataKeys: string[] = [];
 
-    if (selectedOptions.size > 0) {
-      selectedOptions.forEach((option) => {
-        const [type, num, key] = option.value.split(".");
-        telemetryTypes.push(type);
-        messageNumbers.push(num);
-        dataKeys.push(key);
-      });
-    }
+    selectedOptions.forEach((option) => {
+      console.log("uwu");
+      console.log(option);
+      const [type, num, key] = option.value.split(".");
+      telemetryTypes.push(type);
+      messageNumbers.push(num);
+      dataKeys.push(key);
+    });
 
     // Log the parsed values
     console.log("Parsed telemetryTypes:", telemetryType);
     console.log("Parsed messageNumbers:", messageNumber);
     console.log("Parsed dataKeys:", dataKey);
-    console.log("aaah:", selectedOption);
+    console.log(":", selectedOption);
 
     // Update the states
     setTelemetryType(telemetryTypes);
@@ -649,7 +651,9 @@ function Strategy() {
           <YAxis
             label={{
               value:
-                allShape[telemetryType[0]].data[messageNumber][dataKey]?.label,
+                allShape[telemetryType?.[0] as string]?.data?.[
+                  messageNumber?.[0] as string
+                ]?.[dataKey?.[0] as string]?.label,
               angle: -90,
               position: "insideLeft",
               style: { textAnchor: "middle" },
