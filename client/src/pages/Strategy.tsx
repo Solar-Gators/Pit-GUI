@@ -70,9 +70,13 @@ function Strategy() {
   const [regressionRSquared, setRegressionRSquared] = useState(0);
   const [derivedRegressionEnd, setDerivedRegressionEnd] = useState(0);
   const [selectedOption, setSelectedOption] = useState(
-    telemetryType.map(
-      (t, index) => `${t}.${messageNumber[index]}.${dataKey[index]}`,
-    ),
+    telemetryType.map((t, index) => {
+      const combinedString = `${t}.${messageNumber[index]}.${dataKey[index]}`;
+      return {
+        value: combinedString,
+        label: combinedString,
+      };
+    }),
   );
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
@@ -81,9 +85,6 @@ function Strategy() {
   var statIsUpdated = [false];
 
   async function fetchData(statIndex: number) {
-    console.log(messageNumber);
-    console.log(telemetryType);
-    console.log(dataKey);
     if (
       !localStorage.getItem("username")?.trim() ||
       !localStorage.getItem("password")?.trim() ||
@@ -445,38 +446,22 @@ function Strategy() {
   }
 
   const handleSelectChange = (selectedOptions) => {
-    console.log("Initial selectedOptions:", selectedOptions);
-
     const telemetryTypes: string[] = [];
     const messageNumbers: string[] = [];
     const dataKeys: string[] = [];
 
     selectedOptions.forEach((option) => {
-      console.log("uwu");
-      console.log(option);
       const [type, num, key] = option.value.split(".");
       telemetryTypes.push(type);
       messageNumbers.push(num);
       dataKeys.push(key);
     });
 
-    // Log the parsed values
-    console.log("Parsed telemetryTypes:", telemetryType);
-    console.log("Parsed messageNumbers:", messageNumber);
-    console.log("Parsed dataKeys:", dataKey);
-    console.log(":", selectedOption);
-
     // Update the states
     setTelemetryType(telemetryTypes);
     setMessageNumber(messageNumbers);
     setDataKey(dataKeys);
     setSelectedOption(selectedOptions);
-
-    // Log the updated state values (if necessary)
-    console.log("Updated telemetryTypes:", telemetryTypes);
-    console.log("Updated messageNumbers:", messageNumbers);
-    console.log("Updated dataKeys:", dataKeys);
-    console.log("Updated selectedOptions:", selectedOptions);
   };
 
   const buildOptions = () => {
@@ -555,18 +540,6 @@ function Strategy() {
         </Col>
       </Row>
       <Row>
-        <Button
-          onClick={() => {
-            telemetryType.push("");
-            messageNumber.push("");
-            dataKey.push("");
-            selectedOption.push("");
-            statIsUpdated.push(true);
-          }}
-        >
-          <p>Add</p>
-        </Button>
-        <Row></Row>
         <Col>
           {!autoUpdate && (
             <Button
