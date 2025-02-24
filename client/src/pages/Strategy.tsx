@@ -81,7 +81,8 @@ function Strategy() {
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
   const [isPressed, setIsPressed] = useState(false);
-  var latestStatChange = 0;
+  const [latestStatChange, setLatestStatChange] = useState(0);
+  const [selectionComplete, setSelectionComplete] = useState(false);
   var statIsUpdated = [false];
 
   async function fetchData(statIndex: number) {
@@ -148,7 +149,7 @@ function Strategy() {
     statIsUpdated[statIndex] = true;
   }
 
-  async function modifyData(statIndex: number) {
+  async function modifyData() {
     const data = {
       key: dataKey,
       type: telemetryType,
@@ -173,22 +174,23 @@ function Strategy() {
     let toTransform;
 
     //custom values whose variables are manually defined to display
-    if (dataKey[statIndex] == "car_speed_mph_") {
+    if (dataKey[latestStatChange] == "car_speed_mph_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
-        [dataKey[statIndex]]: dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
+        [dataKey[latestStatChange]]:
+          dataPoint["motorRPM"] * 60 * WHEEL_RADIUS_MI,
       }));
-    } else if (dataKey[statIndex] == "better_soc_") {
+    } else if (dataKey[latestStatChange] == "better_soc_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
-        [dataKey[statIndex]]: stateOfCharge(dataPoint["pack_sum_volt_"]),
+        [dataKey[latestStatChange]]: stateOfCharge(dataPoint["pack_sum_volt_"]),
       }));
-    } else if (dataKey[statIndex] == "distance_traveled_") {
+    } else if (dataKey[latestStatChange] == "distance_traveled_") {
       toTransform = response.map((dataPoint) => ({
         ...dataPoint,
-        [dataKey[statIndex]]: dataPoint["motorRPM"] * WHEEL_RADIUS_MI,
+        [dataKey[latestStatChange]]: dataPoint["motorRPM"] * WHEEL_RADIUS_MI,
       }));
-    } else if (dataKey[statIndex] == "motor_power_consumption_") {
+    } else if (dataKey[latestStatChange] == "motor_power_consumption_") {
       toTransform = multiplyDataValues(
         response,
         "battVoltage",
@@ -212,8 +214,8 @@ function Strategy() {
         }))
         .filter(
           (dataPoint) =>
-            dataPoint[dataKey[statIndex]] >= minTrimVal &&
-            dataPoint[dataKey[statIndex]] <= maxTrimVal,
+            dataPoint[dataKey[latestStatChange]] >= minTrimVal &&
+            dataPoint[dataKey[latestStatChange]] <= maxTrimVal,
         );
     } else {
       filteredResponseTemp = toTransform.map((dataPoint) => ({
@@ -247,8 +249,8 @@ function Strategy() {
 
     filteredResponse.forEach((dataPoint) => {
       //sums all data points for average calculation
-      sum += dataPoint[dataKey[statIndex]];
-      dataList.push(dataPoint[dataKey[statIndex]] as number);
+      sum += dataPoint[dataKey[latestStatChange]];
+      dataList.push(dataPoint[dataKey[latestStatChange]] as number);
     });
 
     let average = sum / filteredResponse.length;
@@ -316,11 +318,11 @@ function Strategy() {
     );
 
     const regYValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint[dataKey[statIndex]],
+      (dataPoint) => dataPoint[dataKey[latestStatChange]],
     );
 
     const lastValue =
-      filteredResponse[filteredResponse.length - 1][dataKey[statIndex]];
+      filteredResponse[filteredResponse.length - 1][dataKey[latestStatChange]];
 
     const lastTimestamp =
       filteredResponse[filteredResponse.length - 1]["dateStamp"];
@@ -362,8 +364,8 @@ function Strategy() {
             regression.predict(xValue + xValGap) -
             (fancySOCEstimate ? regOffset : 0),
         };
-        obj[dataKey[statIndex]] = filteredResponse[xValue]
-          ? filteredResponse[xValue][dataKey[statIndex]]
+        obj[dataKey[latestStatChange]] = filteredResponse[xValue]
+          ? filteredResponse[xValue][dataKey[latestStatChange]]
           : null;
         return obj;
       });
@@ -374,8 +376,8 @@ function Strategy() {
             ? filteredResponse[xValue]["dateStamp"]
             : lastTimestamp + (xValue - filteredResponse.length),
         };
-        obj[dataKey[statIndex]] = filteredResponse[xValue]
-          ? filteredResponse[xValue][dataKey[statIndex]]
+        obj[dataKey[latestStatChange]] = filteredResponse[xValue]
+          ? filteredResponse[xValue][dataKey[latestStatChange]]
           : null;
         return obj;
       });
@@ -445,7 +447,7 @@ function Strategy() {
       });
   }
 
-  const handleSelectChange = (selectedOptions) => {
+  const handleSelectChange = (selectedOptions, actionMeta) => {
     const telemetryTypes: string[] = [];
     const messageNumbers: string[] = [];
     const dataKeys: string[] = [];
@@ -457,11 +459,22 @@ function Strategy() {
       dataKeys.push(key);
     });
 
-    // Update the states
-    setTelemetryType(telemetryTypes);
-    setMessageNumber(messageNumbers);
-    setDataKey(dataKeys);
-    setSelectedOption(selectedOptions);
+    if (actionMeta.option) {
+      const changedIndex = selectedOptions.findIndex(
+        (option) => option.value === actionMeta.option.value,
+      );
+
+      // Update all states at once
+      setSelectionComplete(false);
+      setTelemetryType(telemetryTypes);
+      setMessageNumber(messageNumbers);
+      setDataKey(dataKeys);
+      setSelectedOption(selectedOptions);
+      setLatestStatChange(changedIndex);
+
+      // Signal that selection is complete
+      setTimeout(() => setSelectionComplete(true), 0);
+    }
   };
 
   const buildOptions = () => {
@@ -500,14 +513,21 @@ function Strategy() {
   }, [dataKey]);
 
   useEffect(() => {
-    if (autoUpdate) {
+    if (selectionComplete && autoUpdate) {
       fetchData(latestStatChange);
     }
-  }, [telemetryType, messageNumber, dataKey, startTime, endTime]);
+  }, [
+    telemetryType,
+    messageNumber,
+    dataKey,
+    startTime,
+    endTime,
+    selectionComplete,
+  ]);
 
   useEffect(() => {
-    if (autoUpdate) {
-      modifyData(latestStatChange);
+    if (selectionComplete && autoUpdate) {
+      modifyData();
     }
   }, [
     regEndTime,
@@ -519,10 +539,11 @@ function Strategy() {
     useTrim,
     showRegression,
     shouldExtrapolate,
+    selectionComplete,
   ]);
 
   useEffect(() => {
-    modifyData(latestStatChange);
+    modifyData();
   }, [rawData]);
 
   //HTML response to website
