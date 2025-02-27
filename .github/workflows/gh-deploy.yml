@@ -19,15 +19,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: '16'
-      - run: cd ../ && npm ci
-      - run: npm ci
-      - run: npm run build
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "pnpm"
+      - run: cd ../ && pnpm install
+      - run: pnpm install
+      - run: pnpm build
         env:
           REACT_APP_TELEMETRY_API: https://telemetry-api.ufsolargators.org
           REACT_APP_GOOGLE_MAPS_KEY: "${{ vars.REACT_APP_GOOGLE_MAPS_KEY }}"
@@ -35,7 +37,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: './client/build'
+          path: "./client/build"
 
       - name: Deploy to GitHub Pages
         id: deployment
