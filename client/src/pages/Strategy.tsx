@@ -83,6 +83,14 @@ function Strategy() {
   const [isPressed, setIsPressed] = useState(false);
   const [latestStatChange, setLatestStatChange] = useState(0);
   const [selectionComplete, setSelectionComplete] = useState(false);
+  const [lineColors] = useState([
+    "#8884D8",
+    "#D88884",
+    "#84D888",
+    "#884D88",
+    "#88884D",
+    "#4D8888"
+  ]);
   var statIsUpdated = [false];
 
   async function fetchData(statIndex: number) {
@@ -463,18 +471,22 @@ function Strategy() {
       const changedIndex = selectedOptions.findIndex(
         (option) => option.value === actionMeta.option.value,
       );
-
-      // Update all states at once
-      setSelectionComplete(false);
-      setTelemetryType(telemetryTypes);
-      setMessageNumber(messageNumbers);
-      setDataKey(dataKeys);
-      setSelectedOption(selectedOptions);
       setLatestStatChange(changedIndex);
-
-      // Signal that selection is complete
-      setTimeout(() => setSelectionComplete(true), 0);
+    } else {
+      if (selectedOptions.size - 2 > 0) {
+        setLatestStatChange(selectedOptions.size - 2);
+      } else {
+        setLatestStatChange(0);
+      }
     }
+
+    setSelectionComplete(false);
+    setTelemetryType(telemetryTypes);
+    setMessageNumber(messageNumbers);
+    setDataKey(dataKeys);
+    setSelectedOption(selectedOptions);
+
+    setTimeout(() => setSelectionComplete(true), 0);
   };
 
   const buildOptions = () => {
@@ -664,7 +676,7 @@ function Strategy() {
               type="monotone"
               key={currDataKey}
               dataKey={currDataKey}
-              stroke="#8884d8"
+              stroke={lineColors[dataKey.indexOf(currDataKey) % 6]}
               dot={false}
             />
           ))}
