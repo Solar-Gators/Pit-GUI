@@ -43,17 +43,17 @@ function Strategy() {
   >([]);
   const [telemetryType, setTelemetryType] = useState(localGraph["type"] ?? []);
   const [messageNumber, setMessageNumber] = useState(
-    localGraph["number"] ?? []
+    localGraph["number"] ?? [],
   );
   const [dataKey, setDataKey] = useState(localGraph["key"] ?? []);
   const [startTime, setStartTime] = useState(
-    localGraph["start"] ?? "2023-04-16 12:00"
+    localGraph["start"] ?? "2023-04-16 12:00",
   );
   const [endTime, setEndTime] = useState(
-    localGraph["end"] ?? "2023-04-16 12:10"
+    localGraph["end"] ?? "2023-04-16 12:10",
   );
   const autoUpdate = JSON.parse(
-    localStorage.getItem("toggleAutoUpdate") ?? "true"
+    localStorage.getItem("toggleAutoUpdate") ?? "true",
   );
   const [regStartTime, setRegStartTime] = useState("2023-04-16 12:00");
   const [regEndTime, setRegEndTime] = useState("2023-04-16 12:10");
@@ -78,7 +78,7 @@ function Strategy() {
         value: combinedString,
         label: combinedString,
       };
-    })
+    }),
   );
   const [rawData, setRawData] = useState<any[]>([]);
   const [rawData2, setRawData2] = useState<any[]>([]);
@@ -94,6 +94,14 @@ function Strategy() {
     "#4D8888",
   ]);
   var statIsUpdated = [false];
+
+  //useEffect(() => {
+  //  console.log(dataKey);
+  //}, [dataKey]);
+  //
+  //useEffect(() => {
+  //  console.log(data);
+  //}, [data]);
 
   async function fetchData(statIndex: number) {
     if (
@@ -138,7 +146,7 @@ function Strategy() {
             $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           },
-        }
+        },
       );
     } else {
       result = await getAllModuleItem(
@@ -150,7 +158,7 @@ function Strategy() {
             $gte: moment(startTime).utc().format("YYYY-MM-DD HH:mm"),
             $lte: moment(endTime).utc().format("YYYY-MM-DD HH:mm"),
           },
-        }
+        },
       );
     }
     setRawData2(result2);
@@ -170,7 +178,8 @@ function Strategy() {
 
     if (
       !localStorage.getItem("username")?.trim() ||
-      !localStorage.getItem("password")?.trim()
+      !localStorage.getItem("password")?.trim() ||
+      !dataKey[latestStatChange]
     )
       return;
 
@@ -206,7 +215,7 @@ function Strategy() {
         "battVoltage",
         response2,
         "motorCurrentPkAvg",
-        dataKey
+        dataKey,
       );
     } else {
       toTransform = response;
@@ -223,19 +232,19 @@ function Strategy() {
         .map((dataPoint) => ({
           ...dataPoint,
           dateStamp: Math.floor(
-            new Date(dataPoint["createdAt"]).getTime() / granularityMs
+            new Date(dataPoint["createdAt"]).getTime() / granularityMs,
           ),
         }))
         .filter(
           (dataPoint) =>
             dataPoint[dataKey[latestStatChange]] >= minTrimVal &&
-            dataPoint[dataKey[latestStatChange]] <= maxTrimVal
+            dataPoint[dataKey[latestStatChange]] <= maxTrimVal,
         );
     } else {
       filteredResponseTemp = toTransform.map((dataPoint) => ({
         ...dataPoint,
         dateStamp: Math.floor(
-          new Date(dataPoint["createdAt"]).getTime() / granularityMs
+          new Date(dataPoint["createdAt"]).getTime() / granularityMs,
         ),
       }));
     }
@@ -243,14 +252,14 @@ function Strategy() {
     const filteredResponse = filteredResponseTemp.reduce(
       (accumulator, currentValue) => {
         const duplicateDateStamp = accumulator.find(
-          (item) => item.dateStamp === currentValue.dateStamp
+          (item) => item.dateStamp === currentValue.dateStamp,
         );
         if (!duplicateDateStamp) {
           accumulator.push(currentValue);
         }
         return accumulator;
       },
-      []
+      [],
     );
 
     let sum = 0;
@@ -281,14 +290,15 @@ function Strategy() {
 
     try {
       startTimestamp = new Date(
-        filteredResponse[0]["dateStamp"] * granularityMs
+        filteredResponse[0]["dateStamp"] * granularityMs,
       ).getTime();
     } catch {
       return;
     }
 
     const endTimestamp = new Date(
-      filteredResponse[filteredResponse.length - 1]["dateStamp"] * granularityMs
+      filteredResponse[filteredResponse.length - 1]["dateStamp"] *
+        granularityMs,
     ).getTime();
 
     const givenTimespan = endTimestamp - startTimestamp;
@@ -306,12 +316,12 @@ function Strategy() {
 
     const regStartStamp = Math.max(
       oldRegStartStamp,
-      (startTimestamp + 3600000) / granularityMs
+      (startTimestamp + 3600000) / granularityMs,
     );
 
     const regEndStamp = Math.min(
       oldRegEndStamp,
-      (endTimestamp + 3600000) / granularityMs
+      (endTimestamp + 3600000) / granularityMs,
     );
 
     let filteredRegResponse;
@@ -320,18 +330,18 @@ function Strategy() {
       filteredRegResponse = filteredResponse.filter(
         (dataPoint) =>
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
-          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs
+          dataPoint["dateStamp"] <= regEndStamp - 3600000 / granularityMs,
       );
     } else {
       filteredRegResponse = filteredResponse;
     }
 
     const regXValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint["dateStamp"]
+      (dataPoint) => dataPoint["dateStamp"],
     );
 
     const regYValues = filteredRegResponse.map(
-      (dataPoint) => dataPoint[dataKey[latestStatChange]]
+      (dataPoint) => dataPoint[dataKey[latestStatChange]],
     );
 
     const lastValue =
@@ -358,7 +368,7 @@ function Strategy() {
 
     let scaledXAxis = Array.from(
       { length: xValues.length * toExtrapolate },
-      (_, i) => i
+      (_, i) => i,
     );
 
     const xValGap =
@@ -398,7 +408,7 @@ function Strategy() {
 
     if (toExtrapolate > 1) {
       setDerivedRegressionEnd(
-        extendedRegression[extendedRegression.length - 1]["regression"]
+        extendedRegression[extendedRegression.length - 1]["regression"],
       );
     } else {
       setDerivedRegressionEnd(0);
@@ -410,7 +420,7 @@ function Strategy() {
       finalAddition = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs
+          dataPoint["dateStamp"] * granularityMs,
         ).toISOString(),
         regRange:
           dataPoint["dateStamp"] >= regStartStamp - 3600000 / granularityMs &&
@@ -422,7 +432,7 @@ function Strategy() {
       finalAddition = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
-          dataPoint["dateStamp"] * granularityMs
+          dataPoint["dateStamp"] * granularityMs,
         ).toISOString(),
       }));
     }
@@ -431,10 +441,18 @@ function Strategy() {
     if (data.length == 0) {
       setData(finalAddition);
     } else {
-      for (let i = 0; i < data.length; i++) {
-        let dataPoint = data[i];
-        dataPoint[dataKey[latestStatChange]] =
-          finalAddition[i][dataKey[latestStatChange]];
+      for (let i = 0; i < Math.max(data.length, finalAddition.length); i++) {
+        let dataPoint;
+        if (i < data.length) {
+          dataPoint = data[i];
+          if (i < finalAddition.length) {
+            dataPoint[dataKey[latestStatChange]] =
+              finalAddition[i][dataKey[latestStatChange]];
+          }
+        } else {
+          dataPoint = finalAddition[i];
+        }
+
         finalToGraph.push(dataPoint);
       }
       setData(finalToGraph);
@@ -485,7 +503,7 @@ function Strategy() {
 
     if (actionMeta.option) {
       const changedIndex = selectedOptions.findIndex(
-        (option) => option.value === actionMeta.option.value
+        (option) => option.value === actionMeta.option.value,
       );
       setLatestStatChange(changedIndex);
     } else {
@@ -809,7 +827,7 @@ function Strategy() {
               defaultValue={granularityMs}
               onBlur={(event) =>
                 setGranularityMs(
-                  parseInt((event.target as HTMLInputElement).value)
+                  parseInt((event.target as HTMLInputElement).value),
                 )
               }
               onFocus={(event) => event.target.select()}
@@ -837,7 +855,7 @@ function Strategy() {
                 onFocus={(event) => event.target.select()}
                 onBlur={(event) =>
                   setMaxTrimVal(
-                    parseInt((event.target as HTMLInputElement).value)
+                    parseInt((event.target as HTMLInputElement).value),
                   )
                 }
                 onKeyDown={(event) => {
@@ -864,7 +882,7 @@ function Strategy() {
                 defaultValue={minTrimVal}
                 onBlur={(event) =>
                   setMinTrimVal(
-                    parseInt((event.target as HTMLInputElement).value)
+                    parseInt((event.target as HTMLInputElement).value),
                   )
                 }
                 onFocus={(event) => event.target.select()}
