@@ -400,10 +400,10 @@ function Strategy() {
       setDerivedRegressionEnd(0);
     }
 
-    let finalToGraph;
+    let finalAddition;
 
     if (useRegressionRange) {
-      finalToGraph = extendedRegression.map((dataPoint) => ({
+      finalAddition = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
           dataPoint["dateStamp"] * granularityMs
@@ -415,7 +415,7 @@ function Strategy() {
             : null,
       }));
     } else {
-      finalToGraph = extendedRegression.map((dataPoint) => ({
+      finalAddition = extendedRegression.map((dataPoint) => ({
         ...dataPoint,
         createdAt: new Date(
           dataPoint["dateStamp"] * granularityMs
@@ -423,8 +423,21 @@ function Strategy() {
       }));
     }
 
-    setData((prevData) => [...prevData, ...finalToGraph]);
-    setIsPressed(false);
+    let finalToGraph: any[] = [];
+    if (latestStatChange == 0) {
+      setData(finalAddition);
+    } else {
+      for (let i = 0; i < data.length; i++) {
+        let dataPoint = data[i];
+        dataPoint[dataKey[latestStatChange]] =
+          finalAddition[i][dataKey[latestStatChange]];
+        finalToGraph.push(dataPoint);
+      }
+
+      setData(finalToGraph);
+
+      setIsPressed(false);
+    }
   }
 
   // if no searchParams, autpopulate with latest data
