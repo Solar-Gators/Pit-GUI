@@ -212,6 +212,10 @@ function Strategy() {
       toTransform = response;
     }
 
+    if (toTransform.length <= 1) {
+      return;
+    }
+
     let filteredResponseTemp;
 
     if (useTrim) {
@@ -424,7 +428,7 @@ function Strategy() {
     }
 
     let finalToGraph: any[] = [];
-    if (latestStatChange == 0) {
+    if (data.length == 0) {
       setData(finalAddition);
     } else {
       for (let i = 0; i < data.length; i++) {
@@ -433,11 +437,9 @@ function Strategy() {
           finalAddition[i][dataKey[latestStatChange]];
         finalToGraph.push(dataPoint);
       }
-
       setData(finalToGraph);
-
-      setIsPressed(false);
     }
+    setIsPressed(false);
   }
 
   // if no searchParams, autpopulate with latest data
