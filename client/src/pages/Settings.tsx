@@ -8,7 +8,15 @@ const SETTINGS_CONFIG = {
     label: "Graph Auto Update",
     tooltipText:
       "When enabled, the Strategy graph will update automatically when changing a parameter. When disabled, the Strategy graph will only update when the Go button is pressed.",
-    defaultValue: true, // Added default value
+    defaultValue: true,
+  },
+
+  multiAxis: {
+    key: "toggleMultiAxis",
+    label: "Multiple Axis",
+    tooltipText:
+      "When enabled, the Strategy graph will render a new y-axis for each statistic. When disabled, the Strategy graph will render all statistics on the same y-axis.",
+    defaultValue: true,
   },
 };
 

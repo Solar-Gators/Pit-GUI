@@ -688,6 +688,7 @@ function Strategy() {
             dataKey="createdAt"
             tickFormatter={(value) => moment.utc(value).local().format("HH:mm")}
           />
+          {}
           <YAxis
             label={{
               value:
@@ -827,7 +828,7 @@ function Strategy() {
               defaultValue={granularityMs}
               onBlur={(event) =>
                 setGranularityMs(
-                  parseInt((event.target as HTMLInputElement).value),
+                  parseInt((event.target as HTMLInputElement).value)
                 )
               }
               onFocus={(event) => event.target.select()}
@@ -855,7 +856,7 @@ function Strategy() {
                 onFocus={(event) => event.target.select()}
                 onBlur={(event) =>
                   setMaxTrimVal(
-                    parseInt((event.target as HTMLInputElement).value),
+                    parseInt((event.target as HTMLInputElement).value)
                   )
                 }
                 onKeyDown={(event) => {
@@ -882,7 +883,7 @@ function Strategy() {
                 defaultValue={minTrimVal}
                 onBlur={(event) =>
                   setMinTrimVal(
-                    parseInt((event.target as HTMLInputElement).value),
+                    parseInt((event.target as HTMLInputElement).value)
                   )
                 }
                 onFocus={(event) => event.target.select()}
