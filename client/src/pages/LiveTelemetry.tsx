@@ -11,7 +11,6 @@ import TelemetryCAN from "../component/TelemetryCan";
 import Nav from "react-bootstrap/Nav";
 import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import Label from "../component/Label";
-import { stateOfCharge } from "./Strategy";
 import { powerBoardShape } from "../component/PowerBoard";
 
 function LiveTelemetry() {
@@ -153,12 +152,6 @@ function LiveTelemetry() {
             totalArrayPower
           }
           unit="W"
-        />
-        <Label label="Custom SOC" value={stateOfCharge(packVoltage)} unit="%" />
-        <Label
-          label="High Cell Temp"
-          value={data?.bms?.rx1?.high_temp_}
-          unit="C"
         />
       </Row>
       <Row>
