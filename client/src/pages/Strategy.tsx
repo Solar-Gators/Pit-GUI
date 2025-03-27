@@ -24,6 +24,9 @@ import * as telemetry from "../shared/sdk/telemetry";
 
 function Strategy() {
   const [data, setData] = useState<any[]>([]);
+  const [minimum, setMinimum] = useState(0);
+  const [maximum, setMaximum] = useState(0);
+  const [mean, setMean] = useState(0);
 
   async function fetchData() {
     let initPull = getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
@@ -34,8 +37,23 @@ function Strategy() {
     }).then((initPull) => {
       let trimData = initPull.filter((_, index) => index % 55 == 0) as any[];
 
-      console.log(trimData);
       setData(trimData);
+
+      let min = trimData[0].pack_sum_volt_;
+      let max = trimData[0].pack_sum_volt_;
+      let total = 0;
+      for (let i = 0; i < trimData.length; i++) {
+        if (trimData[i].pack_sum_volt_ < min) {
+          min = trimData[i].pack_sum_volt_;
+        }
+        if (trimData[i].pack_sum_volt_ > max) {
+          max = trimData[i].pack_sum_volt_;
+        }
+        total += trimData[i].pack_sum_volt_;
+      }
+      setMean(total / trimData.length);
+      setMinimum(min);
+      setMaximum(max);
     });
   }
 
@@ -76,13 +94,13 @@ function Strategy() {
         </LineChart>
       </ResponsiveContainer>
       <div>
-        <h6 className="form-label">Maximum:</h6>
+        <h6 className="form-label">Maximum: {maximum} </h6>
       </div>
       <div>
-        <h6 className="form-label">Minimum:</h6>
+        <h6 className="form-label">Minimum: {minimum} </h6>
       </div>
       <div>
-        <h6 className="form-label">Average:</h6>
+        <h6 className="form-label">Average: {mean}</h6>
       </div>
     </div>
   );
