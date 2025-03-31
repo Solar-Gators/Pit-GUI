@@ -24,6 +24,7 @@ import * as telemetry from "../shared/sdk/telemetry";
 
 function Strategy() {
   const [data, setData] = useState<any[]>([]);
+  const [fullData, setFullData] = useState<telemetry.DataResponse>();
   const [dataPointCount, setDataPointCount] = useState(1000);
   const [minimum, setMinimum] = useState(0);
   const [maximum, setMaximum] = useState(0);
@@ -69,13 +70,25 @@ function Strategy() {
   }
 
   useEffect(() => {
-    if (data.length == 0) {
-      fetchData();
-    }
-  }, [data]);
+    fetchData();
+
+    telemetry.getAll().then((response) => {
+      setFullData(response);
+    });
+  }, []);
+
+  const options = [
+    { value: "option1", label: "Option 1" },
+    { value: "option2", label: "Option 2" },
+    { value: "option3", label: "Option 3" },
+  ];
+
+  console.log(fullData);
 
   return (
     <div>
+      <Select options={options}></Select>
+
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           width={500}
