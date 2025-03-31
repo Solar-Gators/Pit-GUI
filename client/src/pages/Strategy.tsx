@@ -24,9 +24,17 @@ import * as telemetry from "../shared/sdk/telemetry";
 
 function Strategy() {
   const [data, setData] = useState<any[]>([]);
+  const [dataPointCount, setDataPointCount] = useState(500);
   const [minimum, setMinimum] = useState(0);
   const [maximum, setMaximum] = useState(0);
   const [mean, setMean] = useState(0);
+
+  const allShape = {
+    bms: bmsShape,
+    mitsuba: mitsubaShape,
+    mppt: mpptShape,
+    calculated: calculatedShape,
+  };
 
   async function fetchData() {
     let initPull = getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
@@ -35,7 +43,9 @@ function Strategy() {
         $lte: "2024-07-2 18:00",
       },
     }).then((initPull) => {
-      let trimData = initPull.filter((_, index) => index % 55 == 0) as any[];
+      let trimData = initPull.filter(
+        (_, index) => index % Math.round(initPull.length / dataPointCount) == 0
+      ) as any[];
 
       setData(trimData);
 
@@ -63,8 +73,25 @@ function Strategy() {
     }
   }, [data]);
 
+  const buildOptions = () => {
+    let options: { value: string; label: string }[] = [];
+    Object.keys(allShape).forEach((type) => {
+      Object.keys(allShape[type].data).forEach((num) => {
+        Object.keys(allShape[type].data[num]).forEach((key) => {
+          const value = `${type}.${num}.${key}`;
+          options.push({ value, label: value });
+        });
+      });
+    });
+    return options;
+  };
+
+  const handleSelectChange = (selectedOption) => {};
+
   return (
     <div>
+      <Select options={buildOptions() as any}></Select>
+      <Row></Row>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           width={500}
@@ -89,7 +116,8 @@ function Strategy() {
             dataKey="pack_sum_volt_"
             stroke="#8884d8"
             data={data}
-            activeDot={{ r: 8 }}
+            activeDot={{ r: 3 }}
+            dot={false}
           />
         </LineChart>
       </ResponsiveContainer>
