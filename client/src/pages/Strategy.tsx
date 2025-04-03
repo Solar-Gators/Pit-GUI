@@ -11,7 +11,12 @@ import {
   ReferenceLine,
 } from "recharts";
 import { Row, Col, Form, Button, Spinner } from "react-bootstrap";
-import { getAllModuleItem, WHEEL_RADIUS_MI } from "../shared/sdk/telemetry";
+import {
+  getAllModuleItem,
+  getAllModule,
+  getAll,
+  WHEEL_RADIUS_MI,
+} from "../shared/sdk/telemetry";
 import { bmsShape } from "../component/BMS";
 import { mitsubaShape } from "../component/Mitsuba";
 import { mpptShape } from "../component/MPPT";
@@ -29,6 +34,18 @@ function Strategy() {
   const [maximum, setMaximum] = useState(0);
   const [mean, setMean] = useState(0);
 
+  const [key1, setKey1] = useState("");
+  const [key2, setKey2] = useState("");
+  const [key3, setKey3] = useState("");
+
+  const [option1, setOption1] = useState("");
+  const [option2, setOption2] = useState("");
+  const [option3, setOption3] = useState("");
+
+  const [dictionary, setDictionary] = useState([] as any);
+  const [selectOptions2, setSelectOptions2] = useState([] as any);
+  const [selectOptions3, setSelectOptions3] = useState([] as any);
+
   async function fetchData() {
     getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
       createdAt: {
@@ -38,7 +55,7 @@ function Strategy() {
     }).then((initPull) => {
       let trimData;
 
-      if (initPull.length < dataPointCount) {
+      if (initPull.length <= dataPointCount) {
         trimData = initPull;
       } else {
         trimData = initPull.filter(
@@ -46,7 +63,6 @@ function Strategy() {
             index % Math.round(initPull.length / dataPointCount) == 0
         ) as any[];
       }
-      console.log(trimData.length);
 
       setData(trimData);
 
@@ -69,13 +85,82 @@ function Strategy() {
   }
 
   useEffect(() => {
-    if (data.length == 0) {
-      fetchData();
+    fetchData();
+  }, []);
+
+  getAll().then((output) => {
+    setDictionary(output);
+  });
+
+  const selectOptions1 = () => {
+    let options: { value: string; label: string }[] = [];
+
+    Object.keys(dictionary).forEach((key) => {
+      options.push({ value: key, label: key });
+    });
+    return options;
+  };
+
+  const handleSelectChange1 = (option1) => {
+    if (key1 != option1) {
+      setKey2("");
+      setKey3("");
+      setKey1(option1);
+
+      let options: { value: string; label: string }[] = [];
+
+      Object.keys(dictionary[option1.value]).forEach((key) => {
+        options.push({ value: key, label: key });
+      });
+
+      setSelectOptions2(options);
     }
-  }, [data]);
+  };
+
+  const handleSelectChange2 = (option2) => {
+    if (key2 != option2) {
+      setKey3("");
+      setKey2(option2);
+
+      let options: { value: string; label: string }[] = [];
+
+      Object.keys(dictionary[key1["value"]][option2.value]).forEach((key) => {
+        options.push({ value: key, label: key });
+      });
+
+      setSelectOptions3(options);
+    }
+  };
+
+  const handleSelectChange3 = (option3) => {
+    setKey3(option3);
+  };
 
   return (
     <div>
+      <Select
+        value={key1}
+        options={selectOptions1() as any}
+        onChange={handleSelectChange1}
+      ></Select>
+      <br></br>
+      {key1 != "" && (
+        <Select
+          value={key2}
+          options={selectOptions2 as any}
+          onChange={handleSelectChange2}
+        ></Select>
+      )}
+      <br></br>
+      {key2 != "" && (
+        <Select
+          value={key3}
+          options={selectOptions3 as any}
+          onChange={handleSelectChange3}
+        ></Select>
+      )}
+
+      <br></br>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           width={500}
