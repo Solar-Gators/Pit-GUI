@@ -21,6 +21,7 @@ import { SimpleLinearRegression } from "ml-regression";
 import { useSearchParams } from "react-router-dom";
 import Select from "react-select";
 import * as telemetry from "../shared/sdk/telemetry";
+import { validateHeaderValue } from "http";
 
 function Strategy() {
   const [data, setData] = useState<any[]>([]);
@@ -47,8 +48,6 @@ function Strategy() {
             index % Math.round(initPull.length / dataPointCount) == 0
         ) as any[];
       }
-      console.log(trimData.length);
-
       setData(trimData);
 
       let min = trimData[0].pack_sum_volt_;
@@ -76,59 +75,111 @@ function Strategy() {
       setFullData(response);
     });
   }, []);
-
-  const options = [
-    { value: "option1", label: "Option 1" },
-    { value: "option2", label: "Option 2" },
-    { value: "option3", label: "Option 3" },
-  ];
-
+  const [choice1, setChoice1] = useState<string | null>(null);
+  const [choice2, setChoice2] = useState<string | null>(null);
+  const [choice3, setChoice3] = useState<string | null>(null);
+  const [options1, setOptions1] = useState<any>(null);
+  const [options2, setOptions2] = useState<any>(null);
+  const [options3, setOptions3] = useState<any>(null);
   console.log(fullData);
+  function update(choice, options, setFn) {
+    let fatDict;
 
-  return (
-    <div>
-      <Select options={options}></Select>
+    if (options == null) return;
 
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart
-          width={500}
-          height={300}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="createdAt"
-            tickFormatter={(value) => moment.utc(value).local().format("HH:mm")}
-          />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="pack_sum_volt_"
-            stroke="#8884d8"
-            data={data}
-            activeDot={{ r: 3 }}
-            dot={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    if (choice == null) {
+      fatDict = options;
+    } else {
+      if (choice == undefined) return;
+      // iterate through options
+      // check if current element has label == choice
+      // for the one that does, set fatDict = to the current_element.value
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].label === choice) {
+          fatDict = options[i].value;
+        }
+      }
+    }
+    let newOptions: any = [];
+    Object.entries(fatDict).map(([key, dictValue]) => {
+      let element = { label: key, value: dictValue };
+      console.log(element);
+
+      newOptions.push(element);
+    });
+
+    setFn(newOptions);
+  }
+  // First useEffect --> null is passed as choice (b/c it's the first), then fullData is passed as options, then setOptions1 is passed to change options for the
+  useEffect(() => {
+    update(null, fullData, setOptions1);
+  }, [fullData]);
+  useEffect(() => {
+    update(choice1, options1, setOptions2);
+  }, [choice1]);
+  useEffect(() => {
+    update(choice2, options2, setOptions3);
+  }, [choice2]);
+
+  return fullData == undefined ? (
+    <div>Loading...</div>
+  ) : (
+    <>
+      <Select
+        options={options1}
+        onChange={(choice_select1) => setChoice1(choice_select1?.label)}
+      />
+      <Select
+        options={options2}
+        onChange={(choice_select2) => setChoice2(choice_select2?.label)}
+      />
+      <Select
+        options={options3}
+        onChange={(choice_select3) => setChoice3(choice_select3?.label)}
+      />
       <div>
-        <h6 className="form-label">Maximum: {maximum} </h6>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            width={500}
+            height={300}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="createdAt"
+              tickFormatter={(value) =>
+                moment.utc(value).local().format("HH:mm")
+              }
+            />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="pack_sum_volt_"
+              stroke="#8884d8"
+              data={data}
+              activeDot={{ r: 3 }}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+        <div>
+          <h6 className="form-label">Maximum: {maximum} </h6>
+        </div>
+        <div>
+          <h6 className="form-label">Minimum: {minimum} </h6>
+        </div>
+        <div>
+          <h6 className="form-label">Average: {mean}</h6>
+        </div>
       </div>
-      <div>
-        <h6 className="form-label">Minimum: {minimum} </h6>
-      </div>
-      <div>
-        <h6 className="form-label">Average: {mean}</h6>
-      </div>
-    </div>
+    </>
   );
 }
-
 export default Strategy;
