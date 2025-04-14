@@ -111,8 +111,6 @@ function Strategy() {
       newOptions.push(element);
     });
 
-    console.log(newOptions);
-
     setFn(newOptions);
   }
   // First useEffect --> null is passed as choice (b/c it's the first), then fullData is passed as options, then setOptions1 is passed to change options for the
@@ -121,12 +119,18 @@ function Strategy() {
   }, [fullData]);
 
   useEffect(() => {
-    update(choice1, options1, setOptions2);
+    if (choice1) {
+      update(choice1, options1, setOptions2);
+    }
     setChoice2(null);
+    setOptions3(null);
   }, [choice1]);
   useEffect(() => {
-    update(choice2, options2, setOptions3);
+    if (choice2) {
+      update(choice2, options2, setOptions3);
+    }
     setChoice3(null);
+    setOptions4(null);
   }, [choice2]);
   useEffect(() => {
     fetchData();
