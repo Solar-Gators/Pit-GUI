@@ -32,12 +32,15 @@ function Strategy() {
   const [mean, setMean] = useState(0);
 
   async function fetchData() {
-    getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
+    if (!choice1 || !choice2 || !choice3) return;
+
+    getAllModuleItem(choice1 as any, choice2, choice3, {
       createdAt: {
         $gte: "2023-06-30 06:00",
         $lte: "2024-07-2 18:00",
       },
     }).then((initPull) => {
+      console.log(initPull);
       let trimData;
 
       if (initPull.length < dataPointCount) {
@@ -45,7 +48,7 @@ function Strategy() {
       } else {
         trimData = initPull.filter(
           (_, index) =>
-            index % Math.round(initPull.length / dataPointCount) == 0
+            index % Math.round(initPull.length / dataPointCount) == 0,
         ) as any[];
       }
       setData(trimData);
@@ -69,8 +72,6 @@ function Strategy() {
   }
 
   useEffect(() => {
-    fetchData();
-
     telemetry.getAll().then((response) => {
       setFullData(response);
     });
@@ -78,10 +79,11 @@ function Strategy() {
   const [choice1, setChoice1] = useState<string | null>(null);
   const [choice2, setChoice2] = useState<string | null>(null);
   const [choice3, setChoice3] = useState<string | null>(null);
+  const [choice4, setChoice4] = useState<string | null>(null);
   const [options1, setOptions1] = useState<any>(null);
   const [options2, setOptions2] = useState<any>(null);
   const [options3, setOptions3] = useState<any>(null);
-  console.log(fullData);
+  const [options4, setOptions4] = useState<any>(null);
   function update(choice, options, setFn) {
     let fatDict;
 
@@ -100,13 +102,16 @@ function Strategy() {
         }
       }
     }
+    if (fatDict == null) return;
+
     let newOptions: any = [];
     Object.entries(fatDict).map(([key, dictValue]) => {
       let element = { label: key, value: dictValue };
-      console.log(element);
 
       newOptions.push(element);
     });
+
+    console.log(newOptions);
 
     setFn(newOptions);
   }
@@ -114,12 +119,20 @@ function Strategy() {
   useEffect(() => {
     update(null, fullData, setOptions1);
   }, [fullData]);
+
   useEffect(() => {
     update(choice1, options1, setOptions2);
+    setChoice2(null);
   }, [choice1]);
   useEffect(() => {
     update(choice2, options2, setOptions3);
+    setChoice3(null);
   }, [choice2]);
+  useEffect(() => {
+    fetchData();
+    setChoice4(null);
+    //update(choice3, options3, setOptions4);
+  }, [choice3]);
 
   return fullData == undefined ? (
     <div>Loading...</div>
@@ -127,16 +140,30 @@ function Strategy() {
     <>
       <Select
         options={options1}
+        value={!choice1 ? null : { label: choice1, value: choice1 }}
         onChange={(choice_select1) => setChoice1(choice_select1?.label)}
       />
-      <Select
-        options={options2}
-        onChange={(choice_select2) => setChoice2(choice_select2?.label)}
-      />
-      <Select
-        options={options3}
-        onChange={(choice_select3) => setChoice3(choice_select3?.label)}
-      />
+      {options2 && (
+        <Select
+          options={options2}
+          value={!choice2 ? null : { label: choice2, value: choice2 }}
+          onChange={(choice_select2) => setChoice2(choice_select2?.label)}
+        />
+      )}
+      {options3 && (
+        <Select
+          options={options3}
+          value={!choice3 ? null : { label: choice3, value: choice3 }}
+          onChange={(choice_select3) => setChoice3(choice_select3?.label)}
+        />
+      )}
+      {options4 && (
+        <Select
+          options={options4}
+          value={!choice4 ? null : { label: choice4, value: choice4 }}
+          onChange={(choice_select4) => setChoice4(choice_select4?.label)}
+        />
+      )}
       <div>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart
@@ -161,7 +188,7 @@ function Strategy() {
             <Legend />
             <Line
               type="monotone"
-              dataKey="pack_sum_volt_"
+              dataKey={choice3 as string}
               stroke="#8884d8"
               data={data}
               activeDot={{ r: 3 }}
