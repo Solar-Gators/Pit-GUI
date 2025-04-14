@@ -34,20 +34,16 @@ function Strategy() {
   const [maximum, setMaximum] = useState(0);
   const [mean, setMean] = useState(0);
 
-  const [key1, setKey1] = useState("");
-  const [key2, setKey2] = useState("");
-  const [key3, setKey3] = useState("");
-
-  const [option1, setOption1] = useState("");
-  const [option2, setOption2] = useState("");
-  const [option3, setOption3] = useState("");
+  const [key1, setKey1] = useState("") as any;
+  const [key2, setKey2] = useState("") as any;
+  const [key3, setKey3] = useState("") as any;
 
   const [dictionary, setDictionary] = useState([] as any);
   const [selectOptions2, setSelectOptions2] = useState([] as any);
   const [selectOptions3, setSelectOptions3] = useState([] as any);
 
   async function fetchData() {
-    getAllModuleItem("bms" as any, "rx0", "pack_sum_volt_", {
+    getAllModuleItem(key1.value as any, key2.value, key3.value, {
       createdAt: {
         $gte: "2023-06-30 06:00",
         $lte: "2024-07-2 18:00",
@@ -86,7 +82,7 @@ function Strategy() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [key3]);
 
   getAll().then((output) => {
     setDictionary(output);
@@ -144,7 +140,7 @@ function Strategy() {
         onChange={handleSelectChange1}
       ></Select>
       <br></br>
-      {key1 != "" && (
+      {key1 && (
         <Select
           value={key2}
           options={selectOptions2 as any}
@@ -152,7 +148,7 @@ function Strategy() {
         ></Select>
       )}
       <br></br>
-      {key2 != "" && (
+      {key2 && (
         <Select
           value={key3}
           options={selectOptions3 as any}
@@ -182,7 +178,7 @@ function Strategy() {
           <Legend />
           <Line
             type="monotone"
-            dataKey="pack_sum_volt_"
+            dataKey={key3.value}
             stroke="#8884d8"
             data={data}
             activeDot={{ r: 3 }}
