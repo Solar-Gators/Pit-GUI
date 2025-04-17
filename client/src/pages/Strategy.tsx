@@ -87,12 +87,11 @@ function Strategy() {
   function update(choice, options, setFn) {
     let fatDict;
 
-    if (options == null) return;
+    if (!options) return;
 
     if (choice == null) {
       fatDict = options;
     } else {
-      if (choice == undefined) return;
       // iterate through options
       // check if current element has label == choice
       // for the one that does, set fatDict = to the current_element.value
@@ -102,7 +101,7 @@ function Strategy() {
         }
       }
     }
-    if (fatDict == null) return;
+    if (!fatDict) return;
 
     let newOptions: any = [];
     Object.entries(fatDict).map(([key, dictValue]) => {
